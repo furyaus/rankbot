@@ -3,7 +3,7 @@ PUBG Rank Bot
 
 The 101-club Discord - <https://discord.gg/2vDWqw9shM>
 
-https://github.com/furyaus/rankbot/blob/main/bot_logo.png?raw=true
+![alt text](https://github.com/furyaus/rankbot/blob/main/bot_logo.png?raw=true)
 
 Project Definition:
 The 101-club discord would like a bot that can auto assign roles based on the PUBG in game ranked level. These need to be customisable so that the names can be changed. They need to auto update roughly every 15mins. 
