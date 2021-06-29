@@ -1,4 +1,4 @@
-# rankbot
+# Rank Bot
 PUBG Rank Bot
 
 The 101-club Discord - <https://discord.gg/2vDWqw9shM>
