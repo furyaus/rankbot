@@ -472,7 +472,7 @@ async def updateEveryone(ctx):
                     #Update the rank in the server list
                     if server_list[str(member.id)]['Aries'] == 1:
                         server_list[curr_user]['Aries'] = 0
-                        await member.remove_roles(role)     
+                        await member.remo9ve_roles(role)     
                     
                     if server_list[str(member.id)]['Zeus'] == 1:
                         server_list[curr_user]['Zeus'] = 0
