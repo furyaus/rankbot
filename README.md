@@ -1,0 +1,2 @@
+# rankbot
+PUBG Rank Bot
