@@ -9,7 +9,7 @@ The 101-club discord would like a bot that can auto assign roles based on the PU
 Further development would be around reporting stats to a channel on demand as well as leader board regular postings to a specific channel.
 
 Project Approach:
-Previous python code can be provided for a bot which worked last year. This template will make this project relatively straight forward. We have PUBG API access so pull the stats is quite well documented. 
+Previous python code can be provided for a bot which worked a couple of years ago. This template will make this project a lot easier so many thanks to the original author - Mazun19 from the PUBG community
 
 Project Timelines:
 Expecting that this whole project will be around 6 hours solid work along with testing and refinement. Once project has commenced, need to see a testing phase within 3 days. 

@@ -1,10 +1,11 @@
-
 # RankedBot.py
 # Version: 0.1
 # Date: 29.06.21
+# Current Authors: fury#1662, coopzr#3717, Jobelerno#7978 
 # Github: https://github.com/furyaus/rankbot
 # Repl.it: https://replit.com/@furyaus/rankbot
-# test
+# Original Author: Mazun19 from the PUBG community
+# Original Date: 2019
 
 import discord
 from discord.ext import commands, tasks
