@@ -6,14 +6,13 @@
 # Repl.it: https://replit.com/@furyaus/rankbot
 
 import discord
-import os
-import requests
-import json
-
 from discord.ext import commands, tasks
 from operator import itemgetter
 from discord.utils import get
+import requests
+import json
 import time
+import os
 
 client = commands.Bot(command_prefix = '.')
 client.remove_command('help')
@@ -49,6 +48,7 @@ with open(json_file_path, 'r') as j:
 
 
 server_roles = ["Bronze", "Silver", "Gold", "Platinum", "Diamond", "Master"]
+admin_roles = ["Lil Admins","Admin","Useful Admin"]
 
 no_requests = 0
 curr_key = 0
@@ -416,9 +416,9 @@ async def updateEveryone(ctx):
     curr_header = header
     curr_header["Authorization"] = keys[no_requests%(len(keys))]
     #Check and update everyone's roles and make announcements on promotions and demotions! 
-    id = client.get_guild(180535625034891264)
+    id = client.get_guild(859316578994487306)
     #Rank bot annoucements channel:
-    channel = client.get_channel(652624968642723850)
+    channel = client.get_channel(859316578994487310)
     channel2 = client.get_channel(652462920734605317)
     print('Updating everyones stats and roles')
     #await channel.send("Making daily updates to everyone's roles.....")
@@ -605,9 +605,9 @@ async def updaterole(ctx):
     global no_requests
     curr_header = header
     curr_header["Authorization"] = keys[no_requests%(len(keys))]
-    id = client.get_guild(180535625034891264)
+    id = client.get_guild(859316578994487306)
     #Rank bot annoucements channel:
-    channel = client.get_channel(652624968642723850)
+    channel = client.get_channel(859316578994487310)
     user = ctx.message.author
     user_id = user.id
     if str(user_id) in server_list:
@@ -701,9 +701,9 @@ async def removeuser(ctx,member: discord.Member):
 @commands.has_any_role(admin_roles[0],admin_roles[1],admin_roles[2])   
 async def get_team_killer(ctx):
     await ctx.send('Calculating who should get the team-killer role....')
-    id = client.get_guild(180535625034891264)
+    id = client.get_guild(859316578994487306)
     #Rank bot annoucements channel:
-    channel = client.get_channel(652624968642723850)
+    channel = client.get_channel(859316578994487310)
     maxteamkills = 0
     maxteamkills_user = ''
     current_Team_killer = 'None'
@@ -814,9 +814,9 @@ async def updateStats(ctx):
 @commands.has_any_role(admin_roles[0],admin_roles[1],admin_roles[2])
 async def get_zeus(ctx):
     await ctx.send('Calculating who should get the Zeus role....')
-    id = client.get_guild(180535625034891264)
+    id = client.get_guild(859316578994487306)
     #Rank bot annoucements channel:
-    channel = client.get_channel(652624968642723850)
+    channel = client.get_channel(859316578994487310)
     maxKD = 0
     maxKD_user = ''
     current_zeus = 'None'
@@ -858,9 +858,9 @@ async def get_zeus(ctx):
 @commands.has_any_role(admin_roles[0],admin_roles[1],admin_roles[2])
 async def get_aries(ctx):
     await ctx.send('Calculating who should get the Aries role....')
-    id = client.get_guild(180535625034891264)
+    id = client.get_guild(859316578994487306)
     #Rank bot annoucements channel:
-    channel = client.get_channel(652624968642723850)
+    channel = client.get_channel(859316578994487310)
     maxADR = 0
     maxADR_user = ''
     current_aries = 'None'
@@ -992,7 +992,7 @@ async def top20(ctx):
 
 @client.command()
 async def top20_announce(ctx):
-    channel = client.get_channel(652624968642723850)
+    channel = client.get_channel(859316578994487310)
     new_server_list = sorted(server_list.values(), key=itemgetter('KD'))
     await channel.send('Top 20 Sweaties in this server (with more than 100 games this season):')
     top_20_string = ''
@@ -1017,7 +1017,7 @@ async def top20_announce(ctx):
 @client.command()
 @commands.has_any_role(admin_roles[0],admin_roles[1],admin_roles[2])
 async def reset_everyone(ctx):
-    id = client.get_guild(180535625034891264)
+    id = client.get_guild(859316578994487306)
     try:
         for user in server_list:
             if server_list[user]['Aries'] == 1:
@@ -1107,9 +1107,9 @@ async def updateEverything():
     curr_header = header
     curr_header["Authorization"] = keys[no_requests%(len(keys))]
     #Check and update everyone's roles and make announcements on promotions and demotions! 
-    id = client.get_guild(180535625034891264)
+    id = client.get_guild(859316578994487306)
     #Rank bot annoucements channel:
-    channel = client.get_channel(652624968642723850)
+    channel = client.get_channel(859316578994487310)
     channel2 = client.get_channel(652462920734605317)
     print('Updating everyones stats and roles')
     #Making a request based on 10 players at a time
