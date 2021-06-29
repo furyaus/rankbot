@@ -16,3 +16,5 @@ Expecting that this whole project will be around 6 hours solid work along with t
 
 Project Extension:
 This project could lead to future opportunities within the PUBG scene across the world. 
+
+Bot Invite - https://discord.com/api/oauth2/authorize?client_id=859319806016225310&permissions=268958784&scope=bot
