@@ -4,6 +4,7 @@
 # Date: 29.06.21
 # Github: https://github.com/furyaus/rankbot
 # Repl.it: https://replit.com/@furyaus/rankbot
+# test
 
 import discord
 from discord.ext import commands, tasks
