@@ -266,8 +266,8 @@ async def enlist(ctx,user_IGN):
                     server_list[str(user_id)]['KD'] = round(tru_KD,4)
                     server_list[str(user_id)]['ADR'] = round(season_damage/games_played,2)
                     server_list[str(user_id)]['team_kills'] = team_kills
-                    server_list[str(user_id)]['Aries'] = 0
-                    server_list[str(user_id)]['Zeus'] = 0
+                    server_list[str(user_id)]['Punisher'] = 0
+                    server_list[str(user_id)]['Terminator'] = 0
                     server_list[str(user_id)]['team_killer'] = 0
                     await ctx.send(f'Your in-Game KD is: {round(tru_KD,2)}')
                     await ctx.send(f'Your ADR = {round(season_damage/games_played,2)}')
@@ -293,8 +293,8 @@ async def enlist(ctx,user_IGN):
                     server_list[str(user_id)]['KD'] = round(tru_KD,4)
                     server_list[str(user_id)]['ADR'] = round(season_damage/games_played,2)
                     server_list[str(user_id)]['team_kills'] = team_kills
-                    server_list[str(user_id)]['Aries'] = 0
-                    server_list[str(user_id)]['Zeus'] = 0
+                    server_list[str(user_id)]['Punisher'] = 0
+                    server_list[str(user_id)]['Terminator'] = 0
                     server_list[str(user_id)]['team_killer'] = 0
                     await ctx.send(f'Your in-Game KD is: {round(tru_KD,2)}')
                     await ctx.send(f'Your ADR = {round(season_damage/games_played,2)}')
@@ -333,12 +333,12 @@ async def changeIGN(ctx,member: discord.Member,user_IGN):
                 role = discord.utils.get(ctx.guild.roles, name=curr_rank)
                 await member.remove_roles(role)
 
-            if server_list[str(member.id)]['Aries'] == 1:
-                role = discord.utils.get(ctx.guild.roles, name='Aries')
+            if server_list[str(member.id)]['Punisher'] == 1:
+                role = discord.utils.get(ctx.guild.roles, name='Punisher')
                 await member.remove_roles(role)     
             
-            if server_list[str(member.id)]['Zeus'] == 1:
-                role = discord.utils.get(ctx.guild.roles, name='ZEUS')
+            if server_list[str(member.id)]['Terminator'] == 1:
+                role = discord.utils.get(ctx.guild.roles, name='Terminator')
                 await member.remove_roles(role)
 
             if server_list[str(member.id)]['team_killer'] == 1:
@@ -394,8 +394,8 @@ async def changeIGN(ctx,member: discord.Member,user_IGN):
                 server_list[str(user_id)]['KD'] = round(tru_KD,4)
                 server_list[str(user_id)]['ADR'] = round(season_damage/games_played,2)
                 server_list[str(user_id)]['team_kills'] = team_kills
-                server_list[str(user_id)]['Aries'] = 0
-                server_list[str(user_id)]['Zeus'] = 0
+                server_list[str(user_id)]['Punisher'] = 0
+                server_list[str(user_id)]['Terminator'] = 0
                 server_list[str(user_id)]['team_killer'] = 0
                 await ctx.send(f'Your in-Game KD is: {round(tru_KD,2)}')
                 await ctx.send(f'Your ADR = {round(season_damage/games_played,2)}')
@@ -489,13 +489,13 @@ async def updateEveryone(ctx):
                     server_list[curr_user]['Rank'] = 'Bronze'
                     await member.remove_roles(role)
                     #Update the rank in the server list
-                    if server_list[str(member.id)]['Aries'] == 1:
-                        server_list[curr_user]['Aries'] = 0
+                    if server_list[str(member.id)]['Punisher'] == 1:
+                        server_list[curr_user]['Punisher'] = 0
                         await member.remove_roles(role)     
                     
-                    if server_list[str(member.id)]['Zeus'] == 1:
-                        server_list[curr_user]['Zeus'] = 0
-                        role = discord.utils.get(ctx.guild.roles, name='ZEUS')
+                    if server_list[str(member.id)]['Terminator'] == 1:
+                        server_list[curr_user]['Terminator'] = 0
+                        role = discord.utils.get(ctx.guild.roles, name='Terminator')
                         await member.remove_roles(role)
 
                     with open("edited_server_list.json", "w") as data_file:
@@ -726,7 +726,7 @@ async def get_team_killer(ctx):
         await member.add_roles(role)
         await channel.send(f"""A new DUMBASS role has been assigned to {member.mention}, for the most teamkills this season""")
     elif current_Team_killer == maxteamkills_user:
-        #Zeus hasn't changed
+        #Terminator hasn't changed
         await channel.send("DUMBASS is the same as before!!")
     else:
         #Brand New DUMBASS
@@ -812,90 +812,90 @@ async def updateStats(ctx):
 
 @client.command()
 @commands.has_any_role(admin_roles[0],admin_roles[1],admin_roles[2])
-async def get_zeus(ctx):
-    await ctx.send('Calculating who should get the Zeus role....')
+async def get_Terminator(ctx):
+    await ctx.send('Calculating who should get the Terminator role....')
     id = client.get_guild(859316578994487306)
     #Rank bot annoucements channel:
     channel = client.get_channel(859316578994487310)
     maxKD = 0
     maxKD_user = ''
-    current_zeus = 'None'
-    #Find the current Zeus
+    current_Terminator = 'None'
+    #Find the current Terminator
     for user in server_list:
-        if server_list[user]['Zeus'] == 1:
-            current_zeus = user
+        if server_list[user]['Terminator'] == 1:
+            current_Terminator = user
     
     for user in server_list:
         if (server_list[user]['KD'] > maxKD) and (server_list[user]['Rank'] != "Bronze"):
             maxKD = server_list[user]['KD']
             maxKD_user = user
 
-    server_list[maxKD_user]['Zeus'] = 1
+    server_list[maxKD_user]['Terminator'] = 1
 
-    if current_zeus == 'None':
-        #No Existing Zeus
-        role = discord.utils.get(ctx.guild.roles, name='ZEUS')
+    if current_Terminator == 'None':
+        #No Existing Terminator
+        role = discord.utils.get(ctx.guild.roles, name='Terminator')
         member = discord.utils.get(id.members, id=int(maxKD_user))
         await member.add_roles(role)
-        await channel.send(f"""A new ZEUS role has been assigned to {member.mention}. Congrats!!""")
-    elif current_zeus == maxKD_user:
-        #Zeus hasn't changed
-        await channel.send("ZEUS is the same as before!!")
+        await channel.send(f"""A new Terminator role has been assigned to {member.mention}. Congrats!!""")
+    elif current_Terminator == maxKD_user:
+        #Terminator hasn't changed
+        await channel.send("Terminator is the same as before!!")
     else:
-        #Brand New Zeus
-        role = discord.utils.get(ctx.guild.roles, name='ZEUS')
-        member = discord.utils.get(id.members, id=int(current_zeus))
+        #Brand New Terminator
+        role = discord.utils.get(ctx.guild.roles, name='Terminator')
+        member = discord.utils.get(id.members, id=int(current_Terminator))
         await member.remove_roles(role)
-        server_list[current_zeus]['Zeus'] = 0
+        server_list[current_Terminator]['Terminator'] = 0
         member = discord.utils.get(id.members, id=int(maxKD_user))
         await member.add_roles(role)
-        await channel.send(f"""Previous ZEUS has been replaced by {member.mention}. Congrats!!""")
+        await channel.send(f"""Previous Terminator has been replaced by {member.mention}. Congrats!!""")
 
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
 
 @client.command()
 @commands.has_any_role(admin_roles[0],admin_roles[1],admin_roles[2])
-async def get_aries(ctx):
-    await ctx.send('Calculating who should get the Aries role....')
+async def get_Punisher(ctx):
+    await ctx.send('Calculating who should get the Punisher role....')
     id = client.get_guild(859316578994487306)
     #Rank bot annoucements channel:
     channel = client.get_channel(859316578994487310)
     maxADR = 0
     maxADR_user = ''
-    current_aries = 'None'
+    current_Punisher = 'None'
 
-    #Find the current Aries
+    #Find the current Punisher
     for user in server_list:
-        if server_list[user]['Aries'] == 1:
-            current_aries = user
+        if server_list[user]['Punisher'] == 1:
+            current_Punisher = user
     
     for user in server_list:
         if (server_list[user]['ADR'] > maxADR) and (server_list[user]['Rank'] != "Bronze"):
             maxADR = server_list[user]['ADR']
             maxADR_user = user
 
-    server_list[maxADR_user]['Aries'] = 1
+    server_list[maxADR_user]['Punisher'] = 1
 
-    if current_aries == 'None':
-        #No Existing Aries
-        role = discord.utils.get(ctx.guild.roles, name='Aries')
+    if current_Punisher == 'None':
+        #No Existing Punisher
+        role = discord.utils.get(ctx.guild.roles, name='Punisher')
         member = discord.utils.get(id.members, id=int(maxADR_user))
         await member.add_roles(role)
-        await channel.send(f"""A new Aries role (Highest ADR) has been assigned to {member.mention}. Congrats!!""")
-    elif current_aries == maxADR_user:
-        #Aries hasn't changed
-        print("Aries is the same as before!!")
-        #await channel.send("Aries is the same as before!!")
+        await channel.send(f"""A new Punisher role (Highest ADR) has been assigned to {member.mention}. Congrats!!""")
+    elif current_Punisher == maxADR_user:
+        #Punisher hasn't changed
+        print("Punisher is the same as before!!")
+        #await channel.send("Punisher is the same as before!!")
     else:
-        #Brand New Aries
-        role = discord.utils.get(ctx.guild.roles, name='Aries')
-        member = discord.utils.get(id.members, id=int(current_aries))
+        #Brand New Punisher
+        role = discord.utils.get(ctx.guild.roles, name='Punisher')
+        member = discord.utils.get(id.members, id=int(current_Punisher))
         await member.remove_roles(role)
-        server_list[current_aries]['Aries'] = 0
+        server_list[current_Punisher]['Punisher'] = 0
         member = discord.utils.get(id.members, id=int(maxADR_user))
         await member.add_roles(role)
-        await channel.send(f"""Previous Aries has been replaced by {member.mention}. Congrats!!""")
+        await channel.send(f"""Previous Punisher has been replaced by {member.mention}. Congrats!!""")
         new_server_list = sorted(server_list.values(), key=itemgetter('ADR'))
         await channel.send('Top 5 ADR in this server (with more than 100 games this season):')
         top_5_string = ''
@@ -1020,13 +1020,13 @@ async def reset_everyone(ctx):
     id = client.get_guild(859316578994487306)
     try:
         for user in server_list:
-            if server_list[user]['Aries'] == 1:
-                role = discord.utils.get(ctx.guild.roles, name='Aries')
+            if server_list[user]['Punisher'] == 1:
+                role = discord.utils.get(ctx.guild.roles, name='Punisher')
                 member = discord.utils.get(id.members, id=int(user))
                 await member.remove_roles(role)
             
-            if server_list[user]['Zeus'] == 1:
-                role = discord.utils.get(ctx.guild.roles, name='ZEUS')
+            if server_list[user]['Terminator'] == 1:
+                role = discord.utils.get(ctx.guild.roles, name='Terminator')
                 member = discord.utils.get(id.members, id=int(user))
                 await member.remove_roles(role)
             
@@ -1174,13 +1174,13 @@ async def updateEverything():
                     server_list[curr_user]['Rank'] = 'Bronze'
                     await member.remove_roles(role)
                     #Update the rank in the server list
-                    if server_list[str(member.id)]['Aries'] == 1:
-                        server_list[curr_user]['Aries'] = 0
+                    if server_list[str(member.id)]['Punisher'] == 1:
+                        server_list[curr_user]['Punisher'] = 0
                         await member.remove_roles(role)     
                     
-                    if server_list[str(member.id)]['Zeus'] == 1:
-                        server_list[curr_user]['Zeus'] = 0
-                        role = discord.utils.get(id.roles, name='ZEUS')
+                    if server_list[str(member.id)]['Terminator'] == 1:
+                        server_list[curr_user]['Terminator'] = 0
+                        role = discord.utils.get(id.roles, name='Terminator')
                         await member.remove_roles(role)
 
                     with open("edited_server_list.json", "w") as data_file:
@@ -1274,79 +1274,79 @@ async def updateEverything():
             member = discord.utils.get(id.members, id=int(user))
             await channel.send(f"""{member.mention}""")
 
-    #Update Zeus role
+    #Update Terminator role
     maxKD = 0
     maxKD_user = ''
-    current_zeus = 'None'
-    #Find the current Zeus
+    current_Terminator = 'None'
+    #Find the current Terminator
     for user in server_list:
-        if server_list[user]['Zeus'] == 1:
-            current_zeus = user
+        if server_list[user]['Terminator'] == 1:
+            current_Terminator = user
     
     for user in server_list:
         if (server_list[user]['KD'] > maxKD) and (server_list[user]['Rank'] != "Bronze"):
             maxKD = server_list[user]['KD']
             maxKD_user = user
 
-    server_list[maxKD_user]['Zeus'] = 1
+    server_list[maxKD_user]['Terminator'] = 1
 
-    if current_zeus == 'None':
-        #No Existing Zeus
-        role = discord.utils.get(id.roles, name='ZEUS')
+    if current_Terminator == 'None':
+        #No Existing Terminator
+        role = discord.utils.get(id.roles, name='Terminator')
         member = discord.utils.get(id.members, id=int(maxKD_user))
         await member.add_roles(role)
-        await channel.send(f"""A new ZEUS role has been assigned to {member.mention}. Congrats!!""")
-    elif current_zeus == maxKD_user:
-        #Zeus hasn't changed
-        print("ZEUS is the same as before!!")
+        await channel.send(f"""A new Terminator role has been assigned to {member.mention}. Congrats!!""")
+    elif current_Terminator == maxKD_user:
+        #Terminator hasn't changed
+        print("Terminator is the same as before!!")
     else:
-        #Brand New Zeus
-        role = discord.utils.get(id.roles, name='ZEUS')
-        member = discord.utils.get(id.members, id=int(current_zeus))
+        #Brand New Terminator
+        role = discord.utils.get(id.roles, name='Terminator')
+        member = discord.utils.get(id.members, id=int(current_Terminator))
         await member.remove_roles(role)
-        server_list[current_zeus]['Zeus'] = 0
+        server_list[current_Terminator]['Terminator'] = 0
         member = discord.utils.get(id.members, id=int(maxKD_user))
         await member.add_roles(role)
-        await channel.send(f"""Previous ZEUS has been replaced by {member.mention}. Congrats!!""")
+        await channel.send(f"""Previous Terminator has been replaced by {member.mention}. Congrats!!""")
 
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
 
     maxADR = 0
     maxADR_user = ''
-    current_aries = 'None'
+    current_Punisher = 'None'
 
-    #Update Aries role
+    #Update Punisher role
     for user in server_list:
-        if server_list[user]['Aries'] == 1:
-            current_aries = user
+        if server_list[user]['Punisher'] == 1:
+            current_Punisher = user
     
     for user in server_list:
         if (server_list[user]['ADR'] > maxADR) and (server_list[user]['Rank'] != "Bronze"):
             maxADR = server_list[user]['ADR']
             maxADR_user = user
 
-    server_list[maxADR_user]['Aries'] = 1
+    server_list[maxADR_user]['Punisher'] = 1
 
-    if current_aries == 'None':
-        #No Existing Aries
-        role = discord.utils.get(id.roles, name='Aries')
+    if current_Punisher == 'None':
+        #No Existing Punisher
+        role = discord.utils.get(id.roles, name='Punisher')
         member = discord.utils.get(id.members, id=int(maxADR_user))
         await member.add_roles(role)
-        await channel.send(f"""A new Aries role (Highest ADR) has been assigned to {member.mention}. Congrats!!""")
-    elif current_aries == maxADR_user:
-        #Aries hasn't changed
-        print("Aries is the same as before!!")
-        #await channel.send("Aries is the same as before!!")
+        await channel.send(f"""A new Punisher role (Highest ADR) has been assigned to {member.mention}. Congrats!!""")
+    elif current_Punisher == maxADR_user:
+        #Punisher hasn't changed
+        print("Punisher is the same as before!!")
+        #await channel.send("Punisher is the same as before!!")
     else:
-        #Brand New Aries
-        role = discord.utils.get(id.roles, name='Aries')
-        member = discord.utils.get(id.members, id=int(current_aries))
+        #Brand New Punisher
+        role = discord.utils.get(id.roles, name='Punisher')
+        member = discord.utils.get(id.members, id=int(current_Punisher))
         await member.remove_roles(role)
-        server_list[current_aries]['Aries'] = 0
+        server_list[current_Punisher]['Punisher'] = 0
         member = discord.utils.get(id.members, id=int(maxADR_user))
         await member.add_roles(role)
-        await channel.send(f"""Previous Aries has been replaced by {member.mention}. Congrats!!""")
+        await channel.send(f"""Previous Punisher has been replaced by {member.mention}. Congrats!!""")
         new_server_list = sorted(server_list.values(), key=itemgetter('ADR'))
         await channel.send('Top 5 ADR in this server (with more than 100 games this season):')
         top_5_string = ''
