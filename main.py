@@ -768,6 +768,7 @@ async def updateStats(ctx):
     curr_request_list = []
     curr_request_list_users = []
     total_api_requests  = 0
+    curr_header = header
     for user in server_list:
         player_ID = server_list[user]['ID']
         curr_request_list.append(player_ID)
@@ -1054,6 +1055,7 @@ async def reset_everyone(ctx):
 async def r_they_hacking(ctx,Username):
     await ctx.send(f'Checking if {Username} is a hacker!:')
     url = "https://api.pubg.com/shards/steam/players?filter[playerNames]=" + Username
+    curr_header = header
     initial_r = requests.get(url, headers=curr_header)
     if initial_r.status_code != 200:
         await ctx.send('Wrong username (captials in username matters) or the PUBG API is down')
