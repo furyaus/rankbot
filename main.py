@@ -1,6 +1,5 @@
 # RankedBot.py
 # Version: 0.1
-# Commit: Code cleanup
 # Date: 30.06.21
 # Current Authors: fury#1662, coopzr#3717, Jobelerno#7978
 # Github: https://github.com/furyaus/rankbot
@@ -18,10 +17,10 @@ import time
 import os
 import sys
 
-print("Python version: {}".format(sys.version))
+print(f"Python version: {sys.version}")
 
-client = commands.Bot(command_prefix='.')
-client.remove_command('help')
+client = commands.Bot(command_prefix=".")
+client.remove_command("help")
 
 # Global variables
 curr_season = "division.bro.official.pc-2018-07"
@@ -44,7 +43,7 @@ def get_quote():
 
 @client.event
 async def on_message(message):
-    if message.content.startswith('$inspire'):
+    if message.content.startswith("$inspire"):
         quote = get_quote()
         await message.channel.send(quote)
 
@@ -64,7 +63,7 @@ curr_key = 0
 @client.event
 async def on_ready():
     update_everything.start()
-    print('Bot is ready.')
+    print("Bot is ready.")
 
 
 @client.command(pass_context=True)
@@ -78,14 +77,14 @@ async def help(ctx):  # Shadows
     )
     help_msg.add_field(name="checkstats:",
                        value=".checkstats <USERNAME> , used to check someone's squad FPP stats, for example "
-                             "\".checkstats Deboxx\"",
+                             "'.checkstats Deboxx'",
                        inline=False)
     help_msg.add_field(name="checkmystats:",
-                       value=".checkmystats, used to check your own squad FPP stats, for example \".checkmystats\"",
+                       value=".checkmystats, used to check your own squad FPP stats, for example '.checkmystats'",
                        inline=False)
     help_msg.add_field(name="enlist:",
                        value=".enlist <USERNAME> , links your discord username with your PUBG in-game name, "
-                             "for example \".enlist furyaus\". You only have to do this once!",
+                             "for example '.enlist furyaus'. You only have to do this once!",
                        inline=False)
     help_msg.add_field(name="currentrank", value=".currentrank , Gets your current rank", inline=False)
     help_msg.add_field(name="updaterole:", value=".updaterole , Updates your role if your stats have changed",
@@ -101,16 +100,16 @@ async def check_stats(ctx, username):
     global header
     global no_requests
     curr_header = header
-    curr_header["Authorization"] = keys[no_requests % (len(keys))]
-    await ctx.send(f'Checking {username}\'s Squad-FPP stats:')
+    curr_header['Authorization'] = keys[no_requests % (len(keys))]
+    await ctx.send(f"Checking {username}'s Squad-FPP stats:")
     url = "https://api.pubg.com/shards/steam/players?filter[playerNames]=" + username
     initial_r = requests.get(url, headers=curr_header)
-    curr_header["Authorization"] = keys[no_requests % (len(keys))]
+    curr_header['Authorization'] = keys[no_requests % (len(keys))]
     no_requests += 1
     if initial_r.status_code != 200:
         await ctx.send(
-            'Wrong username (capitals in username matters) or too many requests made to the PUBG API (only 5 accounts '
-            'per minute)')
+            "Wrong username (capitals in username matters) or too many requests made to the PUBG API (only 5 accounts "
+            "per minute)")
     else:
         player_info = json.loads(initial_r.text)
         # First get the ID:
@@ -119,7 +118,7 @@ async def check_stats(ctx, username):
         # Retrieve the season data and calculate KD
         season_url = "https://api.pubg.com/shards/steam/players/" + player_id + "/seasons/" + curr_season
         second_request = requests.get(season_url, headers=curr_header)
-        curr_header["Authorization"] = keys[no_requests % (len(keys))]
+        curr_header['Authorization'] = keys[no_requests % (len(keys))]
         no_requests += 1
         season_info = json.loads(second_request.text)
         games_played = season_info['data']['attributes']['gameModeStats']['squad-fpp']['roundsPlayed']
@@ -131,8 +130,8 @@ async def check_stats(ctx, username):
 
         if len(recent_matches) == 0:
             await ctx.send(
-                'You haven\'t played a Squad FPP game in the last 14 days so you will be demoted to Bronze, '
-                'either ask admin to enlist a different account or play some games to get your proper rank!!')
+                "You haven't played a Squad FPP game in the last 14 days so you will be demoted to Bronze, "
+                "either ask admin to enlist a different account or play some games to get your proper rank!!")
         else:
             if season_losses == 0:
                 tru_kd = total_kills
@@ -140,26 +139,26 @@ async def check_stats(ctx, username):
                 tru_kd = total_kills / season_losses
                 adr = round(season_damage / games_played, 3)
                 # GG_KD = total_kills/(games_played - season_wins)
-                await ctx.send(f'{username}\'s Stats:\nIn-Game KD is: {round(tru_kd, 2)}')
-                await ctx.send(f'ADR = {adr}')
+                await ctx.send(f"{username}'s Stats:\nIn-Game KD is: {round(tru_kd, 2)}")
+                await ctx.send(f"ADR = {adr}")
                 if games_played < 50:
-                    await ctx.send('You have played less than 100 games this season, so you only get Bronze role')
-                    await ctx.send(f'Play {50 - games_played} more games this season to get your proper role!!')
+                    await ctx.send("You have played less than 100 games this season, so you only get Bronze role")
+                    await ctx.send(f"Play {50 - games_played} more games this season to get your proper role!!")
                 else:
                     if adr < 225:
-                        await ctx.send(f'{username}\'s doesn\'t belong in this server!!')
+                        await ctx.send(f"{username}'s doesn't belong in this server!!")
                     elif adr < 300:
-                        await ctx.send(f'{username}\'s Role = Bronze')
+                        await ctx.send(f"{username}'s Role = Bronze")
                     elif adr < 350:
-                        await ctx.send(f'{username}\'s Role = Silver')
+                        await ctx.send(f"{username}'s Role = Silver")
                     elif adr < 400:
-                        await ctx.send(f'{username}\'s Role = Gold')
+                        await ctx.send(f"{username}'s Role = Gold")
                     elif adr < 450:
-                        await ctx.send(f'{username}\'s Role = Platinum')
+                        await ctx.send(f"{username}'s Role = Platinum")
                     elif adr < 500:
-                        await ctx.send(f'{username}\'s Role = Diamond')
+                        await ctx.send(f"{username}'s Role = Diamond")
                     else:
-                        await ctx.send(f'{username}\'s Role = Master')
+                        await ctx.send(f"{username}'s Role = Master")
 
 
 @client.command()
@@ -168,11 +167,11 @@ async def check_my_stats(ctx):
     global header
     global no_requests
     curr_header = header
-    curr_header["Authorization"] = keys[no_requests % (len(keys))]
+    curr_header['Authorization'] = keys[no_requests % (len(keys))]
     user = ctx.message.author
     user_id = user.id
     if str(user_id) in server_list:
-        await ctx.send(f'Checking {user}\'s Squad-FPP stats:')
+        await ctx.send(f"Checking {user}'s Squad-FPP stats:")
         player_id = server_list[str(user_id)]['ID']
         # Retrieve the season data and calculate KD
         season_url = "https://api.pubg.com/shards/steam/players/" + player_id + "/seasons/" + curr_season
@@ -187,8 +186,8 @@ async def check_my_stats(ctx):
         recent_matches = season_info['data']['relationships']['matchesSquadFPP']['data']
         if len(recent_matches) == 0:
             await ctx.send(
-                'You haven\'t played a Squad FPP game in the last 14 days so you will be demoted to Bronze, '
-                'either ask admin to enlist a different account or play some games to get your proper rank!!')
+                "You haven't played a Squad FPP game in the last 14 days so you will be demoted to Bronze, "
+                "either ask admin to enlist a different account or play some games to get your proper rank!!")
         else:
             if season_losses == 0:
                 tru_kd = total_kills
@@ -197,28 +196,28 @@ async def check_my_stats(ctx):
                 gg_kd = total_kills / (games_played - season_wins)
                 adr = round(season_damage / games_played, 3)
                 await ctx.send(
-                    f"{str(user)[:-5]}\'s Stats:\nIn-Game KD is: {round(tru_kd, 4)}\nOP-GG KD is: {round(gg_kd, 4)}")
-                await ctx.send(f'ADR = {adr}')
+                    f"{str(user)[:-5]}'s Stats:\nIn-Game KD is: {round(tru_kd, 4)}\nOP-GG KD is: {round(gg_kd, 4)}")
+                await ctx.send(f"ADR = {adr}")
                 server_list[str(user_id)]['KD'] = round(tru_kd, 4)
                 server_list[str(user_id)]['ADR'] = adr
                 if games_played < 50:
-                    await ctx.send('You have played less than 100 games this season, so you only get Bronze role')
-                    await ctx.send(f'Play {100 - games_played} more games this season to get your proper role!!')
+                    await ctx.send("You have played less than 100 games this season, so you only get Bronze role")
+                    await ctx.send(f"Play {100 - games_played} more games this season to get your proper role!!")
                 else:
                     if adr < 250:
-                        await ctx.send(f'{str(user)[:-5]}\'s doesn\'t belong in this server!!')
+                        await ctx.send(f"{str(user)[:-5]}'s doesn't belong in this server!!")
                     elif adr < 300:
-                        await ctx.send(f'{str(user)[:-5]}\'s Role = Bronze')
+                        await ctx.send(f"{str(user)[:-5]}'s Role = Bronze")
                     elif adr < 350:
-                        await ctx.send(f'{str(user)[:-5]}\'s Role = Silver')
+                        await ctx.send(f"{str(user)[:-5]}'s Role = Silver")
                     elif adr < 400:
-                        await ctx.send(f'{str(user)[:-5]}\'s Role = Gold')
+                        await ctx.send(f"{str(user)[:-5]}'s Role = Gold")
                     elif adr < 450:
-                        await ctx.send(f'{str(user)[:-5]}\'s Role = Platinum')
+                        await ctx.send(f"{str(user)[:-5]}'s Role = Platinum")
                     elif adr < 500:
-                        await ctx.send(f'{str(user)[:-5]}\'s Role = Diamond')
+                        await ctx.send(f"{str(user)[:-5]}'s Role = Diamond")
                     else:
-                        await ctx.send(f'{str(user)[:-5]}\'s Role = Master')
+                        await ctx.send(f"{str(user)[:-5]}'s Role = Master")
 
         with open("edited_server_list.json", "w") as data_file:
             json.dump(server_list, data_file, indent=2)
@@ -231,9 +230,9 @@ async def current_rank(ctx):
     user = ctx.message.author
     user_id = user.id
     if str(user_id) in server_list:
-        await ctx.send('Your current rank is: ' + server_list[str(user_id)]['Rank'])
+        await ctx.send("Your current rank is: " + server_list[str(user_id)]['Rank'])
     else:
-        await ctx.send('You currently don\'t have a rank')
+        await ctx.send("You currently don't have a rank")
 
 
 @client.command(pass_context=True)
@@ -242,27 +241,27 @@ async def enlist(ctx, user_ign):
     global header
     global no_requests
     curr_header = header
-    curr_header["Authorization"] = keys[no_requests % (len(keys))]
+    curr_header['Authorization'] = keys[no_requests % (len(keys))]
     user = ctx.message.author
     user_id = user.id
     if str(user_id) in server_list:
-        await ctx.send('Your IGN has already been added to the list, just use .updaterole to update your role')
+        await ctx.send("Your IGN has already been added to the list, just use .updaterole to update your role")
     else:
-        await ctx.send('...Linking your IGN to your discord...')
+        await ctx.send("...Linking your IGN to your discord...")
         url = "https://api.pubg.com/shards/steam/players?filter[playerNames]=" + user_ign
         # Find the player pubg ID:
         initial_r = requests.get(url, headers=curr_header)
         no_requests += 1
         if initial_r.status_code != 200:
             await ctx.send(
-                'Wrong username (capitals in username matters) or the PUBG API is down or too many people are trying '
-                'to enlist at the same time (maximum of 5 per minute)')
+                "Wrong username (capitals in username matters) or the PUBG API is down or too many people are trying "
+                "to enlist at the same time (maximum of 5 per minute)")
         else:
             player_info = json.loads(initial_r.text)
             # First get the ID:
             player_id = player_info['data'][0]['id'].replace('account.', '')
             season_url = "https://api.pubg.com/shards/steam/players/" + player_id + "/seasons/" + curr_season
-            curr_header["Authorization"] = keys[no_requests % (len(keys))]
+            curr_header['Authorization'] = keys[no_requests % (len(keys))]
             second_request = requests.get(season_url, headers=curr_header)
             no_requests += 1
             season_info = json.loads(second_request.text)
@@ -279,16 +278,16 @@ async def enlist(ctx, user_ign):
 
             # You need to have a 2+KD to join the server
             if adr < 250:
-                await ctx.send(f'Your ADR is: {adr}')
-                reason = 'Sorry your in-game ADR is less than 250, and you need a 250+ ADR to enter this server'
-                await ctx.send(f'Sorry but you\'ll have to do better to be in here!, {user} will be kicked in 5s')
+                await ctx.send(f"Your ADR is: {adr}")
+                reason = "Sorry your in-game ADR is less than 250, and you need a 250+ ADR to enter this server"
+                await ctx.send(f"Sorry but you'll have to do better to be in here!, {user} will be kicked in 5s")
                 time.sleep(5)
-                await user.send('Sorry your in-game ADR is less than 250, and you need a 250+ KD to enter this server')
+                await user.send("Sorry your in-game ADR is less than 250, and you need a 250+ KD to enter this server")
                 await user.kick(reason=reason)
             else:
                 if games_played < 100:
-                    await ctx.send('You have played less than 100 games this season, so you only get Bronze role')
-                    await ctx.send(f'Play {100 - games_played} more games this season to get your proper role!!')
+                    await ctx.send("You have played less than 100 games this season, so you only get Bronze role")
+                    await ctx.send(f"Play {100 - games_played} more games this season to get your proper role!!")
                     new_role = 'Bronze'
                     role = discord.utils.get(ctx.guild.roles, name=new_role)
                     await user.add_roles(role)
@@ -300,8 +299,8 @@ async def enlist(ctx, user_ign):
                     server_list[str(user_id)]['Punisher'] = 0
                     server_list[str(user_id)]['Terminator'] = 0
                     server_list[str(user_id)]['team_killer'] = 0
-                    await ctx.send(f'Your in-Game KD is: {round(tru_kd, 2)}')
-                    await ctx.send(f'Your ADR = {round(season_damage / games_played, 2)}')
+                    await ctx.send(f"Your in-Game KD is: {round(tru_kd, 2)}")
+                    await ctx.send(f"Your ADR = {round(season_damage / games_played, 2)}")
                     # write the updated server list
                     with open("edited_server_list.json", "w") as data_file:
                         json.dump(server_list, data_file, indent=2)
@@ -327,9 +326,9 @@ async def enlist(ctx, user_ign):
                     server_list[str(user_id)]['Punisher'] = 0
                     server_list[str(user_id)]['Terminator'] = 0
                     server_list[str(user_id)]['team_killer'] = 0
-                    await ctx.send(f'Your in-Game KD is: {round(tru_kd, 2)}')
-                    await ctx.send(f'Your ADR = {round(season_damage / games_played, 2)}')
-                    await ctx.send('You have been enlisted into the server and your current rank is: ' + new_role)
+                    await ctx.send(f"Your in-Game KD is: {round(tru_kd, 2)}")
+                    await ctx.send(f"Your ADR = {round(season_damage / games_played, 2)}")
+                    await ctx.send("You have been enlisted into the server and your current rank is: " + new_role)
                     role = discord.utils.get(ctx.guild.roles, name=new_role)
                     await user.add_roles(role)
                     # Also assign Bronze role to newcomers
@@ -348,17 +347,17 @@ async def change_ign(ctx, member: discord.Member, user_ign):
     global header
     global no_requests
     curr_header = header
-    curr_header["Authorization"] = keys[no_requests % (len(keys))]
+    curr_header['Authorization'] = keys[no_requests % (len(keys))]
     user_id = str(member.id)
-    await ctx.send(f'...Changing {str(member)}''s IGN on the list...')
+    await ctx.send(f"...Changing {str(member)}'s IGN on the list...")
     url = "https://api.pubg.com/shards/steam/players?filter[playerNames]=" + user_ign
     # Find the player pubg ID:
     initial_r = requests.get(url, headers=curr_header)
     no_requests += 1
     if initial_r.status_code != 200:
         await ctx.send(
-            'Wrong username (capitals in username matters) or the PUBG API is down or too many people are trying to '
-            'enlist at the same time (maximum of 5 per minute)')
+            "Wrong username (capitals in username matters) or the PUBG API is down or too many people are trying to "
+            "enlist at the same time (maximum of 5 per minute)")
     else:
         # Remove user's existing roles
         curr_rank = server_list[str(member.id)]['Rank']
@@ -386,7 +385,7 @@ async def change_ign(ctx, member: discord.Member, user_ign):
         # First get the ID:
         player_id = player_info['data'][0]['id'].replace('account.', '')
         season_url = "https://api.pubg.com/shards/steam/players/" + player_id + "/seasons/" + curr_season
-        curr_header["Authorization"] = keys[no_requests % (len(keys))]
+        curr_header['Authorization'] = keys[no_requests % (len(keys))]
         second_request = requests.get(season_url, headers=curr_header)
         no_requests += 1
         season_info = json.loads(second_request.text)
@@ -401,13 +400,13 @@ async def change_ign(ctx, member: discord.Member, user_ign):
         else:
             tru_kd = total_kills / season_losses
             if games_played < 100:
-                await ctx.send('You have played less than 100 games this season, so you only get Bronze role')
-                await ctx.send(f'Play {100 - games_played} more games this season to get your proper role!!')
+                await ctx.send("You have played less than 100 games this season, so you only get Bronze role")
+                await ctx.send(f"Play {100 - games_played} more games this season to get your proper role!!")
                 new_role = 'Bronze'
             else:
                 if tru_kd < 1.9:
-                    await ctx.send(f'Your in-Game KD is: {round(tru_kd, 2)}')
-                    await ctx.send(f'This account''s KD is less than 1.9, you cannot link this IGN to ur discord')
+                    await ctx.send(f"Your in-Game KD is: {round(tru_kd, 2)}")
+                    await ctx.send(f"This account's KD is less than 1.9, you cannot link this IGN to ur discord")
                 elif tru_kd < 2.0:
                     new_role = 'Bronze'
                 elif tru_kd < 2.5:
@@ -432,9 +431,9 @@ async def change_ign(ctx, member: discord.Member, user_ign):
                 server_list[str(user_id)]['Punisher'] = 0
                 server_list[str(user_id)]['Terminator'] = 0
                 server_list[str(user_id)]['team_killer'] = 0
-                await ctx.send(f'Your in-Game KD is: {round(tru_kd, 2)}')
-                await ctx.send(f'Your ADR = {round(season_damage / games_played, 2)}')
-                await ctx.send('You have been enlisted into the server and your current rank is: ' + new_role)
+                await ctx.send(f"Your in-Game KD is: {round(tru_kd, 2)}")
+                await ctx.send(f"Your ADR = {round(season_damage / games_played, 2)}")
+                await ctx.send("You have been enlisted into the server and your current rank is: " + new_role)
                 role = discord.utils.get(ctx.guild.roles, name=new_role)
                 await member.add_roles(role)
                 # write the updated server list
@@ -450,7 +449,7 @@ async def update_everyone(ctx):
     global header
     global no_requests
     curr_header = header
-    curr_header["Authorization"] = keys[no_requests % (len(keys))]
+    curr_header['Authorization'] = keys[no_requests % (len(keys))]
     # Check and update everyone's roles and make announcements on promotions and demotions!
     id = client.get_guild(859316578994487306)  # Shadows
     # Rank bot announcements channel:
@@ -482,14 +481,14 @@ async def update_everyone(ctx):
                          player_id_list
             second_request = requests.get(season_url, headers=curr_header)
             no_requests += 1
-            curr_header["Authorization"] = keys[no_requests % (len(keys))]
+            curr_header['Authorization'] = keys[no_requests % (len(keys))]
             # total_api_requests = total_api_requests + 1
             # if total_api_requests == 10:
             #     print('10 Requests per min reached waiting for a minute')
             #     time.sleep(60)
             #     total_api_requests = 0
             if second_request.status_code == 429:
-                print('Too MANY REQUESTS')
+                print("Too MANY REQUESTS")
                 time.sleep(60)
             season_info = json.loads(second_request.text)
             for i in range(0, len(season_info['data'])):
@@ -553,15 +552,15 @@ async def update_everyone(ctx):
                         if player_kd < 1.9:
                             # Player needs to be kicked
                             try:
-                                reason = 'Sorry your in-game KD is less than 1.9, and you need a 2+ KD to re-enter'
+                                reason = "Sorry your in-game KD is less than 1.9, and you need a 2+ KD to re-enter"
                                 print(server_list[curr_user]['IGN'])
                                 member = discord.utils.get(id.members, id=int(curr_user))
                                 await member.send(
-                                    'Sorry your in-game KD is less than 1.9, and you need a 2+ KD to re-enter')
+                                    "Sorry your in-game KD is less than 1.9, and you need a 2+ KD to re-enter")
                                 await member.kick(reason=reason)
                                 kicked_users.append(curr_user)
                             except Exception as e:
-                                print('issue:' + str(e))
+                                print("issue:" + str(e))
                         elif player_kd < 2.0:
                             less_than_2_list.append(server_list[curr_user]['IGN'])
                             new_role = 'Bronze'
@@ -597,8 +596,8 @@ async def update_everyone(ctx):
                                     with open("edited_server_list.json", "w") as data_file:
                                         json.dump(server_list, data_file, indent=2)
                                 except Exception as e:
-                                    await ctx.send('There was an error changing your rank ' + str(e))
-                                    await ctx.send('There was an error changing : ' + str(curr_user))  # if error
+                                    await ctx.send("There was an error changing your rank " + str(e))
+                                    await ctx.send("There was an error changing : " + str(curr_user))  # if error
 
             # Reset variables
             no_of_players = 0
@@ -610,7 +609,7 @@ async def update_everyone(ctx):
         await channel.send("The following users have been promoted:")
         for user in promoted_users:
             member = discord.utils.get(id.members, id=int(user))
-            await channel.send(f"""{member.mention}""")
+            await channel.send(f"{member.mention}")
 
     # if len(demoted_users) > 0:
     #     await channel.send("The following users have been demoted:")
@@ -628,11 +627,11 @@ async def update_everyone(ctx):
             json.dump(server_list, data_file, indent=2)
     if len(inactive_users) > 0:
         await channel.send(
-            'Following users haven''t played a Squad FPP game in the last 14 days so you will be demoted to Bronze, '
-            'either ask admin to enlist a different account or play some games to get your proper rank!!')
+            "Following users haven't played a Squad FPP game in the last 14 days so you will be demoted to Bronze, "
+            "either ask admin to enlist a different account or play some games to get your proper rank!!")
         for user in inactive_users:
             member = discord.utils.get(id.members, id=int(user))
-            await channel.send(f"""{member.mention}""")
+            await channel.send(f"{member.mention}")
 
     # if (len(promoted_users) == 0):
     #     await channel.send("No promotions today...")
@@ -640,7 +639,7 @@ async def update_everyone(ctx):
     await ctx.send("Users with more than 100 games and KD less than 2:")
     await ctx.send(less_than_2_list)
 
-    print('Finished Updating Everything')
+    print("Finished Updating Everything")
 
 
 @client.command()
@@ -649,7 +648,7 @@ async def update_role(ctx):
     global header
     global no_requests
     curr_header = header
-    curr_header["Authorization"] = keys[no_requests % (len(keys))]
+    curr_header['Authorization'] = keys[no_requests % (len(keys))]
     id = client.get_guild(859316578994487306)  # Shadows
     # Rank bot announcements channel:
     channel = client.get_channel(859316578994487310)
@@ -657,7 +656,7 @@ async def update_role(ctx):
     user_id = user.id
     if str(user_id) in server_list:
         curr_rank = server_list[str(user_id)]['Rank']
-        await ctx.send('Your current rank is: ' + server_list[str(user_id)]['Rank'])
+        await ctx.send("Your current rank is: " + server_list[str(user_id)]['Rank'])
         player_id = server_list[str(user_id)]['ID']
         season_url = "https://api.pubg.com/shards/steam/players/" + player_id + "/seasons/" + curr_season
         second_request = requests.get(season_url, headers=curr_header)
@@ -676,19 +675,19 @@ async def update_role(ctx):
             tru_kd = total_kills / season_losses
 
         gg_kd = total_kills / (games_played - season_wins)
-        await ctx.send(f'{str(user)}\'s Stats:\nIn-Game KD: {round(tru_kd, 4)}\nOP.GG KD: {round(gg_kd, 3)}')
-        await ctx.send(f'Your ADR = {round(season_damage / games_played, 2)}')
+        await ctx.send(f"{str(user)}'s Stats:\nIn-Game KD: {round(tru_kd, 4)}\nOP.GG KD: {round(gg_kd, 3)}")
+        await ctx.send(f"Your ADR = {round(season_damage / games_played, 2)}")
         server_list[str(user_id)]['KD'] = round(tru_kd, 4)
         server_list[str(user_id)]['ADR'] = round(season_damage / games_played, 2)
         if games_played < 100:
-            await ctx.send('You have played less than 100 games this season, so you only get Bronze role')
-            await ctx.send(f'Play {100 - games_played} more games this season to get your proper role!!')
+            await ctx.send("You have played less than 100 games this season, so you only get Bronze role")
+            await ctx.send(f"Play {100 - games_played} more games this season to get your proper role!!")
         else:
             if tru_kd < 1.9:
-                reason = 'Sorry your in-game KD is less than 1.9, and you need a 2+ KD to re-enter'
-                await ctx.send(f'Sorry but you\'ll have to do better to be in here!, {user} will be kicked in 5s')
+                reason = "Sorry your in-game KD is less than 1.9, and you need a 2+ KD to re-enter"
+                await ctx.send(f"Sorry but you'll have to do better to be in here!, {user} will be kicked in 5s")
                 time.sleep(5)
-                await user.send('Sorry your in-game KD is less than 1.9, and you need a 2+ KD to re-enter')
+                await user.send("Sorry your in-game KD is less than 1.9, and you need a 2+ KD to re-enter")
                 await user.kick(reason=reason)
             elif tru_kd < 2.0:
                 new_role = 'Bronze'
@@ -706,7 +705,7 @@ async def update_role(ctx):
             # People with less than 1.9 KD would have been kicked
             if tru_kd >= 1.9:
                 if new_role == curr_rank:  # Might reference before assignment
-                    await ctx.send('Your rank is the same as before')
+                    await ctx.send("Your rank is the same as before")
                 else:
                     try:
                         # Change rank
@@ -725,11 +724,11 @@ async def update_role(ctx):
                             await ctx.send(
                                 "You have been demoted to " + new_role + " get better at the game you scrub!!")
                     except Exception as e:
-                        await ctx.send('There was an error changing your rank ' + str(e))  # if error
+                        await ctx.send("There was an error changing your rank " + str(e))  # if error
 
     else:
         await ctx.send(
-            'You currently don\'t have a rank and your IGN isn\'t added to the list so use .enlist command to enlist')
+            "You currently don't have a rank and your IGN isn't added to the list so use .enlist command to enlist")
 
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
@@ -737,7 +736,7 @@ async def update_role(ctx):
 
 @client.command()
 async def total_enlisted(ctx):
-    await ctx.send(f'There are currently {len(server_list)} people enlisted in this server!')
+    await ctx.send(f"There are currently {len(server_list)} people enlisted in this server!")
 
 
 @client.command()
@@ -750,7 +749,7 @@ async def remove_user(ctx, member: discord.Member):
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
 async def get_team_killer(ctx):
-    await ctx.send('Calculating who should get the team-killer role....')
+    await ctx.send("Calculating who should get the team-killer role....")
     id = client.get_guild(859316578994487306)  # Shadows
     # Rank bot announcements channel:
     channel = client.get_channel(859316578994487310)
@@ -775,7 +774,7 @@ async def get_team_killer(ctx):
         member = discord.utils.get(id.members, id=int(max_team_kills_user))
         await member.add_roles(role)
         await channel.send(
-            f"""A new DUMBASS role has been assigned to {member.mention}, for the most teamkills this season""")
+            f"A new DUMBASS role has been assigned to {member.mention}, for the most teamkills this season")
     elif current_team_killer == max_team_kills_user:
         # Terminator hasn't changed
         await channel.send("DUMBASS is the same as before!!")
@@ -788,7 +787,8 @@ async def get_team_killer(ctx):
         member = discord.utils.get(id.members, id=int(max_team_kills_user))
         await member.add_roles(role)
         await channel.send(
-            f"""Previous DUMBASS has been replaced by {member.mention}, with {server_list[max_team_kills_user]['team_kills']} teamkills this season""")  # E501
+            f"Previous DUMBASS has been replaced by {member.mention}, with "
+            f"{server_list[max_team_kills_user]['team_kills']} teamkills this season")
 
     # new_server_list = sorted(server_list.values(), key=itemgetter('team_kills'))
     # await channel.send('This season team-kills Top 5:')
@@ -834,12 +834,12 @@ async def update_stats(ctx):
             second_request = requests.get(season_url, headers=curr_header)
             total_api_requests += 1
             if total_api_requests == 10:
-                await ctx.send('10 Requests per min reached waiting for a minute')
+                await ctx.send("10 Requests per min reached waiting for a minute")
                 time.sleep(60)
                 total_api_requests = 0
 
             if second_request.status_code == 429:
-                await ctx.send('Too MANY REQUESTS')
+                await ctx.send("Too MANY REQUESTS")
             season_info = json.loads(second_request.text)
             for i in range(0, len(season_info['data'])):
                 games_played = season_info['data'][i]['attributes']['gameModeStats']['squad-fpp']['roundsPlayed']
@@ -862,13 +862,13 @@ async def update_stats(ctx):
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
 
-    await ctx.send('Finished Updating the stats')
+    await ctx.send("Finished Updating the stats")
 
 
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
 async def get_terminator(ctx):
-    await ctx.send('Calculating who should get the Terminator role....')
+    await ctx.send("Calculating who should get the Terminator role....")
     id = client.get_guild(859316578994487306)  # Shadows
     # Rank bot announcements channel:
     channel = client.get_channel(859316578994487310)
@@ -892,7 +892,7 @@ async def get_terminator(ctx):
         role = discord.utils.get(ctx.guild.roles, name='Terminator')
         member = discord.utils.get(id.members, id=int(max_kd_user))
         await member.add_roles(role)
-        await channel.send(f"""A new Terminator role has been assigned to {member.mention}. Congrats!!""")
+        await channel.send(f"A new Terminator role has been assigned to {member.mention}. Congrats!!")
     elif current_terminator == max_kd_user:
         # Terminator hasn't changed
         await channel.send("Terminator is the same as before!!")
@@ -904,7 +904,7 @@ async def get_terminator(ctx):
         server_list[current_terminator]['Terminator'] = 0
         member = discord.utils.get(id.members, id=int(max_kd_user))
         await member.add_roles(role)
-        await channel.send(f"""Previous Terminator has been replaced by {member.mention}. Congrats!!""")
+        await channel.send(f"Previous Terminator has been replaced by {member.mention}. Congrats!!")
 
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
@@ -913,7 +913,7 @@ async def get_terminator(ctx):
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
 async def get_punisher(ctx):
-    await ctx.send('Calculating who should get the Punisher role....')
+    await ctx.send("Calculating who should get the Punisher role....")
     id = client.get_guild(859316578994487306)  # Shadows
     # Rank bot announcements channel:
     channel = client.get_channel(859316578994487310)
@@ -938,7 +938,7 @@ async def get_punisher(ctx):
         role = discord.utils.get(ctx.guild.roles, name='Punisher')
         member = discord.utils.get(id.members, id=int(max_adr_user))
         await member.add_roles(role)
-        await channel.send(f"""A new Punisher role (Highest ADR) has been assigned to {member.mention}. Congrats!!""")
+        await channel.send(f"A new Punisher role (Highest ADR) has been assigned to {member.mention}. Congrats!!")
     elif current_punisher == max_adr_user:
         # Punisher hasn't changed
         print("Punisher is the same as before!!")
@@ -951,9 +951,9 @@ async def get_punisher(ctx):
         server_list[current_punisher]['Punisher'] = 0
         member = discord.utils.get(id.members, id=int(max_adr_user))
         await member.add_roles(role)
-        await channel.send(f"""Previous Punisher has been replaced by {member.mention}. Congrats!!""")
+        await channel.send(f"Previous Punisher has been replaced by {member.mention}. Congrats!!")
         new_server_list = sorted(server_list.values(), key=itemgetter('ADR'))
-        await channel.send('Top 5 ADR in this server (with more than 100 games this season):')
+        await channel.send("Top 5 ADR in this server (with more than 100 games this season):")
         top_5_string = ''
         total_length = len(new_server_list)
         i = -1
@@ -980,7 +980,7 @@ async def get_punisher(ctx):
 @client.command()
 async def top_5_adr(ctx):
     new_server_list = sorted(server_list.values(), key=itemgetter('ADR'))
-    await ctx.send('Top 5 ADR in this server (with more than 100 games this season):')
+    await ctx.send("Top 5 ADR in this server (with more than 100 games this season):")
     top_5_string = ''
     total_length = len(new_server_list)
     i = -1
@@ -1004,7 +1004,7 @@ async def top_5_adr(ctx):
 @client.command()
 async def top_20_adr(ctx):
     new_server_list = sorted(server_list.values(), key=itemgetter('ADR'))
-    await ctx.send('Top 20 ADR in this server (with more than 100 games this season):')
+    await ctx.send("Top 20 ADR in this server (with more than 100 games this season):")
     top_20_string = ''
     total_length = len(new_server_list)
     i = -1
@@ -1029,7 +1029,7 @@ async def top_20_adr(ctx):
 async def top20(ctx):
     # await ctx.send('Calculating top 20 (give me a min).....')
     new_server_list = sorted(server_list.values(), key=itemgetter('KD'))
-    await ctx.send('Top 20 Sweats in this server (with more than 100 games this season):')
+    await ctx.send("Top 20 Sweats in this server (with more than 100 games this season):")
     top_20_string = ''
     i = -1
     total_length = len(new_server_list)
@@ -1054,7 +1054,7 @@ async def top20(ctx):
 async def top20_announce(ctx):
     channel = client.get_channel(859316578994487310)
     new_server_list = sorted(server_list.values(), key=itemgetter('KD'))
-    await channel.send('Top 20 Sweats in this server (with more than 100 games this season):')
+    await channel.send("Top 20 Sweats in this server (with more than 100 games this season):")
     top_20_string = ''
     i = -1
     total_length = len(new_server_list)
@@ -1113,12 +1113,12 @@ async def reset_everyone(ctx):
 
 @client.command()
 async def r_they_hacking(ctx, username):
-    await ctx.send(f'Checking if {username} is a hacker!:')
+    await ctx.send(f"Checking if {username} is a hacker!:")
     url = "https://api.pubg.com/shards/steam/players?filter[playerNames]=" + username
     curr_header = header
     initial_r = requests.get(url, headers=curr_header)
     if initial_r.status_code != 200:
-        await ctx.send('Wrong username (capitals in username matters) or the PUBG API is down')
+        await ctx.send("Wrong username (capitals in username matters) or the PUBG API is down")
     else:
         player_info = json.loads(initial_r.text)
         # First get the ID:
@@ -1136,15 +1136,15 @@ async def r_they_hacking(ctx, username):
         season_damage = season_info['data']['attributes']['gameModeStats']['squad-fpp']['damageDealt']
         headshot_kills = season_info['data']['attributes']['gameModeStats']['squad-fpp']['headshotKills']
         cur_season_kd = total_kills / season_losses
-        await ctx.send(f'This season\'s KD: {round(cur_season_kd, 2)}')
-        await ctx.send(f'Headshot ratio: {round((headshot_kills / total_kills) * 100, 2)} %')
+        await ctx.send(f"This season's KD: {round(cur_season_kd, 2)}")
+        await ctx.send(f"Headshot ratio: {round((headshot_kills / total_kills) * 100, 2)} %")
         season_url = "https://api.pubg.com/shards/steam/players/" + player_id + "/seasons/" + prev_season
         second_request = requests.get(season_url, headers=curr_header)
         season_info = json.loads(second_request.text)
         games_played = season_info['data']['attributes']['gameModeStats']['squad-fpp']['roundsPlayed']
-        await ctx.send(f'Games played previous season: {games_played}')
+        await ctx.send(f"Games played previous season: {games_played}")
         if games_played == 0:
-            await ctx.send(f'Wow this player didn\'t play any games last season')
+            await ctx.send(f"Wow this player didn't play any games last season")
 
 
 # @client.event
@@ -1169,7 +1169,7 @@ async def update_everything():
     global header
     global no_requests
     curr_header = header
-    curr_header["Authorization"] = keys[no_requests % (len(keys))]
+    curr_header['Authorization'] = keys[no_requests % (len(keys))]
     # Check and update everyone's roles and make announcements on promotions and demotions!
     id = client.get_guild(859316578994487306)  # Shadows
     # Rank bot announcements channel:
@@ -1316,7 +1316,7 @@ async def update_everything():
         await channel.send("The following users have been promoted:")
         for user in promoted_users:
             member = discord.utils.get(id.members, id=int(user))
-            await channel.send(f"""{member.mention}""")
+            await channel.send(f"{member.mention}")
 
     # if len(demoted_users) > 0:
     #     await channel.send("The following users have been demoted:")
@@ -1326,11 +1326,11 @@ async def update_everything():
 
     if len(kicked_users) > 0:
         await channel2.send("The following users have been kicked:")
-        reason = 'Sorry your in-game KD is less than 1.9, and you need a 2+ KD to re-enter'
+        reason = "Sorry your in-game KD is less than 1.9, and you need a 2+ KD to re-enter"
         for user in kicked_users:
             member = discord.utils.get(id.members, id=int(user))
             await channel2.send(f"kicked user: {member}")
-            await member.send('Sorry your in-game KD is less than 1.9, and you need a 2+ KD to re-enter')
+            await member.send("Sorry your in-game KD is less than 1.9, and you need a 2+ KD to re-enter")
             await member.kick(reason=reason)
             del server_list[user]
             with open("edited_server_list.json", "w") as data_file:
@@ -1338,11 +1338,11 @@ async def update_everything():
 
     if len(inactive_users) > 0:
         await channel.send(
-            'Following users haven''t played a Squad FPP game in the last 14 days so you will be demoted to Bronze, '
-            'either ask admin to enlist a different account or play some games to get your proper rank!!')
+            "Following users haven"'t played a Squad FPP game in the last 14 days so you will be demoted to Bronze, '
+            "either ask admin to enlist a different account or play some games to get your proper rank!!")
         for user in inactive_users:
             member = discord.utils.get(id.members, id=int(user))
-            await channel.send(f"""{member.mention}""")
+            await channel.send(f"{member.mention}")
 
     # Update Terminator role
     max_kd = 0
@@ -1365,7 +1365,7 @@ async def update_everything():
         role = discord.utils.get(id.roles, name='Terminator')
         member = discord.utils.get(id.members, id=int(max_kd_user))
         await member.add_roles(role)
-        await channel.send(f"""A new Terminator role has been assigned to {member.mention}. Congrats!!""")
+        await channel.send(f"A new Terminator role has been assigned to {member.mention}. Congrats!!")
     elif current_terminator == max_kd_user:
         # Terminator hasn't changed
         print("Terminator is the same as before!!")
@@ -1377,7 +1377,7 @@ async def update_everything():
         server_list[current_terminator]['Terminator'] = 0
         member = discord.utils.get(id.members, id=int(max_kd_user))
         await member.add_roles(role)
-        await channel.send(f"""Previous Terminator has been replaced by {member.mention}. Congrats!!""")
+        await channel.send(f"Previous Terminator has been replaced by {member.mention}. Congrats!!")
 
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
@@ -1403,7 +1403,7 @@ async def update_everything():
         role = discord.utils.get(id.roles, name='Punisher')
         member = discord.utils.get(id.members, id=int(max_adr_user))
         await member.add_roles(role)
-        await channel.send(f"""A new Punisher role (Highest ADR) has been assigned to {member.mention}. Congrats!!""")
+        await channel.send(f"A new Punisher role (Highest ADR) has been assigned to {member.mention}. Congrats!!")
     elif current_punisher == max_adr_user:
         # Punisher hasn't changed
         print("Punisher is the same as before!!")
@@ -1416,9 +1416,9 @@ async def update_everything():
         server_list[current_punisher]['Punisher'] = 0
         member = discord.utils.get(id.members, id=int(max_adr_user))
         await member.add_roles(role)
-        await channel.send(f"""Previous Punisher has been replaced by {member.mention}. Congrats!!""")
+        await channel.send(f"Previous Punisher has been replaced by {member.mention}. Congrats!!")
         new_server_list = sorted(server_list.values(), key=itemgetter('ADR'))
-        await channel.send('Top 5 ADR in this server (with more than 100 games this season):')
+        await channel.send("Top 5 ADR in this server (with more than 100 games this season):")
         top_5_string = ''
         total_length = len(new_server_list)
         i = -1
