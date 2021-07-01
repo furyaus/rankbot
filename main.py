@@ -1,4 +1,4 @@
-# RankedBot.py
+# API Practice Branch
 # Version: 0.1
 # Date: 30.06.21
 # Current Authors: fury#1662, coopzr#3717, Jobelerno#7978
@@ -54,7 +54,7 @@ with open(json_file_path, 'r') as j:
     server_list = json.loads(j.read())
 
 server_roles = ["Bronze", "Silver", "Gold", "Platinum", "Diamond", "Master"]
-admin_roles = ["Lil Admins", "Admin", "Useful Admin"]
+admin_roles = ["Little Useless Admins", "Admin", "Useful Admin"]
 
 no_requests = 0
 curr_key = 0
