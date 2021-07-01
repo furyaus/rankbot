@@ -8,7 +8,7 @@
 # Original Date: 2019
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from operator import itemgetter
 import requests
 import json
@@ -28,7 +28,7 @@ API_key_fury = os.environ['API_key_fury']
 API_key_ocker = os.environ['API_key_ocker']
 API_key_p4 = os.environ['API_key_p4']
 
-#Keys in order - furyaus, ocker, p4, 
+#Keys in order - furyaus, ocker, p4
 keys = ["Bearer "+API_key_fury,"Bearer "+API_key_ocker,"Bearer "+API_key_p4]
 header = {"Authorization": "Bearer "+API_key_fury,"Accept": "application/vnd.api+json"}
 
@@ -44,6 +44,7 @@ curr_key = 0
 
 @client.event
 async def on_ready():
+    updateEverything.start()
     print("Bot is ready.")
 
 @client.command(pass_context=True)
@@ -429,7 +430,6 @@ async def getteamkiller(ctx):
         await channel.send("No one has any team kills!!")
     elif current_team_killer == 'None':
         role = discord.utils.get(ctx.guild.roles, name='DUMBASS')
-        member = discord.utils.get(id.members, id=int(max_team_kills_user))
         member = await ctx.guild.fetch_member(max_team_kills_user)
         await member.add_roles(role)
         await channel.send(f"A new DUMBASS role has been assigned to {member.mention}, for the most teamkills this season")
@@ -494,5 +494,149 @@ async def top50ranks(ctx):
         i -= 1
     response_msg.add_field(name="Top rank holders:", value=top_50_string,inline=False)
     await channel.send(embed=response_msg)
+
+@tasks.loop(hours=10.0)
+async def updateEverything():
+    global keys 
+    global header 
+    global no_requests
+    curr_header = header
+    curr_header["Authorization"] = keys[no_requests%(len(keys))]
+    id = client.get_guild(859316578994487306)
+    channel = client.get_channel(859442603984683099)
+    print('Updating everyones stats and roles')
+    promoted_users = []
+    demoted_users = []
+    for user in server_list:
+        player_id = server_list[user]['ID']
+        user_ign = server_list[user]['IGN']
+        curr_role = server_list[user]['Rank']
+        user_id = user
+        season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
+        second_request = requests.get(season_url, headers=curr_header)
+        curr_header['Authorization'] = keys[no_requests % (len(keys))]
+        no_requests += 1
+        season_info = json.loads(second_request.text)
+        c_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
+        c_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentRankPoint']
+        h_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestTier']['tier']
+        h_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestRankPoint']
+        games_played = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['roundsPlayed']
+        team_kills = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['teamKills']
+        KDA = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['kda']
+        season_wins = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['wins']
+        season_damage = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['damageDealt']
+        
+        new_role = c_rank
+        ADR = round(season_damage/games_played,0)
+        KDA = round(KDA,2)
+        server_list.update({str(user_id): {'IGN': user_ign, 'ID': player_id, 'Rank': new_role}})
+        server_list[str(user_id)]['c_rank'] = c_rank
+        server_list[str(user_id)]['c_rank_points'] = c_rank_points
+        server_list[str(user_id)]['h_rank'] = h_rank
+        server_list[str(user_id)]['h_rank_points'] = h_rank_points
+        server_list[str(user_id)]['games_played'] = games_played
+        server_list[str(user_id)]['team_kills'] = team_kills
+        server_list[str(user_id)]['season_wins'] = season_wins
+        server_list[str(user_id)]['KDA'] = KDA
+        server_list[str(user_id)]['ADR'] = ADR
+        server_list[str(user_id)]['Punisher'] = 0
+        server_list[str(user_id)]['Terminator'] = 0
+        server_list[str(user_id)]['team_killer'] = 0
+                
+        if new_role != curr_role:
+            try:
+                member = discord.utils.get(id.members, id=user_id)
+                await member.add_roles(discord.utils.get(id.roles, name=new_role))
+                server_list[user_id]['Rank'] = new_role
+                #Update the rank in the server list
+                with open("edited_server_list.json", "w") as data_file:
+                    json.dump(server_list, data_file, indent=2)
+                #Remove old rank
+                if curr_role != 'Dirt':
+                    await member.remove_roles(discord.utils.get(id.roles, name=curr_role))
+                if server_roles.index(new_role) > server_roles.index(curr_role):
+                    #Promoted user:
+                    promoted_users.append(user_id)
+                else:
+                    demoted_users.append(user_id)
+                with open("edited_server_list.json", "w") as data_file:
+                    json.dump(server_list, data_file, indent=2)
+            except Exception as e:
+                print("There was an error changing your rank " + str(e))
+
+    if len(promoted_users) > 0:
+        await channel.send("The following users have been promoted:")
+        for user in promoted_users:
+            member = discord.utils.get(id.members, id=int(user))
+            await channel.send(f"""{member.mention}""")
+
+    maxKDA = 0
+    maxKDA_user = ''
+    current_Terminator = 'None'
+
+    for user in server_list:
+        if server_list[user]['Terminator'] == 1:
+            current_Terminator = user
+    
+    for user in server_list:
+        if (server_list[user]['KDA'] > maxKDA):
+            maxKDA = server_list[user]['KDA']
+            maxKDA_user = user
+
+    server_list[maxKDA_user]['Terminator'] = 1
+
+    if current_Terminator == 'None':
+        role = discord.utils.get(id.roles, name='Terminator')
+        member = discord.utils.get(id.members, id=int(maxKDA_user))
+        await member.add_roles(role)
+        await channel.send(f"""A new Terminator role has been assigned to {member.mention}. Congrats!!""")
+    elif current_Terminator == maxKDA_user:
+        print("Terminator is the same as before!!")
+    else:
+        role = discord.utils.get(id.roles, name='Terminator')
+        member = discord.utils.get(id.members, id=int(current_Terminator))
+        await member.remove_roles(role)
+        server_list[current_Terminator]['Terminator'] = 0
+        member = discord.utils.get(id.members, id=int(maxKDA_user))
+        await member.add_roles(role)
+        await channel.send(f"""Previous Terminator has been replaced by {member.mention}. Congrats!!""")
+
+    with open("edited_server_list.json", "w") as data_file:
+        json.dump(server_list, data_file, indent=2)
+
+    maxADR = 0
+    maxADR_user = ''
+    current_Punisher = 'None'
+
+    for user in server_list:
+        if server_list[user]['Punisher'] == 1:
+            current_Punisher = user
+    
+    for user in server_list:
+        if (server_list[user]['ADR'] > maxADR) and (server_list[user]['Rank'] != "Dirt"):
+            maxADR = server_list[user]['ADR']
+            maxADR_user = user
+
+    server_list[maxADR_user]['Punisher'] = 1
+
+    if current_Punisher == 'None':
+        role = discord.utils.get(id.roles, name='Punisher')
+        member = discord.utils.get(id.members, id=int(maxADR_user))
+        await member.add_roles(role)
+        await channel.send(f"""A new Punisher role (Highest ADR) has been assigned to {member.mention}. Congrats!!""")
+    elif current_Punisher == maxADR_user:
+        print("Punisher is the same as before!!")
+    else:
+        role = discord.utils.get(id.roles, name='Punisher')
+        member = discord.utils.get(id.members, id=int(current_Punisher))
+        await member.remove_roles(role)
+        server_list[current_Punisher]['Punisher'] = 0
+        member = discord.utils.get(id.members, id=int(maxADR_user))
+        await member.add_roles(role)
+        await channel.send(f"""Previous Punisher has been replaced by {member.mention}. Congrats!!""")
+
+    with open("edited_server_list.json", "w") as data_file:
+        json.dump(server_list, data_file, indent=2)
 
 client.run(bot_token)
