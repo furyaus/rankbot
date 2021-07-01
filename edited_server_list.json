@@ -1,19 +1,4 @@
 {
-  "337889441009893376": {
-    "IGN": "0cker",
-    "ID": "f81f8eb12b944def83cb2e5e57ec7893",
-    "Rank": "Diamond",
-    "c_rank": "Diamond",
-    "c_rank_points": 3112,
-    "h_rank": "Diamond",
-    "h_rank_points": 3350,
-    "Punisher": 0,
-    "Terminator": 1,
-    "team_killer": 0,
-    "KD": 3.5581,
-    "ADR": 359.21,
-    "team_kills": 1
-  },
   "142744407123165184": {
     "IGN": "furyaus",
     "ID": "6be60825d4fa400aa6817ad9b546d03e",
@@ -22,10 +7,11 @@
     "c_rank_points": 3078,
     "h_rank": "Diamond",
     "h_rank_points": 3097,
-    "total_kills": "Diamond",
+    "games_played": 139,
+    "team_kills": 0,
     "season_wins": 11,
-    "KDA": 1.1954887,
-    "ADR": 183.361,
+    "KDA": 1.2,
+    "ADR": 183.0,
     "Punisher": 0,
     "Terminator": 0,
     "team_killer": 0
