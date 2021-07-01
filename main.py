@@ -475,7 +475,7 @@ async def top20adr(ctx):
     while i > -(total_length+1):
         ign = new_server_list[i]['IGN']
         player_adr = new_server_list[i]['ADR']
-        curr_line = "%i : %s, ADR = %.3f\n" % (abs(j), ign, player_adr)
+        curr_line = "%i : %s, ADR = %.0f\n" % (abs(j), ign, player_adr)
         top_20_string += curr_line
         j += 1
         if j == 21:
@@ -498,8 +498,8 @@ async def top20ranks(ctx):
     j = 1 
     while i > -(total_length+1):
         ign = new_server_list[i]['IGN']
-        player_rank = round(new_server_list[i]['c_rank_points'],0)
-        curr_line = "%i : %s, Rank Points = %.3f\n" % (abs(j), ign, player_rank)
+        player_rank = new_server_list[i]['c_rank_points']
+        curr_line = "%i : %s, Rank Points = %.0f\n" % (abs(j), ign, player_rank)
         top_20_string += curr_line
         j += 1
         if j == 21:
