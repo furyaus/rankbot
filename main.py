@@ -462,13 +462,13 @@ async def getteamkiller(ctx):
 
 
 @client.command()
-async def top20adr(ctx):
+async def top50adr(ctx):
     channel = client.get_channel(859442603984683099)
     response_msg = discord.Embed(
       colour=discord.Colour.red(),
-      title="Top 20 ADR in this server",)
+      title="Top 50 ADR in this server",)
     new_server_list = sorted(server_list.values(), key=itemgetter('ADR'))
-    top_20_string = ''
+    top_50_string = ''
     total_length = len(new_server_list)
     i = -1
     j = 1
@@ -476,23 +476,23 @@ async def top20adr(ctx):
         ign = new_server_list[i]['IGN']
         player_adr = new_server_list[i]['ADR']
         curr_line = "%i : %s, ADR = %.0f\n" % (abs(j), ign, player_adr)
-        top_20_string += curr_line
+        top_50_string += curr_line
         j += 1
-        if j == 21:
+        if j == 51:
             break
         i -= 1
-    response_msg.add_field(name="Top ADR:", value=top_20_string,inline=False)
+    response_msg.add_field(name="Top ADR:", value=top_50_string,inline=False)
     await channel.send(embed=response_msg)
 
 
 @client.command()
-async def top20ranks(ctx):
+async def top50ranks(ctx):
     channel = client.get_channel(859442603984683099)
     new_server_list = sorted(server_list.values(), key=itemgetter('c_rank_points'))
     response_msg = discord.Embed(
       colour=discord.Colour.red(),
-      title="Top 20 Rank holders in this server",)
-    top_20_string = ''
+      title="Top 50 Rank holders in this server",)
+    top_50_string = ''
     i = -1
     total_length = len(new_server_list)
     j = 1 
@@ -500,12 +500,12 @@ async def top20ranks(ctx):
         ign = new_server_list[i]['IGN']
         player_rank = new_server_list[i]['c_rank_points']
         curr_line = "%i : %s, Rank Points = %.0f\n" % (abs(j), ign, player_rank)
-        top_20_string += curr_line
+        top_50_string += curr_line
         j += 1
-        if j == 21:
+        if j == 51:
             break
         i -= 1
-    response_msg.add_field(name="Top rank holders:", value=top_20_string,inline=False)
+    response_msg.add_field(name="Top rank holders:", value=top_50_string,inline=False)
     await channel.send(embed=response_msg)
 
 client.run(bot_token)

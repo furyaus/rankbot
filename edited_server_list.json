@@ -12,7 +12,7 @@
     "season_wins": 11,
     "KDA": 1.2,
     "ADR": 183.0,
-    "Punisher": 1,
+    "Punisher": 0,
     "Terminator": 0,
     "team_killer": 0
   },
@@ -30,7 +30,7 @@
     "KDA": 2.21,
     "ADR": 243.0,
     "Punisher": 0,
-    "Terminator": 0,
+    "Terminator": 1,
     "team_killer": 0
   },
   "150579587351314432": {
@@ -46,7 +46,7 @@
     "season_wins": 4,
     "KDA": 1.8,
     "ADR": 299.0,
-    "Punisher": 0,
+    "Punisher": 1,
     "Terminator": 0,
     "team_killer": 0
   },
