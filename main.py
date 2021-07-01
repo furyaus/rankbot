@@ -339,7 +339,6 @@ async def updatestats(ctx):
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
 async def getterminator(ctx):
     await ctx.send("Calculating who should get the Terminator role....")
-    id = client.get_guild(859316578994487306)
     channel = client.get_channel(859442603984683099)
     max_kda = 0
     max_kda_user = ''
@@ -359,7 +358,7 @@ async def getterminator(ctx):
         role = discord.utils.get(ctx.guild.roles, name='Terminator')
         member = await ctx.guild.fetch_member(max_kda_user)
         await member.add_roles(role)
-        await channel.send(f"A new Terminator role has been assigned to {member.mention}. Congrats!!")
+        await channel.send(f"A new Terminator role (highest KDA) has been assigned to {member.mention}. Congrats!!")
     elif current_terminator == max_kda_user:
         await channel.send("Terminator is the same as before!!")
     else:
@@ -369,7 +368,7 @@ async def getterminator(ctx):
         server_list[current_terminator]['Terminator'] = 0
         member = await ctx.guild.fetch_member(max_kda_user)
         await member.add_roles(role)
-        await channel.send(f"Previous Terminator has been replaced by {member.mention}. Congrats!!")
+        await channel.send(f"Previous Terminator (highest KDA) has been replaced by {member.mention}. Congrats!!")
 
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
@@ -379,7 +378,6 @@ async def getterminator(ctx):
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
 async def getpunisher(ctx):
     await ctx.send("Calculating who should get the Punisher role....")
-    id = client.get_guild(859316578994487306)
     channel = client.get_channel(859442603984683099)
     max_adr = 0
     max_adr_user = ''
@@ -400,9 +398,9 @@ async def getpunisher(ctx):
         role = discord.utils.get(ctx.guild.roles, name='Punisher')
         member = await ctx.guild.fetch_member(max_adr_user)
         await member.add_roles(role)
-        await channel.send(f"A new Punisher role (Highest ADR) has been assigned to {member.mention}. Congrats!!")
+        await channel.send(f"A new Punisher role (highest ADR) has been assigned to {member.mention}. Congrats!!")
     elif current_punisher == max_adr_user:
-        print("Punisher is the same as before!!")
+        await channel.send("Punisher is the same as before!!")
     else:
         role = discord.utils.get(ctx.guild.roles, name='Punisher')
         member = await ctx.guild.fetch_member(current_punisher)
@@ -410,24 +408,7 @@ async def getpunisher(ctx):
         server_list[current_punisher]['Punisher'] = 0
         member = await ctx.guild.fetch_member(max_adr_user)
         await member.add_roles(role)
-        await channel.send(f"Previous Punisher has been replaced by {member.mention}. Congrats!!")
-        
-    new_server_list = sorted(server_list.values(), key=itemgetter('ADR'))
-    await channel.send("Top 5 ADR in this server:")
-    top_5_string = ''
-    total_length = len(new_server_list)
-    i = -1
-    j = 1 
-    while i > -(total_length - 1):
-        ign = new_server_list[i]['IGN']
-        player_adr = new_server_list[i]['ADR']
-        curr_line = "%i : %s, ADR = %.3f\n" % (abs(j), ign, player_adr)
-        top_5_string += curr_line
-        j += 1
-        if j == 6:
-            break
-        i -= 1
-    await channel.send(top_5_string)
+        await channel.send(f"Previous Punisher (highest ADR) has been replaced by {member.mention}. Congrats!!")
 
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
@@ -482,65 +463,49 @@ async def getteamkiller(ctx):
 
 @client.command()
 async def top20adr(ctx):
+    channel = client.get_channel(859442603984683099)
+    response_msg = discord.Embed(
+      colour=discord.Colour.red(),
+      title="Top 20 ADR in this server",)
     new_server_list = sorted(server_list.values(), key=itemgetter('ADR'))
-    await ctx.send("Top 20 ADR in this server:")
     top_20_string = ''
     total_length = len(new_server_list)
     i = -1
     j = 1
-    while i > -(total_length - 1):
+    while i > -(total_length+1):
         ign = new_server_list[i]['IGN']
         player_adr = new_server_list[i]['ADR']
         curr_line = "%i : %s, ADR = %.3f\n" % (abs(j), ign, player_adr)
         top_20_string += curr_line
         j += 1
-
         if j == 21:
             break
         i -= 1
-
-    await ctx.send(top_20_string)
+    response_msg.add_field(name="Top ADR:", value=top_20_string,inline=False)
+    await channel.send(embed=response_msg)
 
 
 @client.command()
-async def top20(ctx):
-    new_server_list = sorted(server_list.values(), key=itemgetter('KDA'))
-    await ctx.send("Top 20 Sweats in this server:")
+async def top20ranks(ctx):
+    channel = client.get_channel(859442603984683099)
+    new_server_list = sorted(server_list.values(), key=itemgetter('c_rank_points'))
+    response_msg = discord.Embed(
+      colour=discord.Colour.red(),
+      title="Top 20 Rank holders in this server",)
     top_20_string = ''
     i = -1
     total_length = len(new_server_list)
     j = 1 
-    while i > -(total_length - 1):
+    while i > -(total_length+1):
         ign = new_server_list[i]['IGN']
-        player_kd = new_server_list[i]['KDA']
-        curr_line = "%i : %s, KDA = %.3f\n" % (abs(j), ign, player_kd)
+        player_rank = round(new_server_list[i]['c_rank_points'],0)
+        curr_line = "%i : %s, Rank Points = %.3f\n" % (abs(j), ign, player_rank)
         top_20_string += curr_line
         j += 1
         if j == 21:
             break
         i -= 1
-
-    await ctx.send(top_20_string)
-
-@client.command()
-async def top20announce(ctx):
-    channel = client.get_channel(859442603984683099)
-    new_server_list = sorted(server_list.values(), key=itemgetter('KDA'))
-    await channel.send("Top 20 Sweats in this server (with more than 100 games this season):")
-    top_20_string = ''
-    i = -1
-    total_length = len(new_server_list)
-    j = 1  # Shadows
-    while i > -(total_length - 1):
-        ign = new_server_list[i]['IGN']
-        player_kd = new_server_list[i]['KDA']
-        curr_line = "%i : %s, KDA = %.3f\n" % (abs(j), ign, player_kd)
-        top_20_string += curr_line
-        j += 1
-        if j == 21:
-            break
-        i -= 1
-
-    await channel.send(top_20_string)
+    response_msg.add_field(name="Top rank holders:", value=top_20_string,inline=False)
+    await channel.send(embed=response_msg)
 
 client.run(bot_token)
