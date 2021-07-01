@@ -30,12 +30,7 @@ API_key_p4 = os.environ['API_key_p4']
 
 #Keys in order - furyaus, ocker, p4, 
 keys = ["Bearer "+API_key_fury,"Bearer "+API_key_ocker,"Bearer "+API_key_p4]
-
-
-header = {
-    "Authorization": "Bearer "+API_key_fury,
-    "Accept": "application/vnd.api+json"
-}
+header = {"Authorization": "Bearer "+API_key_fury,"Accept": "application/vnd.api+json"}
 
 json_file_path = "edited_server_list.json"
 with open(json_file_path, 'r') as j:
@@ -60,8 +55,8 @@ async def help(ctx):
     help_msg.add_field(name="checkstats:", value=".checkstats <USERNAME> , used to check someone's squad FPP stats, for example '.checkstats furyaus'", inline=False)
     help_msg.add_field(name="enlist:", value=".enlist <USERNAME> , links your discord username with your PUBG in-game name, You only have to do this once!",inline=False)
     help_msg.add_field(name="updaterole:", value=".updaterole , Updates your role if your stats have changed", inline=False)
-    help_msg.add_field(name="top20", value=".top20 , Top 20 KD", inline=False)
-    help_msg.add_field(name="top20ADR:", value=".top20ADR , Top 20 ADR", inline=False)
+    help_msg.add_field(name="top 50 Ranks", value=".top50ranks , Top 20 KD", inline=False)
+    help_msg.add_field(name="top 50 ADR:", value=".top50adr , Top 20 ADR", inline=False)
     await ctx.send(embed=help_msg)
 
 @client.command(pass_context=True)
@@ -210,7 +205,6 @@ async def enlist(ctx, user_ign):
             with open("edited_server_list.json", "w") as data_file:
                 json.dump(server_list, data_file, indent=2)
 
-
 @client.command()
 async def updaterole(ctx):
     global keys
@@ -270,11 +264,9 @@ async def updaterole(ctx):
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
 
-
 @client.command()
 async def totalenlisted(ctx):
     await ctx.send(f"There are currently {len(server_list)} people enlisted in this server!")
-
 
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
@@ -334,7 +326,6 @@ async def updatestats(ctx):
 
     await ctx.send("Finished Updating the stats")
 
-
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
 async def getterminator(ctx):
@@ -372,7 +363,6 @@ async def getterminator(ctx):
 
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
-
 
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
@@ -412,7 +402,6 @@ async def getpunisher(ctx):
 
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
-
 
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
@@ -460,7 +449,6 @@ async def getteamkiller(ctx):
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
 
-
 @client.command()
 async def top50adr(ctx):
     channel = client.get_channel(859442603984683099)
@@ -483,7 +471,6 @@ async def top50adr(ctx):
         i -= 1
     response_msg.add_field(name="Top ADR:", value=top_50_string,inline=False)
     await channel.send(embed=response_msg)
-
 
 @client.command()
 async def top50ranks(ctx):
