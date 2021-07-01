@@ -17,42 +17,23 @@ import time
 import os
 import sys
 
-print(f"Python version: {sys.version}")
-
 client = commands.Bot(command_prefix=".")
 client.remove_command("help")
 
 # Global variables
-curr_season = "division.bro.official.pc-2018-07"
-prev_season = "division.bro.official.pc-2018-06"
-prev_prev_season = "division.bro.official.pc-2018-03"
+curr_season = "division.bro.official.pc-2018-12"
+prev_season = "division.bro.official.pc-2018-11"
+prev_prev_season = "division.bro.official.pc-2018-10"
 
 bot_token = os.environ['discord_token']
 API_key = os.environ['API_key']
 
-keys = ["Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzNTgyZDhlMC1iM2I1LTAxMzktOGY0YS0yZDliOGVkMDhlMTQiLCJpc3MiOiJnYW1lbG9ja2VyIiwiaWF0IjoxNjI0MTY2NDU0LCJwdWIiOiJibHVlaG9sZSIsInRpdGxlIjoicHViZyIsImFwcCI6InJhbmtlZGJvdCJ9.1wpVbT-75yeziFq41tjeLWxFbJFI9sK2wcPGSaBOfus",\
-"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzNTgyZDhlMC1iM2I1LTAxMzktOGY0YS0yZDliOGVkMDhlMTQiLCJpc3MiOiJnYW1lbG9ja2VyIiwiaWF0IjoxNjI0MTY2NDU0LCJwdWIiOiJibHVlaG9sZSIsInRpdGxlIjoicHViZyIsImFwcCI6InJhbmtlZGJvdCJ9.1wpVbT-75yeziFq41tjeLWxFbJFI9sK2wcPGSaBOfus",\
-"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzNTgyZDhlMC1iM2I1LTAxMzktOGY0YS0yZDliOGVkMDhlMTQiLCJpc3MiOiJnYW1lbG9ja2VyIiwiaWF0IjoxNjI0MTY2NDU0LCJwdWIiOiJibHVlaG9sZSIsInRpdGxlIjoicHViZyIsImFwcCI6InJhbmtlZGJvdCJ9.1wpVbT-75yeziFq41tjeLWxFbJFI9sK2wcPGSaBOfus",\
-"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzNTgyZDhlMC1iM2I1LTAxMzktOGY0YS0yZDliOGVkMDhlMTQiLCJpc3MiOiJnYW1lbG9ja2VyIiwiaWF0IjoxNjI0MTY2NDU0LCJwdWIiOiJibHVlaG9sZSIsInRpdGxlIjoicHViZyIsImFwcCI6InJhbmtlZGJvdCJ9.1wpVbT-75yeziFq41tjeLWxFbJFI9sK2wcPGSaBOfus",\
-"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzNTgyZDhlMC1iM2I1LTAxMzktOGY0YS0yZDliOGVkMDhlMTQiLCJpc3MiOiJnYW1lbG9ja2VyIiwiaWF0IjoxNjI0MTY2NDU0LCJwdWIiOiJibHVlaG9sZSIsInRpdGxlIjoicHViZyIsImFwcCI6InJhbmtlZGJvdCJ9.1wpVbT-75yeziFq41tjeLWxFbJFI9sK2wcPGSaBOfus"]
+keys = ["Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzNTgyZDhlMC1iM2I1LTAxMzktOGY0YS0yZDliOGVkMDhlMTQiLCJpc3MiOiJnYW1lbG9ja2VyIiwiaWF0IjoxNjI0MTY2NDU0LCJwdWIiOiJibHVlaG9sZSIsInRpdGxlIjoicHViZyIsImFwcCI6InJhbmtlZGJvdCJ9.1wpVbT-75yeziFq41tjeLWxFbJFI9sK2wcPGSaBOfus"]
 
 header = {
     "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzNTgyZDhlMC1iM2I1LTAxMzktOGY0YS0yZDliOGVkMDhlMTQiLCJpc3MiOiJnYW1lbG9ja2VyIiwiaWF0IjoxNjI0MTY2NDU0LCJwdWIiOiJibHVlaG9sZSIsInRpdGxlIjoicHViZyIsImFwcCI6InJhbmtlZGJvdCJ9.1wpVbT-75yeziFq41tjeLWxFbJFI9sK2wcPGSaBOfus",
     "Accept": "application/vnd.api+json"
 }
-
-def get_quote():
-    response = requests.get("https://zenquotes.io/api/random")
-    json_data = json.loads(response.text)
-    quote = json_data[0]['q'] + " -" + json_data[0]['a']
-    return quote
-
-
-@client.event
-async def on_message(message):
-    if message.content.startswith("$inspire"):
-        quote = get_quote()
-        await message.channel.send(quote)
 
 
 json_file_path = "edited_server_list.json"
@@ -119,11 +100,8 @@ async def check_stats(ctx, username):
             "per minute)")
     else:
         player_info = json.loads(initial_r.text)
-        # First get the ID:
         player_id = player_info['data'][0]['id'].replace('account.', '')
-
-        # Retrieve the season data and calculate KD
-        season_url = "https://api.pubg.com/shards/steam/players/" + player_id + "/seasons/" + curr_season
+        season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
         second_request = requests.get(season_url, headers=curr_header)
         curr_header['Authorization'] = keys[no_requests % (len(keys))]
         no_requests += 1
@@ -145,7 +123,6 @@ async def check_stats(ctx, username):
             else:
                 tru_kd = total_kills / season_losses
                 adr = round(season_damage / games_played, 3)
-                # GG_KD = total_kills/(games_played - season_wins)
                 await ctx.send(f"{username}'s Stats:\nIn-Game KD is: {round(tru_kd, 2)}")
                 await ctx.send(f"ADR = {adr}")
                 if games_played < 50:
@@ -181,7 +158,7 @@ async def check_my_stats(ctx):
         await ctx.send(f"Checking {user}'s Squad-FPP stats:")
         player_id = server_list[str(user_id)]['ID']
         # Retrieve the season data and calculate KD
-        season_url = "https://api.pubg.com/shards/steam/players/" + player_id + "/seasons/" + curr_season
+        season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
         second_request = requests.get(season_url, headers=curr_header)
         no_requests += 1
         season_info = json.loads(second_request.text)
@@ -267,7 +244,7 @@ async def enlist(ctx, user_ign):
             player_info = json.loads(initial_r.text)
             # First get the ID:
             player_id = player_info['data'][0]['id'].replace('account.', '')
-            season_url = "https://api.pubg.com/shards/steam/players/" + player_id + "/seasons/" + curr_season
+            season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
             curr_header['Authorization'] = keys[no_requests % (len(keys))]
             second_request = requests.get(season_url, headers=curr_header)
             no_requests += 1
@@ -391,7 +368,7 @@ async def change_ign(ctx, member: discord.Member, user_ign):
         del server_list[str(member.id)]
         # First get the ID:
         player_id = player_info['data'][0]['id'].replace('account.', '')
-        season_url = "https://api.pubg.com/shards/steam/players/" + player_id + "/seasons/" + curr_season
+        season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
         curr_header['Authorization'] = keys[no_requests % (len(keys))]
         second_request = requests.get(season_url, headers=curr_header)
         no_requests += 1
@@ -460,8 +437,8 @@ async def update_everyone(ctx):
     # Check and update everyone's roles and make announcements on promotions and demotions!
     id = client.get_guild(859316578994487306)  # Shadows
     # Rank bot announcements channel:
-    channel = client.get_channel(859316578994487310)
-    channel2 = client.get_channel(652462920734605317)
+    channel = client.get_channel(859442603984683099)
+    channel2 = client.get_channel(860087171099656234)
     print("Updating everyone's stats and roles")
     # await channel.send("Making daily updates to everyone's roles.....")
     # Making a request based on 10 players at a time
@@ -483,9 +460,7 @@ async def update_everyone(ctx):
         total_additions += 1
         if no_of_players == 10 or total_additions == len(server_list):
             player_id_list = ','.join(curr_request_list)
-            season_url = "https://api.pubg.com/shards/steam/seasons/" + curr_season + "/gameMode/squad-fpp/players" \
-                                                                                      "?filter[playerIds]=" + \
-                         player_id_list
+            season_url = "https://api.pubg.com/shards/steam/seasons/" + curr_season + "/gameMode/squad-fpp/players?filter[playerIds]=" + "account."+ player_id_list
             second_request = requests.get(season_url, headers=curr_header)
             no_requests += 1
             curr_header['Authorization'] = keys[no_requests % (len(keys))]
@@ -658,14 +633,14 @@ async def update_role(ctx):
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     id = client.get_guild(859316578994487306)  # Shadows
     # Rank bot announcements channel:
-    channel = client.get_channel(859316578994487310)
+    channel = client.get_channel(859442603984683099)
     user = ctx.message.author
     user_id = user.id
     if str(user_id) in server_list:
         curr_rank = server_list[str(user_id)]['Rank']
         await ctx.send("Your current rank is: " + server_list[str(user_id)]['Rank'])
         player_id = server_list[str(user_id)]['ID']
-        season_url = "https://api.pubg.com/shards/steam/players/" + player_id + "/seasons/" + curr_season
+        season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
         second_request = requests.get(season_url, headers=curr_header)
         no_requests += 1
         season_info = json.loads(second_request.text)
@@ -759,7 +734,7 @@ async def get_team_killer(ctx):
     await ctx.send("Calculating who should get the team-killer role....")
     id = client.get_guild(859316578994487306)  # Shadows
     # Rank bot announcements channel:
-    channel = client.get_channel(859316578994487310)
+    channel = client.get_channel(859442603984683099)
     max_team_kills = 0
     max_team_kills_user = ''
     current_team_killer = 'None'
@@ -835,9 +810,7 @@ async def update_stats(ctx):
         total_additions += 1
         if no_of_players == 10 or total_additions == len(server_list):
             player_id_list = ','.join(curr_request_list)
-            season_url = "https://api.pubg.com/shards/steam/seasons/" + curr_season + "/gameMode/squad-fpp/players" \
-                                                                                      "?filter[playerIds]=" + \
-                         player_id_list
+            season_url = "https://api.pubg.com/shards/steam/seasons/" + curr_season + "/gameMode/squad-fpp/players?filter[playerIds]=" + "account."+ player_id_list
             second_request = requests.get(season_url, headers=curr_header)
             total_api_requests += 1
             if total_api_requests == 10:
@@ -878,7 +851,7 @@ async def get_terminator(ctx):
     await ctx.send("Calculating who should get the Terminator role....")
     id = client.get_guild(859316578994487306)  # Shadows
     # Rank bot announcements channel:
-    channel = client.get_channel(859316578994487310)
+    channel = client.get_channel(859442603984683099)
     max_kd = 0
     max_kd_user = ''
     current_terminator = 'None'
@@ -923,7 +896,7 @@ async def get_punisher(ctx):
     await ctx.send("Calculating who should get the Punisher role....")
     id = client.get_guild(859316578994487306)  # Shadows
     # Rank bot announcements channel:
-    channel = client.get_channel(859316578994487310)
+    channel = client.get_channel(859442603984683099)
     max_adr = 0
     max_adr_user = ''
     current_punisher = 'None'
@@ -1059,7 +1032,7 @@ async def top20(ctx):
 
 @client.command()
 async def top20_announce(ctx):
-    channel = client.get_channel(859316578994487310)
+    channel = client.get_channel(859442603984683099)
     new_server_list = sorted(server_list.values(), key=itemgetter('KD'))
     await channel.send("Top 20 Sweats in this server (with more than 100 games this season):")
     top_20_string = ''
@@ -1132,7 +1105,7 @@ async def r_they_hacking(ctx, username):
         player_id = player_info['data'][0]['id'].replace('account.', '')
 
         # Retrieve the season data and calculate KD
-        season_url = "https://api.pubg.com/shards/steam/players/" + player_id + "/seasons/" + curr_season
+        season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
         second_request = requests.get(season_url, headers=curr_header)
         season_info = json.loads(second_request.text)
         games_played = season_info['data']['attributes']['gameModeStats']['squad-fpp']['roundsPlayed']
@@ -1161,7 +1134,7 @@ async def r_they_hacking(ctx, username):
 
 @client.event
 async def on_member_remove(member):
-    channel2 = client.get_channel(652462920734605317)
+    channel2 = client.get_channel(860087171099656234)
     members_id = member.id
     if str(member.id) in server_list:
         await channel2.send(f"Removing {str(member)} from the list because they left the server")
@@ -1180,8 +1153,8 @@ async def update_everything():
     # Check and update everyone's roles and make announcements on promotions and demotions!
     id = client.get_guild(859316578994487306)  # Shadows
     # Rank bot announcements channel:
-    channel = client.get_channel(859316578994487310)
-    channel2 = client.get_channel(652462920734605317)
+    channel = client.get_channel(859442603984683099)
+    channel2 = client.get_channel(860087171099656234)
     print("Updating everyone's stats and roles")
     # Making a request based on 10 players at a time
     no_of_players = 0
@@ -1202,10 +1175,12 @@ async def update_everything():
         total_additions += 1
         if no_of_players == 10 or total_additions == len(server_list):
             player_id_list = ','.join(curr_request_list)
-            season_url = "https://api.pubg.com/shards/steam/seasons/" + curr_season + "/gameMode/squad-fpp/players" \
-                                                                                      "?filter[playerIds]=" + \
-                         player_id_list
+            season_url = "https://api.pubg.com/shards/steam/seasons/" + curr_season + "/gameMode/squad-fpp/players?filter[playerIds]=" + "account."+ player_id_list
             second_request = requests.get(season_url, headers=curr_header)
+            if second_request.status_code == 200:
+                print("Successfully Connected!!!")
+            else:
+                print("Failed to Connect!!!")
             no_requests += 1
             curr_header["Authorization"] = keys[no_requests % (len(keys))]
             if second_request.status_code == 429:
