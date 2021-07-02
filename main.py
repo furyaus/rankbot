@@ -518,7 +518,7 @@ async def top50ranks(ctx):
     response_msg.add_field(name="Top rank holders:", value=top_50_string,inline=False)
     await channel.send(embed=response_msg)
 
-@tasks.loop(hours=10.0)
+@tasks.loop(hours=4.0)
 async def updateEverything():
     global keys 
     global header 
