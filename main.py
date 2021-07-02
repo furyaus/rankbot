@@ -13,6 +13,7 @@ from operator import itemgetter
 import requests
 import json
 import os
+import random
 
 # Frustrating new discord requirements to pull user.id
 clientintents = discord.Intents.all()
@@ -38,6 +39,12 @@ top50adr_msg = int(os.environ['top50adr_msg'])
 admin_roles = ["Mods", "Admin", "Boss"]
 no_requests = 0
 curr_key = 0
+sad_words = ["sad", "depressed", "unhappy", "angry", "miserable"]
+starter_encouragements = [
+  "Cheer up! 17 kill win on the way!",
+  "Hang in there. Chicken dinner next game!",
+  "You rock at PUBG!"
+]
 
 # Keys in order - furyaus, ocker, p4
 keys = ["Bearer "+API_key_fury,"Bearer "+API_key_ocker,"Bearer "+API_key_p4]
@@ -48,29 +55,17 @@ json_file_path = "edited_server_list.json"
 with open(json_file_path, 'r') as j:
     server_list = json.loads(j.read())
 
-# Inspire your day
-@client.command()
-async def inspire(ctx):
-  response_msg = discord.Embed(
-      colour=discord.Colour.orange())
-  response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-  response = requests.get("https://zenquotes.io/api/random")
-  json_data = json.loads(response.text)
-  quote = json_data[0]['q'] + " -" + json_data[0]['a']
-  response_msg.add_field(name="Quote:", value=quote,inline=False)
-  await ctx.send(embed=response_msg)
-
 # Help
 @client.command(pass_context=True)
 async def help(ctx):
     help_msg = discord.Embed(
         colour=discord.Colour.orange(),
         title="Help for Rank Bot",
-        description="Rank Bot manages the roles, ranks and other stats for gamers within this discord.")
+        description="Rank Bot manages the roles, ranks and other stats for gamers in The 101 Club.")
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    help_msg.add_field(name="Link:", value=".link PUBG IGN, this links your discord userid with your PUBG in-game name. ```.link furyaus```",inline=False)
-    help_msg.add_field(name="Checkstats:", value=".checkstats PUBG IGN or discord @user. Live PUBG API data only. ```.checkstats 0cker```", inline=False)
-    help_msg.add_field(name="Mystats:", value=".mystats , Querys PUBG API for latest data and stores it via JSON file. ```.mystats GAMMB1T```", inline=False)
+    help_msg.add_field(name=".link:", value="This links your discord userid with your PUBG in-game name. ```.link furyaus```",inline=False)
+    help_msg.add_field(name=".checkstats:", value="Retireve live PUBG API data for a single user and display. No stats, ranks or roles are changed or stored. ```.checkstats 0cker```", inline=False)
+    help_msg.add_field(name=".mystats:", value="Queries PUBG API for your latest data, updates ranks, roles and stats which are stored via a JSON file. ```.mystats GAMMB1T```", inline=False)
     await ctx.send(embed=help_msg)
 
 # Admin help
@@ -85,6 +80,41 @@ async def adminhelp(ctx):
     help_msg.add_field(name="Remove user:", value=".removeuser @username (discord user), will allow someone to re-link to fix issues. ```.removeuser 36C_P4```", inline=False)
     help_msg.add_field(name="Update all stats:", value=".updatestatsall will force a full resync for all stored players with PUBG API. Only do once per hour. ```.updatestatsall```", inline=False)
     await ctx.send(embed=help_msg)
+
+# Support help
+@client.command(pass_context=True)
+async def support(ctx):
+    help_msg = discord.Embed(
+        colour=discord.Colour.orange(),
+        title="Support for The 101 Club members",
+        description="Rank Bot is here to support you through that 3rd, 14th place in scrims")
+    help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    help_msg.add_field(name=".inspire:", value="Responses with inspiration quotes, to really get you back on track```.inspire```",inline=False)
+    help_msg.add_field(name=".checkstats:", value="Retireve live PUBG API data for a single user and display. No stats, ranks or roles are changed or stored. ```.checkstats 0cker```", inline=False)
+    await ctx.send(embed=help_msg)
+
+# Inspire your day
+@client.command()
+async def inspire(ctx):
+  response_msg = discord.Embed(
+      colour=discord.Colour.orange())
+  response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+  response = requests.get("https://zenquotes.io/api/random")
+  json_data = json.loads(response.text)
+  quote = json_data[0]['q'] + " -" + json_data[0]['a']
+  response_msg.add_field(name="Quote:", value=quote,inline=False)
+  await ctx.send(embed=response_msg)
+
+async def on_message(message):
+  response_msg = discord.Embed(
+    colour=discord.Colour.orange())
+  response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+  if message.author == client.user:
+    return
+  msg = message.content
+  if any(word in msg for word in sad_words):
+    response_msg.add_field(name=message.author.name, value=random.choice(starter_encouragements),inline=False)
+    await message.channel.send(embed=response_msg)
 
 # Check my stats - live, direct api data response - look at JSON later
 @client.command()
