@@ -75,6 +75,7 @@ async def adminhelp(ctx):
     help_msg.add_field(name="team killer", value=".getteamkiller, finds the player with largest number of team kills", inline=False)
     help_msg.add_field(name="terminator", value=".getterminator, will update top killer", inline=False)
     help_msg.add_field(name="punisher:", value=".getpunisher, will update highest ADR", inline=False)
+    help_msg.add_field(name="general:", value=".getgeneral, will update the highest rank in server", inline=False)
     await ctx.send(embed=help_msg)
 
 @client.command()
@@ -191,9 +192,10 @@ async def enlist(ctx, user_ign):
             server_list[str(user_id)]['season_wins'] = season_wins
             server_list[str(user_id)]['KDA'] = KDA
             server_list[str(user_id)]['ADR'] = ADR
-            server_list[str(user_id)]['Punisher'] = 0
-            server_list[str(user_id)]['Terminator'] = 0
+            server_list[str(user_id)]['punisher'] = 0
+            server_list[str(user_id)]['terminator'] = 0
             server_list[str(user_id)]['team_killer'] = 0
+            server_list[str(user_id)]['general'] = 0
 
             await ctx.send("You have been enlisted into the server and your current rank is: " + new_role)
             role = discord.utils.get(ctx.guild.roles, name=new_role)
@@ -223,6 +225,10 @@ async def updaterole(ctx):
     )
     if str(user_id) in server_list:
         curr_rank = server_list[str(user_id)]['Rank']
+        curr_terminator = server_list[str(user_id)]['terminator']
+        curr_punisher = server_list[str(user_id)]['punisher']
+        curr_teamkiller = server_list[str(user_id)]['team_killer']
+        curr_general = server_list[str(user_id)]['general']
         response_msg.add_field(name="Rank:", value="Your current rank is: " + server_list[str(user_id)]['Rank'],inline=False)
         player_id = server_list[str(user_id)]['ID']
         season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
@@ -238,9 +244,6 @@ async def updaterole(ctx):
         KDA = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['kda']
         season_wins = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['wins']
         season_damage = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['damageDealt']
-        curr_terminator = server_list[str(user_id)]['Terminator']
-        curr_punisher = server_list[str(user_id)]['Punisher']
-        curr_teamkiller = server_list[str(user_id)]['team_killer']
 
         new_role = c_rank
         ADR = round(season_damage/games_played,0)
@@ -254,9 +257,10 @@ async def updaterole(ctx):
         server_list[str(user_id)]['season_wins'] = season_wins
         server_list[str(user_id)]['KDA'] = KDA
         server_list[str(user_id)]['ADR'] = ADR
-        server_list[str(user_id)]['Punisher'] = curr_punisher
-        server_list[str(user_id)]['Terminator'] = curr_terminator
+        server_list[str(user_id)]['punisher'] = curr_punisher
+        server_list[str(user_id)]['terminator'] = curr_terminator
         server_list[str(user_id)]['team_killer'] = curr_teamkiller
+        server_list[str(user_id)]['general'] = curr_general
 
         if new_role == curr_rank:
             response_msg.add_field(name="Rank:", value="Your rank is the same as before.",inline=False)
@@ -296,16 +300,16 @@ async def updatestats(ctx):
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
 async def getterminator(ctx):
-    await ctx.send("Calculating who should get the Terminator role - please check rank bot channel for output.")
+    await ctx.send("Calculating who should get the terminator role - please check rank bot channel for output.")
     response_msg = discord.Embed(
       colour=discord.Colour.red(),
-      title="Terminator (highest KDA)",)
+      title="terminator (highest KDA)",)
     channel = client.get_channel(d_channel)
     max_kda = 0
     max_kda_user = ''
     current_terminator = 'None'
     for user in server_list:
-        if server_list[user]['Terminator'] == 1:
+        if server_list[user]['terminator'] == 1:
             current_terminator = user
 
     for user in server_list:
@@ -313,23 +317,23 @@ async def getterminator(ctx):
             max_kda = server_list[user]['KDA']
             max_kda_user = user
 
-    server_list[max_kda_user]['Terminator'] = 1
+    server_list[max_kda_user]['terminator'] = 1
 
     if current_terminator == 'None':
-        role = discord.utils.get(ctx.guild.roles, name='Terminator')
+        role = discord.utils.get(ctx.guild.roles, name='terminator')
         member = await ctx.guild.fetch_member(max_kda_user)
         await member.add_roles(role)
-        response_msg.add_field(name="Terminator:", value=f"A new Terminator role (highest KDA) has been assigned to {member.mention}. Congrats!",inline=False)
+        response_msg.add_field(name="terminator:", value=f"A new terminator role (highest KDA) has been assigned to {member.mention}. Congrats!",inline=False)
     elif current_terminator == max_kda_user:
-        response_msg.add_field(name="Terminator:", value=f"Terminator is the same as before: {member.mention}",inline=False)
+        response_msg.add_field(name="terminator:", value=f"terminator is the same as before.",inline=False)
     else:
-        role = discord.utils.get(ctx.guild.roles, name='Terminator')
+        role = discord.utils.get(ctx.guild.roles, name='terminator')
         member = await ctx.guild.fetch_member(current_terminator)
         await member.remove_roles(role)
-        server_list[current_terminator]['Terminator'] = 0
+        server_list[current_terminator]['terminator'] = 0
         member = await ctx.guild.fetch_member(max_kda_user)
         await member.add_roles(role)
-        response_msg.add_field(name="Terminator:", value=f"Previous Terminator (highest KDA) has been replaced by {member.mention}. Congrats!",inline=False)
+        response_msg.add_field(name="terminator:", value=f"Previous terminator (highest KDA) has been replaced by {member.mention}. Congrats!",inline=False)
 
     await channel.send(embed=response_msg)
     with open("edited_server_list.json", "w") as data_file:
@@ -338,17 +342,17 @@ async def getterminator(ctx):
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
 async def getpunisher(ctx):
-    await ctx.send("Calculating who should get the Punisher role - please check rank bot channel for output.")
+    await ctx.send("Calculating who should get the punisher role - please check rank bot channel for output.")
     response_msg = discord.Embed(
       colour=discord.Colour.red(),
-      title="Punisher (highest ADR)",)
+      title="punisher (highest ADR)",)
     channel = client.get_channel(d_channel)
     max_adr = 0
     max_adr_user = ''
     current_punisher = 'None'
 
     for user in server_list:
-        if server_list[user]['Punisher'] == 1:
+        if server_list[user]['punisher'] == 1:
             current_punisher = user
 
     for user in server_list:
@@ -356,23 +360,66 @@ async def getpunisher(ctx):
             max_adr = server_list[user]['ADR']
             max_adr_user = user
 
-    server_list[max_adr_user]['Punisher'] = 1
+    server_list[max_adr_user]['punisher'] = 1
 
     if current_punisher == 'None':
-        role = discord.utils.get(ctx.guild.roles, name='Punisher')
+        role = discord.utils.get(ctx.guild.roles, name='punisher')
         member = await ctx.guild.fetch_member(max_adr_user)
         await member.add_roles(role)
-        response_msg.add_field(name="Punisher:", value=f"A new Punisher role (highest ADR) has been assigned to {member.mention}. Congrats!",inline=False)
+        response_msg.add_field(name="punisher:", value=f"A new punisher role (highest ADR) has been assigned to {member.mention}. Congrats!",inline=False)
     elif current_punisher == max_adr_user:
-        response_msg.add_field(name="Punisher:", value=f"Punisher is the same as before: {member.mention}",inline=False)
+        response_msg.add_field(name="punisher:", value=f"punisher is the same as before.",inline=False)
     else:
-        role = discord.utils.get(ctx.guild.roles, name='Punisher')
+        role = discord.utils.get(ctx.guild.roles, name='punisher')
         member = await ctx.guild.fetch_member(current_punisher)
         await member.remove_roles(role)
-        server_list[current_punisher]['Punisher'] = 0
+        server_list[current_punisher]['punisher'] = 0
         member = await ctx.guild.fetch_member(max_adr_user)
         await member.add_roles(role)
-        response_msg.add_field(name="Punisher:", value=f"Previous Punisher (highest ADR) has been replaced by {member.mention}. Congrats!",inline=False)
+        response_msg.add_field(name="punisher:", value=f"Previous punisher (highest ADR) has been replaced by {member.mention}. Congrats!",inline=False)
+
+    await channel.send(embed=response_msg)
+    with open("edited_server_list.json", "w") as data_file:
+        json.dump(server_list, data_file, indent=2)
+
+@client.command()
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
+async def getgeneral(ctx):
+    await ctx.send("Calculating who should get the general role (highest rank in server) - please check rank bot channel for output.")
+    response_msg = discord.Embed(
+      colour=discord.Colour.red(),
+      title="general (highest rank in server)",)
+    channel = client.get_channel(d_channel)
+    max_points = 0
+    max_points_user = ''
+    current_general = 'None'
+
+    for user in server_list:
+        if server_list[user]['general'] == 1:
+            current_general = user
+
+    for user in server_list:
+        if (server_list[user]['c_rank_points'] > max_points):
+            max_points = server_list[user]['c_rank_points']
+            max_points_user = user
+
+    server_list[max_points_user]['general'] = 1
+
+    if current_general == 'None':
+        role = discord.utils.get(ctx.guild.roles, name='general')
+        member = await ctx.guild.fetch_member(max_points_user)
+        await member.add_roles(role)
+        response_msg.add_field(name="general:", value=f"A new general role (highest rank in server) has been assigned to {member.mention}. Congrats!",inline=False)
+    elif current_general == max_points_user:
+        response_msg.add_field(name="general:", value=f"general is the same as before.",inline=False)
+    else:
+        role = discord.utils.get(ctx.guild.roles, name='general')
+        member = await ctx.guild.fetch_member(current_general)
+        await member.remove_roles(role)
+        server_list[current_general]['general '] = 0
+        member = await ctx.guild.fetch_member(max_points_user)
+        await member.add_roles(role)
+        response_msg.add_field(name="general:", value=f"Previous general (highest rank in server) has been replaced by {member.mention}. Congrats!",inline=False)
 
     await channel.send(embed=response_msg)
     with open("edited_server_list.json", "w") as data_file:
@@ -490,9 +537,11 @@ async def updateEverything():
         player_id = server_list[user]['ID']
         user_ign = server_list[user]['IGN']
         curr_role = server_list[user]['Rank']
-        curr_terminator = server_list[user]['Terminator']
-        curr_punisher = server_list[user]['Punisher'] 
+        curr_terminator = server_list[user]['terminator']
+        curr_punisher = server_list[user]['punisher'] 
         curr_teamkiller = server_list[user]['team_killer'] 
+        curr_general = server_list[user]['general']
+
         user_id = user
         season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
         second_request = requests.get(season_url, headers=curr_header)
@@ -522,9 +571,10 @@ async def updateEverything():
         server_list[str(user_id)]['season_wins'] = season_wins
         server_list[str(user_id)]['KDA'] = KDA
         server_list[str(user_id)]['ADR'] = ADR
-        server_list[str(user_id)]['Punisher'] = curr_punisher
-        server_list[str(user_id)]['Terminator'] = curr_terminator
+        server_list[str(user_id)]['punisher'] = curr_punisher
+        server_list[str(user_id)]['terminator'] = curr_terminator
         server_list[str(user_id)]['team_killer'] = curr_teamkiller
+        server_list[str(user_id)]['general'] = curr_general
 
         if new_role != curr_role:
             try:
@@ -552,7 +602,7 @@ async def updateEverything():
     current_terminator = 'None'
 
     for user in server_list:
-        if server_list[user]['Terminator'] == 1:
+        if server_list[user]['terminator'] == 1:
             current_terminator = user
 
     for user in server_list:
@@ -560,33 +610,33 @@ async def updateEverything():
             max_kda = server_list[user]['KDA']
             max_kda_user = user
 
-    server_list[max_kda_user]['Terminator'] = 1
+    server_list[max_kda_user]['terminator'] = 1
 
     if current_terminator == 'None':
         role = discord.utils.get(guild.roles, name='Terminator')
         member = await guild.fetch_member(max_kda_user)
         await member.add_roles(role)
-        response_msg.add_field(name="Terminator:",
-            value=f"A new Terminator role (highest KDA) has been assigned to {member.mention}. Congrats!",inline=False)
+        response_msg.add_field(name="terminator:",
+            value=f"A new terminator role (highest KDA) has been assigned to {member.mention}. Congrats!",inline=False)
     elif current_terminator == max_kda_user:
-        response_msg.add_field(name="Terminator:",
-            value=f"Terminator is the same as before.",inline=False)
+        response_msg.add_field(name="terminator:",
+            value=f"terminator is the same as before.",inline=False)
     else:
         role = discord.utils.get(guild.roles, name='Terminator')
         member = await guild.fetch_member(current_terminator)
         await member.remove_roles(role)
-        server_list[current_terminator]['Terminator'] = 0
+        server_list[current_terminator]['terminator'] = 0
         member = await guild.fetch_member(max_kda_user)
         await member.add_roles(role)
-        response_msg.add_field(name="Terminator:",
-            value=f"Previous Terminator (highest KDA) has been replaced by {member.mention}. Congrats!",inline=False)
+        response_msg.add_field(name="terminator:",
+            value=f"Previous terminator (highest KDA) has been replaced by {member.mention}. Congrats!",inline=False)
 
     max_adr = 0
     max_adr_user = ''
     current_punisher = 'None'
 
     for user in server_list:
-        if server_list[user]['Punisher'] == 1:
+        if server_list[user]['punisher'] == 1:
             current_punisher = user
 
     for user in server_list:
@@ -594,26 +644,57 @@ async def updateEverything():
             max_adr = server_list[user]['ADR']
             max_adr_user = user
 
-    server_list[max_adr_user]['Punisher'] = 1
+    server_list[max_adr_user]['punisher'] = 1
 
     if current_punisher == 'None':
         role = discord.utils.get(guild.roles, name='Punisher')
         member = await guild.fetch_member(max_adr_user)
         await member.add_roles(role)
-        response_msg.add_field(name="Punisher:",
-            value=f"A new Punisher role (highest ADR) has been assigned to {member.mention}. Congrats!",inline=False)
+        response_msg.add_field(name="punisher:",
+            value=f"A new punisher role (highest ADR) has been assigned to {member.mention}. Congrats!",inline=False)
     elif current_punisher == max_adr_user:
-        response_msg.add_field(name="Punisher:",
-            value=f"Punisher is the same as before.",inline=False)
+        response_msg.add_field(name="punisher:",
+            value=f"punisher is the same as before.",inline=False)
     else:
         role = discord.utils.get(guild.roles, name='Punisher')
         member = await guild.fetch_member(current_punisher)
         await member.remove_roles(role)
-        server_list[current_punisher]['Punisher'] = 0
+        server_list[current_punisher]['punisher'] = 0
         member = await guild.fetch_member(max_adr_user)
         await member.add_roles(role)
-        response_msg.add_field(name="Punisher:",
-            value=f"Previous Punisher (highest ADR) has been replaced by {member.mention}. Congrats!",inline=False)
+        response_msg.add_field(name="punisher:",
+            value=f"Previous punisher (highest ADR) has been replaced by {member.mention}. Congrats!",inline=False)
+
+    max_points = 0
+    max_points_user = ''
+    current_general = 'None'
+
+    for user in server_list:
+        if server_list[user]['general'] == 1:
+            current_general = user
+
+    for user in server_list:
+        if (server_list[user]['c_rank_points'] > max_points):
+            max_points = server_list[user]['c_rank_points']
+            max_points_user = user
+
+    server_list[max_points_user]['general'] = 1
+
+    if current_general == 'None':
+        role = discord.utils.get(guild.roles, name='General')
+        member = await guild.fetch_member(max_points_user)
+        await member.add_roles(role)
+        response_msg.add_field(name="general:", value=f"A new general role (highest rank in server) has been assigned to {member.mention}. Congrats!",inline=False)
+    elif current_general == max_points_user:
+        response_msg.add_field(name="general:", value=f"general is the same as before.",inline=False)
+    else:
+        role = discord.utils.get(guild.roles, name='General')
+        member = await guild.fetch_member(current_general)
+        await member.remove_roles(role)
+        server_list[current_general]['general '] = 0
+        member = await guild.fetch_member(max_points_user)
+        await member.add_roles(role)
+        response_msg.add_field(name="general:", value=f"Previous general (highest rank in server) has been replaced by {member.mention}. Congrats!",inline=False)
 
     response_msg.add_field(name="Finished:",
         value=f"Roles and ranks have been synced.",inline=False)
