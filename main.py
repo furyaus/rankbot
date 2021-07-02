@@ -191,7 +191,7 @@ async def top50ranks():
         if j == 51:
             break
         i -= 1
-    response_msg.add_field(name="Top rank holders:", value="```"+top_50_string+"```",inline=False)
+    response_msg.add_field(name="", value="```"+top_50_string+"```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     #await channel.send(embed=response_msg)-Needed for the first time a post is made, msg id needs updating
     await message.edit(embed=response_msg)
@@ -220,7 +220,7 @@ async def top50kda():
         if j == 51:
             break
         i -= 1
-    response_msg.add_field(name="Top KDA:", value="```"+top_50_string+"```",inline=False)
+    response_msg.add_field(name="", value="```"+top_50_string+"```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     #await channel.send(embed=response_msg)-Needed for the first time a post is made, msg id needs updating
     await message.edit(embed=response_msg)
@@ -249,7 +249,7 @@ async def top50adr():
         if j == 51:
             break
         i -= 1
-    response_msg.add_field(name="Top ADR:", value="```"+top_50_string+"```",inline=False)
+    response_msg.add_field(name="", value="```"+top_50_string+"```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     #await channel.send(embed=response_msg)-Needed for the first time a post is made, msg id needs updating
     await message.edit(embed=response_msg)
@@ -280,8 +280,7 @@ async def stats(ctx, user_ign):
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     no_requests += 1
     if initial_r.status_code != 200:
-        await ctx.send(
-            "Wrong username (capitals in username matters) or too many requests made to the PUBG API (only 5 accounts per minute)")
+        response_msg.add_field(name="", value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
     else:
         player_info = json.loads(initial_r.text)
         player_id = player_info['data'][0]['id'].replace('account.', '')
@@ -301,14 +300,11 @@ async def stats(ctx, user_ign):
         season_damage = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['damageDealt']
         ADR = round(season_damage/games_played,0)
         KDA = round(KDA,2)
-        response_msg.add_field(name="Rank:",
-            value=f"Current rank is: {c_rank} {c_tier}: {c_rank_points}\nHighest rank is: {h_rank} {h_tier}: {h_rank_points}",inline=False)
-        response_msg.add_field(name="KDA:",
-            value=f"Kills and assists per death: {KDA}",inline=False)
-        response_msg.add_field(name="ADR:",
-            value=f"Average damage per game: {ADR}",inline=False)
-        response_msg.timestamp = datetime.datetime.utcnow()
-        await channel.send(embed=response_msg)
+        response_msg.add_field(name="Rank:", value=f"Current rank is: {c_rank} {c_tier}: {c_rank_points}\nHighest rank is: {h_rank} {h_tier}: {h_rank_points}",inline=False)
+        response_msg.add_field(name="KDA:", value=f"Kills and assists per death: {KDA}",inline=False)
+        response_msg.add_field(name="ADR:", value=f"Average damage per game: {ADR}",inline=False)  
+    response_msg.timestamp = datetime.datetime.utcnow()
+    await channel.send(embed=response_msg)
 
 # Link Discord user id with PUBG IGN and create user
 @client.command(pass_context=True)
@@ -319,22 +315,20 @@ async def link(ctx, user_ign):
     channel = client.get_channel(d_channel)
     response_msg = discord.Embed(
       colour=discord.Colour.orange(),
-      title="Stats for "+user_ign,)
+      title="Linking "+user_ign,)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     curr_header = header
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     user = ctx.message.author
     user_id = user.id
     if str(user_id) in server_list:
-        await ctx.send("Your IGN has already been added to the list, just use .mystats to update your rank")
+        response_msg.add_field(name="", value="Your IGN has already been added to the list, just use .mystats to update your rank",inline=False)
     else:
         url = "https://api.pubg.com/shards/steam/players?filter[playerNames]=" + user_ign
         initial_r = requests.get(url, headers=curr_header)
         no_requests += 1
         if initial_r.status_code != 200:
-            await ctx.send(
-                "Wrong username (capitals in username matters) or the PUBG API is down or too many people are trying "
-                "to link at the same time (maximum of 5 per minute)")
+            response_msg.add_field(name="", value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
         else:
             player_info = json.loads(initial_r.text)
             player_id = player_info['data'][0]['id'].replace('account.', '')
@@ -378,10 +372,11 @@ async def link(ctx, user_ign):
             response_msg.add_field(name="Rank:", value=f"Current rank is: {c_rank} {c_tier}: {c_rank_points}\nHighest rank is: {h_rank} {h_tier}: {h_rank_points}",inline=False)
             response_msg.add_field(name="KDA:", value=f"Kills and assists per death: {KDA}",inline=False)
             response_msg.add_field(name="ADR:", value=f"Average damage per game: {ADR}",inline=False)
-            response_msg.timestamp = datetime.datetime.utcnow()
-            await channel.send(embed=response_msg)
+            response_msg.add_field(name="", value="Discord linked with PUBG IGN and stats saved to file.",inline=False)
             with open("edited_server_list.json", "w") as data_file:
                 json.dump(server_list, data_file, indent=2)
+    response_msg.timestamp = datetime.datetime.utcnow()
+    await channel.send(embed=response_msg)
 
 # Pull stats for current user and update database
 @client.command()
@@ -447,13 +442,14 @@ async def mystats(ctx):
             await user.add_roles(role)
     else:
       response_msg.add_field(name="Rank:", value=f"You currently don't have a rank and your IGN isn't added to the list so use .link command to link",inline=False)
-    response_msg.add_field(name="Current Rank:", value="Your current rank is: "+new_rank,inline=False)
+    response_msg.add_field(name="Rank:", value=f"Current rank is: {c_rank} {c_tier}: {c_rank_points}\nHighest rank is: {h_rank} {h_tier}: {h_rank_points}",inline=False)
     response_msg.add_field(name="KDA:", value=f"Kills and assists per death: {KDA}",inline=False)
     response_msg.add_field(name="ADR:", value=f"Average damage per game: {ADR}",inline=False)
-    response_msg.timestamp = datetime.datetime.utcnow()
-    await channel.send(embed=response_msg)
+    response_msg.add_field(name="", value=f"Updated stats and saved to file.",inline=False)
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
+    response_msg.timestamp = datetime.datetime.utcnow()
+    await channel.send(embed=response_msg)
 
 # Main program - full resync all data, ranks, roles and stats
 @tasks.loop(hours=4.0)
@@ -465,7 +461,7 @@ async def update():
     channel = client.get_channel(d_channel)
     response_msg = discord.Embed(
       colour=discord.Colour.orange(),
-      title="Auto Sync Ranks for The 101 Club")
+      title="Sync all data for The 101 Club")
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     curr_header = header
     curr_header["Authorization"] = keys[no_requests%(len(keys))]
@@ -561,11 +557,9 @@ async def update():
         role = discord.utils.get(guild.roles, name='The Terminator')
         member = await guild.fetch_member(max_kda_user)
         await member.add_roles(role)
-        response_msg.add_field(name="The Terminator",
-            value=f"A new The Terminator role (highest KDA) has been assigned to {member.mention}. Congrats!",inline=False)
+        response_msg.add_field(name="The Terminator",value=f"A new The Terminator role (highest KDA) has been assigned to {member.mention}. Congrats!",inline=False)
     elif current_terminator == max_kda_user:
-        response_msg.add_field(name="The Terminator",
-            value="The Terminator is the same as before. ```"+member.name+"```",inline=False)
+        response_msg.add_field(name="The Terminator",value="The Terminator is the same as before. ```"+member.name+"```",inline=False)
     else:
         role = discord.utils.get(guild.roles, name='The Terminator')
         member = await guild.fetch_member(current_terminator)
@@ -573,8 +567,7 @@ async def update():
         server_list[current_terminator]['terminator'] = 0
         member = await guild.fetch_member(max_kda_user)
         await member.add_roles(role)
-        response_msg.add_field(name="The Terminator",
-            value=f"Previous Terminator (highest KDA) has been replaced by {member.mention}. Congrats!",inline=False)
+        response_msg.add_field(name="The Terminator",value=f"Previous Terminator (highest KDA) has been replaced by {member.mention}. Congrats!",inline=False)
 
     max_adr = 0
     max_adr_user = ''
@@ -594,8 +587,7 @@ async def update():
         response_msg.add_field(name="The Punisher",
             value=f"A new The Punisher role (highest ADR) has been assigned to {member.mention}. Congrats!",inline=False)
     elif current_punisher == max_adr_user:
-        response_msg.add_field(name="The Punisher",
-            value="The Punisher is the same as before. ```"+member.name+"```",inline=False)
+        response_msg.add_field(name="The Punisher",value="The Punisher is the same as before. ```"+member.name+"```",inline=False)
     else:
         role = discord.utils.get(guild.roles, name='The Punisher')
         member = await guild.fetch_member(current_punisher)
@@ -634,17 +626,13 @@ async def update():
         server_list[current_team_killer]['team_killer'] = 0
         member = await guild.fetch_member(max_team_kills_user)
         await member.add_roles(role)
-        response_msg.add_field(name="Dog water", value=f"Previous dog water player has been replaced by {member.mention}, with "
-            f"{server_list[max_team_kills_user]['team_kills']} teamkills this season",inline=False)
-
-    response_msg.add_field(name="Finished:",
-        value=f"Roles and ranks have been synced.",inline=False)
-    response_msg.timestamp = datetime.datetime.utcnow()
-    await channel.send(embed=response_msg)
+        response_msg.add_field(name="Dog water", value=f"Previous dog water player has been replaced by {member.mention}, with "f"{server_list[max_team_kills_user]['team_kills']} teamkills this season",inline=False)
+    response_msg.add_field(name="Finished:", value=f"Roles and ranks have been synced.",inline=False)
     print('Updated everyones stats')
-
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
+    response_msg.timestamp = datetime.datetime.utcnow()
+    await channel.send(embed=response_msg)
 
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
