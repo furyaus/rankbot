@@ -66,7 +66,7 @@ async def help(ctx):
         description="Rank Bot manages the roles, ranks and other stats for gamers in The 101 Club.")
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     help_msg.add_field(name=".link:", value="This links your discord userid with your PUBG in-game name. ```.link furyaus```",inline=False)
-    help_msg.add_field(name=".checkstats:", value="Retireve live PUBG API data for a single user and display. No stats, ranks or roles are changed or stored. ```.checkstats 0cker```", inline=False)
+    help_msg.add_field(name=".stats:", value="Retireve live PUBG API data for a single user and display. No stats, ranks or roles are changed or stored. ```.stats 0cker```", inline=False)
     help_msg.add_field(name=".mystats:", value="Queries PUBG API for your latest data, updates ranks, roles and stats which are stored via a JSON file. ```.mystats GAMMB1T```", inline=False)
     await ctx.send(embed=help_msg)
 
@@ -78,9 +78,10 @@ async def adminhelp(ctx):
         title="Admin help for Rank Bot",
         description="Admin users can remove users and call for global updates.")
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    help_msg.add_field(name="Total linked:", value=".linked users will return the total number of currently stored players. ```.linked```", inline=False)
-    help_msg.add_field(name="Remove user:", value=".removeuser @username (discord user), will allow someone to re-link to fix issues. ```.removeuser 36C_P4```", inline=False)
-    help_msg.add_field(name="Update all stats:", value=".updatestatsall will force a full resync for all stored players with PUBG API. Only do once per hour. ```.updatestatsall```", inline=False)
+    help_msg.add_field(name=".linked:", value="Returns the total number of currently stored players in JSON file. ```.linked```", inline=False)
+    help_msg.add_field(name=".norequests:", value="Returns the total number of requests made to the PUG API. ```.norequests```", inline=False)
+    help_msg.add_field(name=".remove:", value="Will allow admin to remove link between Discord user id and PUBG IGN. User can then complete a link again. ```.remove 36C_P4```", inline=False)
+    help_msg.add_field(name=".resync:", value="This will force a full resync for all stored players with PUBG API. Only do once per hour. ```.resync```", inline=False)
     await ctx.send(embed=help_msg)
 
 # Support help
@@ -98,29 +99,137 @@ async def support(ctx):
 # Inspire your day
 @client.command()
 async def inspire(ctx):
-  response_msg = discord.Embed(
-      colour=discord.Colour.orange())
-  response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-  response = requests.get("https://zenquotes.io/api/random")
-  json_data = json.loads(response.text)
-  quote = json_data[0]['q'] + " -" + json_data[0]['a']
-  response_msg.add_field(name="Quote:", value=quote,inline=False)
-  await ctx.send(embed=response_msg)
+    response_msg = discord.Embed(
+        colour=discord.Colour.orange())
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response = requests.get("https://zenquotes.io/api/random")
+    json_data = json.loads(response.text)
+    quote = json_data[0]['q'] + " -" + json_data[0]['a']
+    response_msg.add_field(name="Quote:", value=quote,inline=False)
+    await ctx.send(embed=response_msg)
 
+# Reponse positively
 async def on_message(message):
-  response_msg = discord.Embed(
-    colour=discord.Colour.orange())
-  response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-  if message.author == client.user:
-    return
-  msg = message.content
-  if any(word in msg for word in sad_words):
-    response_msg.add_field(name=message.author.name, value=random.choice(starter_encouragements),inline=False)
-    await message.channel.send(embed=response_msg)
+    response_msg = discord.Embed(
+      colour=discord.Colour.orange())
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    if message.author == client.user:
+      return
+    msg = message.content
+    if any(word in msg for word in sad_words):
+      response_msg.add_field(name=message.author.name, value=random.choice(starter_encouragements),inline=False)
+      await message.channel.send(embed=response_msg)
+
+# Report how many users in JSON file
+@client.command()
+async def linked(ctx):
+    response_msg = discord.Embed(
+      colour=discord.Colour.orange())
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg.add_field(name="Users stored: ", value="```"+str(len(server_list))+"```",inline=False)
+    await ctx.send(embed=response_msg)
+
+# Report number of PUBG API requests
+@client.command()
+async def norequests(ctx):
+    response_msg = discord.Embed(
+      colour=discord.Colour.orange())
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg.add_field(name="PUG API Requests: ", value="```"+str(no_requests)+"```",inline=False)
+    await ctx.send(embed=response_msg)
+
+@client.command()
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
+async def remove(ctx, member: discord.Member):
+    await ctx.send(f"Removing {str(member)} from the list..")
+    del server_list[str(member.id)]
+    with open("edited_server_list.json", "w") as data_file:
+        json.dump(server_list, data_file, indent=2)
+
+@tasks.loop(hours=.05)
+async def top50adr():
+    channel = client.get_channel(top50adr_channel)
+    message = await channel.fetch_message(top50adr_msg)
+    response_msg = discord.Embed(
+      colour=discord.Colour.orange(),
+      title="Top 50 ADR in the 101 Club",)
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    new_server_list = sorted(server_list.values(), key=itemgetter('ADR'))
+    top_50_string = ''
+    total_length = len(new_server_list)
+    i = -1
+    j = 1
+    while i > -(total_length+1):
+        ign = new_server_list[i]['IGN']
+        player_adr = new_server_list[i]['ADR']
+        curr_line = "%i : %s, ADR = %.0f\n" % (abs(j), ign, player_adr)
+        top_50_string += curr_line
+        j += 1
+        if j == 51:
+            break
+        i -= 1
+    response_msg.add_field(name="Top ADR:", value="```"+top_50_string+"```",inline=False)
+    #await channel.send(embed=response_msg)
+    await message.edit(embed=response_msg)
+    print("top50adr updated")
+
+@tasks.loop(hours=.05)
+async def top50kda():
+    channel = client.get_channel(top50kda_channel)
+    message = await channel.fetch_message(top50kda_msg)
+    response_msg = discord.Embed(
+      colour=discord.Colour.orange(),
+      title="Top 50 KDA in the 101 Club",)
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    new_server_list = sorted(server_list.values(), key=itemgetter('KDA'))
+    top_50_string = ''
+    total_length = len(new_server_list)
+    i = -1
+    j = 1
+    while i > -(total_length+1):
+        ign = new_server_list[i]['IGN']
+        player_adr = new_server_list[i]['KDA']
+        curr_line = "%i : %s, KDA = %.2f\n" % (abs(j), ign, player_adr)
+        top_50_string += curr_line
+        j += 1
+        if j == 51:
+            break
+        i -= 1
+    response_msg.add_field(name="Top KDA:", value="```"+top_50_string+"```",inline=False)
+    #await channel.send(embed=response_msg)
+    await message.edit(embed=response_msg)
+    print("top50kda updated")
+
+@tasks.loop(hours=.05)
+async def top50ranks():
+    channel = client.get_channel(top50ranks_channel)
+    message = await channel.fetch_message(top50ranks_msg)
+    new_server_list = sorted(server_list.values(), key=itemgetter('c_rank_points'))
+    response_msg = discord.Embed(
+      colour=discord.Colour.orange(),
+      title="Top 50 rank holders in the 101 Club",)
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    top_50_string = ''
+    i = -1
+    total_length = len(new_server_list)
+    j = 1 
+    while i > -(total_length+1):
+        ign = new_server_list[i]['IGN']
+        player_rank = new_server_list[i]['c_rank_points']
+        curr_line = "%i : %s, Rank Points = %.0f\n" % (abs(j), ign, player_rank)
+        top_50_string += curr_line
+        j += 1
+        if j == 51:
+            break
+        i -= 1
+    response_msg.add_field(name="Top rank holders:", value="```"+top_50_string+"```",inline=False)
+    #await channel.send(embed=response_msg)
+    await message.edit(embed=response_msg)
+    print("top50ranks updated")
 
 # Check my stats - live, direct api data response - look at JSON later
 @client.command()
-async def checkstats(ctx, user_ign):
+async def stats(ctx, user_ign):
     global keys
     global header
     global no_requests
@@ -329,101 +438,8 @@ async def mystats(ctx):
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
 
-@client.command()
-async def linked(ctx):
-    await ctx.send(f"There are currently {len(server_list)} people linked in this server!")
-
-@client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
-async def removeuser(ctx, member: discord.Member):
-    await ctx.send(f"Removing {str(member)} from the list..")
-    del server_list[str(member.id)]
-    with open("edited_server_list.json", "w") as data_file:
-        json.dump(server_list, data_file, indent=2)
-
-@tasks.loop(hours=.05)
-async def top50adr():
-    channel = client.get_channel(top50adr_channel)
-    message = await channel.fetch_message(top50adr_msg)
-    response_msg = discord.Embed(
-      colour=discord.Colour.orange(),
-      title="Top 50 ADR in the 101 Club",)
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    new_server_list = sorted(server_list.values(), key=itemgetter('ADR'))
-    top_50_string = ''
-    total_length = len(new_server_list)
-    i = -1
-    j = 1
-    while i > -(total_length+1):
-        ign = new_server_list[i]['IGN']
-        player_adr = new_server_list[i]['ADR']
-        curr_line = "%i : %s, ADR = %.0f\n" % (abs(j), ign, player_adr)
-        top_50_string += curr_line
-        j += 1
-        if j == 51:
-            break
-        i -= 1
-    response_msg.add_field(name="Top ADR:", value="```"+top_50_string+"```",inline=False)
-    #await channel.send(embed=response_msg)
-    await message.edit(embed=response_msg)
-    print("top50adr updated")
-
-@tasks.loop(hours=.05)
-async def top50kda():
-    channel = client.get_channel(top50kda_channel)
-    message = await channel.fetch_message(top50kda_msg)
-    response_msg = discord.Embed(
-      colour=discord.Colour.orange(),
-      title="Top 50 KDA in the 101 Club",)
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    new_server_list = sorted(server_list.values(), key=itemgetter('KDA'))
-    top_50_string = ''
-    total_length = len(new_server_list)
-    i = -1
-    j = 1
-    while i > -(total_length+1):
-        ign = new_server_list[i]['IGN']
-        player_adr = new_server_list[i]['KDA']
-        curr_line = "%i : %s, KDA = %.2f\n" % (abs(j), ign, player_adr)
-        top_50_string += curr_line
-        j += 1
-        if j == 51:
-            break
-        i -= 1
-    response_msg.add_field(name="Top KDA:", value="```"+top_50_string+"```",inline=False)
-    #await channel.send(embed=response_msg)
-    await message.edit(embed=response_msg)
-    print("top50kda updated")
-
-@tasks.loop(hours=.05)
-async def top50ranks():
-    channel = client.get_channel(top50ranks_channel)
-    message = await channel.fetch_message(top50ranks_msg)
-    new_server_list = sorted(server_list.values(), key=itemgetter('c_rank_points'))
-    response_msg = discord.Embed(
-      colour=discord.Colour.orange(),
-      title="Top 50 rank holders in the 101 Club",)
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    top_50_string = ''
-    i = -1
-    total_length = len(new_server_list)
-    j = 1 
-    while i > -(total_length+1):
-        ign = new_server_list[i]['IGN']
-        player_rank = new_server_list[i]['c_rank_points']
-        curr_line = "%i : %s, Rank Points = %.0f\n" % (abs(j), ign, player_rank)
-        top_50_string += curr_line
-        j += 1
-        if j == 51:
-            break
-        i -= 1
-    response_msg.add_field(name="Top rank holders:", value="```"+top_50_string+"```",inline=False)
-    #await channel.send(embed=response_msg)
-    await message.edit(embed=response_msg)
-    print("top50ranks updated")
-
 @tasks.loop(hours=4.0)
-async def updateEverything():
+async def update():
     global keys 
     global header 
     global no_requests
@@ -630,17 +646,17 @@ async def updateEverything():
 
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
-async def updatestatsall(ctx):
+async def resync(ctx):
+    await update()
     await top50ranks()
     await top50adr()
     await top50kda()
-    await updateEverything()
-    print("Rank Bot force re-sync.")
+    print("Rank Bot forced re-sync.")
 
 # main
 @client.event
 async def on_ready():
-    updateEverything.start()
+    update.start()
     top50ranks.start()
     top50adr.start()
     top50kda.start()
