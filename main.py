@@ -118,7 +118,7 @@ async def checkstats(ctx, user_ign):
         KDA = round(KDA,2)
 
         response_msg.add_field(name="Rank:",
-            value=f"Current rank is: {c_rank}{c_tier}: {c_rank_points}\nHighest rank is: {h_rank} {h_tier}: {h_rank_points}",inline=False)
+            value=f"Current rank is: {c_rank} {c_tier}: {c_rank_points}\nHighest rank is: {h_rank} {h_tier}: {h_rank_points}",inline=False)
         response_msg.add_field(name="KDA:",
             value=f"Kills and assists per death: {KDA}",inline=False)
         response_msg.add_field(name="ADR:",
@@ -194,7 +194,7 @@ async def enlist(ctx, user_ign):
             role = discord.utils.get(ctx.guild.roles, name=new_role)
             await user.add_roles(role)
 
-            response_msg.add_field(name="Rank:", value=f"Current rank is: {c_rank}: {c_rank_points}\nHighest rank is: {h_rank}: {h_rank_points}",inline=False)
+            response_msg.add_field(name="Rank:", value=f"Current rank is: {c_rank} {c_tier}: {c_rank_points}\nHighest rank is: {h_rank} {h_tier}: {h_rank_points}",inline=False)
             response_msg.add_field(name="KDA:", value=f"Kills and assists per death: {KDA}",inline=False)
             response_msg.add_field(name="ADR:", value=f"Average damage per game: {ADR}",inline=False)
 
@@ -223,7 +223,7 @@ async def updatestats(ctx):
         curr_punisher = server_list[str(user_id)]['punisher']
         curr_teamkiller = server_list[str(user_id)]['team_killer']
         curr_general = server_list[str(user_id)]['general']
-        response_msg.add_field(name="Rank:", value="Your current rank is: " + server_list[str(user_id)]['Rank'],inline=False)
+        response_msg.add_field(name="Current Rank:", value="Your current rank is: " + server_list[str(user_id)]['Rank'],inline=False)
         player_id = server_list[str(user_id)]['ID']
         season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
         second_request = requests.get(season_url, headers=curr_header)
@@ -244,29 +244,29 @@ async def updatestats(ctx):
         new_role = c_rank
         ADR = round(season_damage/games_played,0)
         KDA = round(KDA,2)
-            server_list[str(user_id)]['c_rank'] = c_rank
-            server_list[str(user_id)]['c_tier'] = c_tier
-            server_list[str(user_id)]['c_rank_points'] = c_rank_points
-            server_list[str(user_id)]['h_rank'] = h_rank
-            server_list[str(user_id)]['h_tier'] = h_tier
-            server_list[str(user_id)]['h_rank_points'] = h_rank_points
-            server_list[str(user_id)]['games_played'] = games_played
-            server_list[str(user_id)]['team_kills'] = team_kills
-            server_list[str(user_id)]['season_wins'] = season_wins
-            server_list[str(user_id)]['KDA'] = KDA
-            server_list[str(user_id)]['ADR'] = ADR
+        server_list[str(user_id)]['c_rank'] = c_rank
+        server_list[str(user_id)]['c_tier'] = c_tier
+        server_list[str(user_id)]['c_rank_points'] = c_rank_points
+        server_list[str(user_id)]['h_rank'] = h_rank
+        server_list[str(user_id)]['h_tier'] = h_tier
+        server_list[str(user_id)]['h_rank_points'] = h_rank_points
+        server_list[str(user_id)]['games_played'] = games_played
+        server_list[str(user_id)]['team_kills'] = team_kills
+        server_list[str(user_id)]['season_wins'] = season_wins
+        server_list[str(user_id)]['KDA'] = KDA
+        server_list[str(user_id)]['ADR'] = ADR
         server_list[str(user_id)]['punisher'] = curr_punisher
         server_list[str(user_id)]['terminator'] = curr_terminator
         server_list[str(user_id)]['team_killer'] = curr_teamkiller
         server_list[str(user_id)]['general'] = curr_general
 
         if new_role == curr_rank:
-            response_msg.add_field(name="Rank:", value="Your rank is the same as before.",inline=False)
+            response_msg.add_field(name="Previous Rank:", value=f"Your rank is the same as before. {c_rank} {c_tier}",inline=False)
         else:
             try:
                 await user.add_roles(discord.utils.get(ctx.guild.roles, name=new_role))
                 server_list[str(user_id)]['Rank'] = new_role
-                response_msg.add_field(name="Rank:", value="Your rank has been updated!",inline=False)
+                response_msg.add_field(name="Rank:", value=f"Your rank has been updated! {c_rank} {c_tier}",inline=False)
             except Exception as e:
                 response_msg.add_field(name="Rank:", value=f"There was an error changing your rank :"+ str(e),inline=False)
     else:

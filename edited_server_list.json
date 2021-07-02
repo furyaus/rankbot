@@ -15,7 +15,9 @@
     "punisher": 0,
     "terminator": 0,
     "team_killer": 0,
-    "general": 0
+    "general": 0,
+    "c_tier": "5",
+    "h_tier": "5"
   },
   "120820556713951235": {
     "IGN": "36C_P4",
