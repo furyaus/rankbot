@@ -58,8 +58,9 @@ async def help(ctx):
     help_msg.add_field(name="enlist:", value=".enlist PUBG ign, links your discord useridwith your PUBG in-game name, for example '.enlist furyaus'",inline=False)
     help_msg.add_field(name="checkstats:", value=".checkstats PUBG ign, used to check someone's squad FPP stats, for example '.checkstats furyaus'", inline=False)
     help_msg.add_field(name="updatestats:", value=".updatestats , Updates your ranks if your stats have changed", inline=False)
-    help_msg.add_field(name="top 50 Ranks", value=".top50ranks , Top 50 KDA", inline=False)
+    help_msg.add_field(name="top 50 Ranks", value=".top50ranks , Top 50 Rank Points", inline=False)
     help_msg.add_field(name="top 50 ADR:", value=".top50adr , Top 50 ADR", inline=False)
+    help_msg.add_field(name="top 50 KDA:", value=".top50kda , Top 50 KDA", inline=False)
     await ctx.send(embed=help_msg)
 
 @client.command(pass_context=True)
@@ -481,6 +482,30 @@ async def top50adr(ctx):
             break
         i -= 1
     response_msg.add_field(name="Top ADR:", value=top_50_string,inline=False)
+    await channel.send(embed=response_msg)
+
+@client.command()
+async def top50kda(ctx):
+    channel = client.get_channel(d_channel)
+    await ctx.send("Calculating top50kda - please check rank bot channel for output.")
+    response_msg = discord.Embed(
+      colour=discord.Colour.red(),
+      title="Top 50 KDA in this server",)
+    new_server_list = sorted(server_list.values(), key=itemgetter('KDA'))
+    top_50_string = ''
+    total_length = len(new_server_list)
+    i = -1
+    j = 1
+    while i > -(total_length+1):
+        ign = new_server_list[i]['IGN']
+        player_adr = new_server_list[i]['KDA']
+        curr_line = "%i : %s, ADR = %.2f\n" % (abs(j), ign, player_adr)
+        top_50_string += curr_line
+        j += 1
+        if j == 51:
+            break
+        i -= 1
+    response_msg.add_field(name="Top KDA:", value=top_50_string,inline=False)
     await channel.send(embed=response_msg)
 
 @client.command()
