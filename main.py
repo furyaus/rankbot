@@ -106,8 +106,10 @@ async def checkstats(ctx, user_ign):
         no_requests += 1
         season_info = json.loads(second_request.text)
         c_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
+        c_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['subTier']
         c_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentRankPoint']
         h_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestTier']['tier']
+        h_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestTier']['subTier']
         h_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestRankPoint']
         games_played = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['roundsPlayed']
         KDA = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['kda']
@@ -116,7 +118,7 @@ async def checkstats(ctx, user_ign):
         KDA = round(KDA,2)
 
         response_msg.add_field(name="Rank:",
-            value=f"Current rank is: {c_rank}: {c_rank_points}\nHighest rank is: {h_rank}: {h_rank_points}",inline=False)
+            value=f"Current rank is: {c_rank}{c_tier}: {c_rank_points}\nHighest rank is: {h_rank} {h_tier}: {h_rank_points}",inline=False)
         response_msg.add_field(name="KDA:",
             value=f"Kills and assists per death: {KDA}",inline=False)
         response_msg.add_field(name="ADR:",
@@ -158,8 +160,10 @@ async def enlist(ctx, user_ign):
             no_requests += 1
             season_info = json.loads(second_request.text)
             c_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
+            c_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['subTier']
             c_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentRankPoint']
             h_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestTier']['tier']
+            h_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestTier']['subTier']
             h_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestRankPoint']
             games_played = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['roundsPlayed']
             team_kills = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['teamKills']
@@ -172,8 +176,10 @@ async def enlist(ctx, user_ign):
             KDA = round(KDA,2)
             server_list.update({str(user_id): {'IGN': user_ign, 'ID': player_id, 'Rank': new_role}})
             server_list[str(user_id)]['c_rank'] = c_rank
+            server_list[str(user_id)]['c_tier'] = c_tier
             server_list[str(user_id)]['c_rank_points'] = c_rank_points
             server_list[str(user_id)]['h_rank'] = h_rank
+            server_list[str(user_id)]['h_tier'] = h_tier
             server_list[str(user_id)]['h_rank_points'] = h_rank_points
             server_list[str(user_id)]['games_played'] = games_played
             server_list[str(user_id)]['team_kills'] = team_kills
@@ -224,8 +230,10 @@ async def updatestats(ctx):
         no_requests += 1
         season_info = json.loads(second_request.text)
         c_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
+        c_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['subTier']
         c_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentRankPoint']
         h_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestTier']['tier']
+        h_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestTier']['subTier']
         h_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestRankPoint']
         games_played = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['roundsPlayed']
         team_kills = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['teamKills']
@@ -236,15 +244,17 @@ async def updatestats(ctx):
         new_role = c_rank
         ADR = round(season_damage/games_played,0)
         KDA = round(KDA,2)
-        server_list[str(user_id)]['c_rank'] = c_rank
-        server_list[str(user_id)]['c_rank_points'] = c_rank_points
-        server_list[str(user_id)]['h_rank'] = h_rank
-        server_list[str(user_id)]['h_rank_points'] = h_rank_points
-        server_list[str(user_id)]['games_played'] = games_played
-        server_list[str(user_id)]['team_kills'] = team_kills
-        server_list[str(user_id)]['season_wins'] = season_wins
-        server_list[str(user_id)]['KDA'] = KDA
-        server_list[str(user_id)]['ADR'] = ADR
+            server_list[str(user_id)]['c_rank'] = c_rank
+            server_list[str(user_id)]['c_tier'] = c_tier
+            server_list[str(user_id)]['c_rank_points'] = c_rank_points
+            server_list[str(user_id)]['h_rank'] = h_rank
+            server_list[str(user_id)]['h_tier'] = h_tier
+            server_list[str(user_id)]['h_rank_points'] = h_rank_points
+            server_list[str(user_id)]['games_played'] = games_played
+            server_list[str(user_id)]['team_kills'] = team_kills
+            server_list[str(user_id)]['season_wins'] = season_wins
+            server_list[str(user_id)]['KDA'] = KDA
+            server_list[str(user_id)]['ADR'] = ADR
         server_list[str(user_id)]['punisher'] = curr_punisher
         server_list[str(user_id)]['terminator'] = curr_terminator
         server_list[str(user_id)]['team_killer'] = curr_teamkiller
