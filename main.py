@@ -55,12 +55,12 @@ async def help(ctx):
     help_msg = discord.Embed(
         colour=discord.Colour.red(),
         title="Help for Rank Bot",
-        description="Rank Bot calculates in-game KD and it manages the roles within this discord!")
-    help_msg.add_field(name="checkstats:", value=".checkstats <USERNAME> , used to check someone's squad FPP stats, for example '.checkstats furyaus'", inline=False)
-    help_msg.add_field(name="enlist:", value=".enlist <USERNAME> , links your discord username with your PUBG in-game name, You only have to do this once!",inline=False)
+        description="Rank Bot manages the roles, ranks and other stats for gamers within this discord.")
+    help_msg.add_field(name="enlist:", value=".enlist PUBG ign, links your discord useridwith your PUBG in-game name, for example '.enlist furyaus'",inline=False)
+    help_msg.add_field(name="checkstats:", value=".checkstats PUBG ign, used to check someone's squad FPP stats, for example '.checkstats furyaus'", inline=False)
     help_msg.add_field(name="updaterole:", value=".updaterole , Updates your role if your stats have changed", inline=False)
-    help_msg.add_field(name="top 50 Ranks", value=".top50ranks , Top 20 KD", inline=False)
-    help_msg.add_field(name="top 50 ADR:", value=".top50adr , Top 20 ADR", inline=False)
+    help_msg.add_field(name="top 50 Ranks", value=".top50ranks , Top 50 KDA", inline=False)
+    help_msg.add_field(name="top 50 ADR:", value=".top50adr , Top 50 ADR", inline=False)
     await ctx.send(embed=help_msg)
 
 @client.command(pass_context=True)
@@ -68,9 +68,10 @@ async def adminhelp(ctx):
     help_msg = discord.Embed(
         colour=discord.Colour.red(),
         title="Admin Help for Rank Bot",
-        description="Rank Bot calculates in-game KD and it manages the roles within this discord!")
+        description="Admin users can remove users and call for global updates.")
     help_msg.add_field(name="total enlisted:", value=".totalenlisted will return the total number of currently stored players", inline=False)
-    help_msg.add_field(name="remove user:", value=".removeuser <USERNAME> , will allow someone to re-enlist to fix issues", inline=False)
+    help_msg.add_field(name="remove user:", value=".removeuser @username (discord user), will allow someone to re-enlist to fix issues", inline=False)
+    help_msg.add_field(name="Update all stats:", value=".updatestats will force a full resync with PUBG - only do once per hour", inline=False)
     help_msg.add_field(name="team killer", value=".getteamkiller, finds the player with largest number of team kills", inline=False)
     help_msg.add_field(name="terminator", value=".getterminator, will update top killer", inline=False)
     help_msg.add_field(name="punisher:", value=".getpunisher, will update highest ADR", inline=False)
@@ -615,7 +616,7 @@ async def updateEverything():
             value=f"Previous Punisher (highest ADR) has been replaced by {member.mention}. Congrats!",inline=False)
 
     response_msg.add_field(name="Finished:",
-        value=f"Roles and ranks have been synced",inline=False)
+        value=f"Roles and ranks have been synced.",inline=False)
     await channel.send(embed=response_msg)
 
 
