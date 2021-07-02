@@ -13,8 +13,8 @@ from operator import itemgetter
 import requests
 import json
 import os
-import re
 
+# Frustrating new discord requirements to pull user.id
 clientintents = discord.Intents.all()
 client = commands.Bot(command_prefix=".",intents=clientintents)
 client.remove_command("help")
@@ -23,35 +23,32 @@ client.remove_command("help")
 curr_season = "division.bro.official.pc-2018-12"
 prev_season = "division.bro.official.pc-2018-11"
 prev_prev_season = "division.bro.official.pc-2018-10"
-
 bot_token = os.environ['discord_token']
 API_key_fury = os.environ['API_key_fury']
 API_key_ocker = os.environ['API_key_ocker']
 API_key_p4 = os.environ['API_key_p4']
 d_server  = int(os.environ['discord_server'])
 d_channel = int(os.environ['discord_channel'])
-
 top50ranks_channel  = int(os.environ['top50ranks_channel'])
 top50ranks_msg = int(os.environ['top50ranks_msg'])
 top50kda_channel = int(os.environ['top50kda_channel'])
 top50kda_msg = int(os.environ['top50kda_msg'])
 top50adr_channel = int(os.environ['top50adr_channel'])
 top50adr_msg = int(os.environ['top50adr_msg'])
+admin_roles = ["Mods", "Admin", "Boss"]
+no_requests = 0
+curr_key = 0
 
-#Keys in order - furyaus, ocker, p4
+# Keys in order - furyaus, ocker, p4
 keys = ["Bearer "+API_key_fury,"Bearer "+API_key_ocker,"Bearer "+API_key_p4]
 header = {"Authorization": "Bearer "+API_key_fury,"Accept": "application/vnd.api+json"}
 
+# Open edited_server_list.json file for editing
 json_file_path = "edited_server_list.json"
 with open(json_file_path, 'r') as j:
     server_list = json.loads(j.read())
 
-server_roles = ["Bronze", "Silver", "Gold", "Platinum", "Diamond", "Master"]
-admin_roles = ["Mods", "Admin", "Boss"]
-
-no_requests = 0
-curr_key = 0
-
+# Inspire your day
 @client.command()
 async def inspire(ctx):
   response_msg = discord.Embed(
@@ -63,14 +60,7 @@ async def inspire(ctx):
   response_msg.add_field(name="Quote:", value=quote,inline=False)
   await ctx.send(embed=response_msg)
 
-@client.event
-async def on_ready():
-    top50ranks.start()
-    top50adr.start()
-    top50kda.start()
-    updateEverything.start()
-    print("Bot is ready.")
-
+# Help
 @client.command(pass_context=True)
 async def help(ctx):
     help_msg = discord.Embed(
@@ -78,16 +68,17 @@ async def help(ctx):
         title="Help for Rank Bot",
         description="Rank Bot manages the roles, ranks and other stats for gamers within this discord.")
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    help_msg.add_field(name="Link:", value=".link PUBG ign, links your discord useridwith your PUBG in-game name, for example '.link furyaus'",inline=False)
-    help_msg.add_field(name="Checkstats:", value=".checkstats PUBG ign, used to check someone's squad FPP stats, for example '.checkstats furyaus'", inline=False)
-    help_msg.add_field(name="Mystats:", value=".mystats , Updates your ranks if your stats have changed", inline=False)
+    help_msg.add_field(name="Link:", value=".link PUBG IGN, this links your discord userid with your PUBG in-game name. ie .link furyaus",inline=False)
+    help_msg.add_field(name="Checkstats:", value=".checkstats PUBG IGN or discord @user. Live PUBG API data only. ie '.checkstats 0cker'", inline=False)
+    help_msg.add_field(name="Mystats:", value=".mystats , Querys PUBG API for latest data and stores it via JSON file. ie '.mystats GAMMB1T'", inline=False)
     await ctx.send(embed=help_msg)
 
+# Admin help
 @client.command(pass_context=True)
 async def adminhelp(ctx):
     help_msg = discord.Embed(
         colour=discord.Colour.orange(),
-        title="Admin Help for Rank Bot",
+        title="Admin help for Rank Bot",
         description="Admin users can remove users and call for global updates.")
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     help_msg.add_field(name="Total linked:", value=".linked users will return the total number of currently stored players", inline=False)
@@ -95,6 +86,7 @@ async def adminhelp(ctx):
     help_msg.add_field(name="Update all stats:", value=".updatestatsall will force a full resync with PUBG - only do once per hour", inline=False)
     await ctx.send(embed=help_msg)
 
+# Check my stats - live, direct api data response - look at JSON later
 @client.command()
 async def checkstats(ctx, user_ign):
     global keys
@@ -151,6 +143,7 @@ async def checkstats(ctx, user_ign):
 
         await channel.send(embed=response_msg)
 
+# Link Discord user id with PUBG IGN and create user
 @client.command(pass_context=True)
 async def link(ctx, user_ign):
     global keys
@@ -195,10 +188,10 @@ async def link(ctx, user_ign):
             season_wins = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['wins']
             season_damage = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['damageDealt']
 
-            new_role = c_rank +" "+ c_tier
+            new_rank = c_rank +" "+ c_tier
             ADR = round(season_damage/games_played,0)
             KDA = round(KDA,2)
-            server_list.update({str(user_id): {'IGN': user_ign, 'ID': player_id, 'Rank': new_role}})
+            server_list.update({str(user_id): {'IGN': user_ign, 'ID': player_id, 'Rank': new_rank}})
             server_list[str(user_id)]['c_rank'] = c_rank
             server_list[str(user_id)]['c_tier'] = c_tier
             server_list[str(user_id)]['c_rank_points'] = c_rank_points
@@ -215,7 +208,7 @@ async def link(ctx, user_ign):
             server_list[str(user_id)]['team_killer'] = 0
             server_list[str(user_id)]['general'] = 0
 
-            role = discord.utils.get(ctx.guild.roles, name=new_role)
+            role = discord.utils.get(ctx.guild.roles, name=new_rank)
             await user.add_roles(role)
 
             response_msg.add_field(name="Rank:", value=f"Current rank is: {c_rank} {c_tier}: {c_rank_points}\nHighest rank is: {h_rank} {h_tier}: {h_rank_points}",inline=False)
@@ -226,12 +219,14 @@ async def link(ctx, user_ign):
             with open("edited_server_list.json", "w") as data_file:
                 json.dump(server_list, data_file, indent=2)
 
+# Pull stats for current user and update database
 @client.command()
 async def mystats(ctx):
     global keys
     global header
-    global no_requests
+    global no_requests    
     channel = client.get_channel(d_channel)
+    guild = client.get_guild(d_server)
     curr_header = header
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     user = ctx.message.author
@@ -246,8 +241,8 @@ async def mystats(ctx):
         curr_punisher = server_list[str(user_id)]['punisher']
         curr_teamkiller = server_list[str(user_id)]['team_killer']
         curr_general = server_list[str(user_id)]['general']
-        response_msg.add_field(name="Current Rank:", value="Your current rank is: " + server_list[str(user_id)]['Rank'],inline=False)
         player_id = server_list[str(user_id)]['ID']
+        user_ign = server_list[str(user_id)]['IGN']
         season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
         second_request = requests.get(season_url, headers=curr_header)
         no_requests += 1
@@ -264,9 +259,10 @@ async def mystats(ctx):
         season_wins = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['wins']
         season_damage = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['damageDealt']
 
-        new_role = c_rank +" "+ c_tier
+        new_rank = c_rank +" "+ c_tier
         ADR = round(season_damage/games_played,0)
         KDA = round(KDA,2)
+        server_list.update({str(user_id): {'IGN': user_ign, 'ID': player_id, 'Rank': new_rank}})
         server_list[str(user_id)]['c_rank'] = c_rank
         server_list[str(user_id)]['c_tier'] = c_tier
         server_list[str(user_id)]['c_rank_points'] = c_rank_points
@@ -283,22 +279,21 @@ async def mystats(ctx):
         server_list[str(user_id)]['team_killer'] = curr_teamkiller
         server_list[str(user_id)]['general'] = curr_general
 
-        if new_role == curr_rank:
-            response_msg.add_field(name="Previous Rank:", value=f"Your rank is the same as before. {c_rank} {c_tier}",inline=False)
-        else:
-            try:
-                await user.add_roles(discord.utils.get(ctx.guild.roles, name=new_role))
-                server_list[str(user_id)]['Rank'] = new_role
-                response_msg.add_field(name="Rank:", value=f"Your rank has been updated! {c_rank} {c_tier}",inline=False)
-            except Exception as e:
-                response_msg.add_field(name="Rank:", value=f"There was an error changing your rank :"+ str(e),inline=False)
+        if new_rank != curr_rank:
+            role = discord.utils.get(ctx.guild.roles, name=curr_rank)
+            await user.remove_roles(role)
+            role = discord.utils.get(user.guild.roles, name=new_rank)
+            await user.add_roles(role)
+
     else:
       response_msg.add_field(name="Rank:", value=f"You currently don't have a rank and your IGN isn't added to the list so use .link command to link",inline=False)
 
+    response_msg.add_field(name="Current Rank:", value="Your current rank is: "+new_rank,inline=False)
     response_msg.add_field(name="KDA:", value=f"Kills and assists per death: {KDA}",inline=False)
     response_msg.add_field(name="ADR:", value=f"Average damage per game: {ADR}",inline=False)
 
     await channel.send(embed=response_msg)
+
 
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
@@ -314,14 +309,6 @@ async def removeuser(ctx, member: discord.Member):
     del server_list[str(member.id)]
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
-
-@client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
-async def updatestatsall(ctx):
-    await top50ranks()
-    await top50adr()
-    await top50kda()
-    await updateEverything()
 
 @tasks.loop(hours=.05)
 async def top50adr():
@@ -345,7 +332,7 @@ async def top50adr():
         if j == 51:
             break
         i -= 1
-    response_msg.add_field(name="Top ADR:", value=top_50_string,inline=False)
+    response_msg.add_field(name="Top ADR:", value="```"+top_50_string+"```",inline=False)
     #await channel.send(embed=response_msg)
     await message.edit(embed=response_msg)
     print("top50adr updated")
@@ -372,7 +359,7 @@ async def top50kda():
         if j == 51:
             break
         i -= 1
-    response_msg.add_field(name="Top KDA:", value=top_50_string,inline=False)
+    response_msg.add_field(name="Top KDA:", value="```"+top_50_string+"```",inline=False)
     #await channel.send(embed=response_msg)
     await message.edit(embed=response_msg)
     print("top50kda updated")
@@ -384,7 +371,7 @@ async def top50ranks():
     new_server_list = sorted(server_list.values(), key=itemgetter('c_rank_points'))
     response_msg = discord.Embed(
       colour=discord.Colour.orange(),
-      title="Top 50 Rank holders in the 101 Club",)
+      title="Top 50 rank holders in the 101 Club",)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     top_50_string = ''
     i = -1
@@ -399,7 +386,7 @@ async def top50ranks():
         if j == 51:
             break
         i -= 1
-    response_msg.add_field(name="Top rank holders:", value=top_50_string,inline=False)
+    response_msg.add_field(name="Top rank holders:", value="```"+top_50_string+"```",inline=False)
     #await channel.send(embed=response_msg)
     await message.edit(embed=response_msg)
     print("top50ranks updated")
@@ -409,19 +396,19 @@ async def updateEverything():
     global keys 
     global header 
     global no_requests
+    guild = client.get_guild(d_server)
+    channel = client.get_channel(d_channel)
     response_msg = discord.Embed(
       colour=discord.Colour.orange(),
       title="Auto Sync Ranks")
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     curr_header = header
     curr_header["Authorization"] = keys[no_requests%(len(keys))]
-    guild = client.get_guild(d_server)
-    channel = client.get_channel(d_channel)
     print('Updating everyones stats and roles')
     for user in server_list:
         player_id = server_list[user]['ID']
         user_ign = server_list[user]['IGN']
-        curr_role = server_list[user]['Rank']
+        curr_rank = server_list[user]['Rank']
         curr_terminator = server_list[user]['terminator']
         curr_punisher = server_list[user]['punisher'] 
         curr_teamkiller = server_list[user]['team_killer'] 
@@ -442,10 +429,10 @@ async def updateEverything():
         KDA = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['kda']
         season_wins = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['wins']
         season_damage = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['damageDealt']
-        new_role = c_rank +" "+ c_tier
+        new_rank = c_rank +" "+ c_tier
         ADR = round(season_damage/games_played,0)
         KDA = round(KDA,2)
-        server_list.update({str(user): {'IGN': user_ign, 'ID': player_id, 'Rank': new_role}})
+        server_list.update({str(user): {'IGN': user_ign, 'ID': player_id, 'Rank': new_rank}})
         server_list[str(user)]['c_rank'] = c_rank
         server_list[str(user)]['c_tier'] = c_tier
         server_list[str(user)]['c_rank_points'] = c_rank_points
@@ -462,11 +449,11 @@ async def updateEverything():
         server_list[str(user)]['team_killer'] = curr_teamkiller
         server_list[str(user)]['general'] = curr_general
 
-        if new_role != curr_role:
-            role = discord.utils.get(guild.roles, name=curr_role)
+        if new_rank != curr_rank:
+            role = discord.utils.get(guild.roles, name=curr_rank)
             member = await guild.fetch_member(user)
             await member.remove_roles(role)
-            role = discord.utils.get(guild.roles, name=new_role)
+            role = discord.utils.get(guild.roles, name=new_rank)
             await member.add_roles(role)
 
     max_kda = 0
@@ -606,8 +593,26 @@ async def updateEverything():
     response_msg.add_field(name="Finished:",
         value=f"Roles and ranks have been synced.",inline=False)
     await channel.send(embed=response_msg)
+    print("Rank Bot is running...")
 
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
+
+@client.command()
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
+async def updatestatsall(ctx):
+    await top50ranks()
+    await top50adr()
+    await top50kda()
+    await updateEverything()
+    print("Rank Bot force re-sync.")
+
+# main
+@client.event
+async def on_ready():
+    updateEverything.start()
+    top50ranks.start()
+    top50adr.start()
+    top50kda.start()
 
 client.run(bot_token)
