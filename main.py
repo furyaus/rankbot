@@ -58,6 +58,16 @@ json_file_path = "edited_server_list.json"
 with open(json_file_path, 'r') as j:
     server_list = json.loads(j.read())
 
+# Catch unknown commands
+@client.event
+async def on_command_error(ctx, error):
+    response_msg = discord.Embed(
+      colour=discord.Colour.orange())
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg.add_field(name="Error:", value=f"An error occured: {str(error)}", inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow()
+    await ctx.send(embed=response_msg)
+
 # Help
 @client.command(pass_context=True)
 async def help(ctx):
