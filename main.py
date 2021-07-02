@@ -14,6 +14,7 @@ import requests
 import json
 import os
 import random
+import datetime
 
 # Frustrating new discord requirements to pull user.id
 clientintents = discord.Intents.all()
@@ -68,6 +69,7 @@ async def help(ctx):
     help_msg.add_field(name=".link:", value="This links your discord userid with your PUBG in-game name. ```.link furyaus```",inline=False)
     help_msg.add_field(name=".stats:", value="Retireve live PUBG API data for a single user and display. No stats, ranks or roles are changed or stored. ```.stats 0cker```", inline=False)
     help_msg.add_field(name=".mystats:", value="Queries PUBG API for your latest data, updates ranks, roles and stats which are stored via a JSON file. ```.mystats GAMMB1T```", inline=False)
+    help_msg.timestamp = datetime.datetime.utcnow
     await ctx.send(embed=help_msg)
 
 # Admin help
@@ -82,6 +84,7 @@ async def adminhelp(ctx):
     help_msg.add_field(name=".norequests:", value="Returns the total number of requests made to the PUG API. ```.norequests```", inline=False)
     help_msg.add_field(name=".remove:", value="Will allow admin to remove link between Discord user id and PUBG IGN. User can then complete a link again. ```.remove 36C_P4```", inline=False)
     help_msg.add_field(name=".resync:", value="This will force a full resync for all stored players with PUBG API. Only do once per hour. ```.resync```", inline=False)
+    help_msg.timestamp = datetime.datetime.utcnow
     await ctx.send(embed=help_msg)
 
 # Support help
@@ -94,6 +97,7 @@ async def support(ctx):
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     help_msg.add_field(name=".inspire:", value="Responses with inspiration quotes, to really get you back on track```.inspire```",inline=False)
     help_msg.add_field(name=".keywords", value="Rank Bot monitors The 101 Club for PBT (PUBG Burnout). Just let the Bot know. ```Keywords in chat```", inline=False)
+    help_msg.timestamp = datetime.datetime.utcnow
     await ctx.send(embed=help_msg)
 
 # Inspire your day
@@ -106,6 +110,7 @@ async def inspire(ctx):
     json_data = json.loads(response.text)
     quote = json_data[0]['q'] + " -" + json_data[0]['a']
     response_msg.add_field(name="Quote:", value=quote,inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow
     await ctx.send(embed=response_msg)
 
 # Reponse positively
@@ -118,6 +123,7 @@ async def on_message(message):
     msg = message.content
     if any(word in msg for word in sad_words):
       response_msg.add_field(name=message.author.name, value=random.choice(starter_encouragements),inline=False)
+      response_msg.timestamp = datetime.datetime.utcnow
       await message.channel.send(embed=response_msg)
 
 # Report how many users in JSON file
@@ -127,6 +133,7 @@ async def linked(ctx):
       colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     response_msg.add_field(name="Users stored: ", value="```"+str(len(server_list))+"```",inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow
     await ctx.send(embed=response_msg)
 
 # Report number of PUBG API requests
@@ -136,16 +143,20 @@ async def norequests(ctx):
       colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     response_msg.add_field(name="PUG API Requests: ", value="```"+str(no_requests)+"```",inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow
     await ctx.send(embed=response_msg)
 
 # Remove user from JSON file
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
 async def remove(ctx, member: discord.Member):
-    await ctx.send(f"Removing {str(member)} from the list..")
-    del server_list[str(member.id)]
+    response_msg = discord.Embed(
+      colour=discord.Colour.orange())
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
+    response_msg.add_field(name="Removed: ", value="```"+str(member.id)+"```",inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow
 
 # Report top50adr to leaderboard
 @tasks.loop(hours=.05)
@@ -171,6 +182,7 @@ async def top50adr():
             break
         i -= 1
     response_msg.add_field(name="Top ADR:", value="```"+top_50_string+"```",inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow
     #await channel.send(embed=response_msg)-Needed for the first time a post is made, msg id needs updating
     await message.edit(embed=response_msg)
     print("top50adr updated")
@@ -199,6 +211,7 @@ async def top50kda():
             break
         i -= 1
     response_msg.add_field(name="Top KDA:", value="```"+top_50_string+"```",inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow
     #await channel.send(embed=response_msg)-Needed for the first time a post is made, msg id needs updating
     await message.edit(embed=response_msg)
     print("top50kda updated")
@@ -227,6 +240,7 @@ async def top50ranks():
             break
         i -= 1
     response_msg.add_field(name="Top rank holders:", value="```"+top_50_string+"```",inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow
     #await channel.send(embed=response_msg)-Needed for the first time a post is made, msg id needs updating
     await message.edit(embed=response_msg)
     print("top50ranks updated")
@@ -285,6 +299,7 @@ async def stats(ctx, user_ign):
             value=f"Kills and assists per death: {KDA}",inline=False)
         response_msg.add_field(name="ADR:",
             value=f"Average damage per game: {ADR}",inline=False)
+        response_msg.timestamp = datetime.datetime.utcnow
 
         await channel.send(embed=response_msg)
 
@@ -359,6 +374,7 @@ async def link(ctx, user_ign):
             response_msg.add_field(name="Rank:", value=f"Current rank is: {c_rank} {c_tier}: {c_rank_points}\nHighest rank is: {h_rank} {h_tier}: {h_rank_points}",inline=False)
             response_msg.add_field(name="KDA:", value=f"Kills and assists per death: {KDA}",inline=False)
             response_msg.add_field(name="ADR:", value=f"Average damage per game: {ADR}",inline=False)
+            response_msg.timestamp = datetime.datetime.utcnow
 
             await channel.send(embed=response_msg)
             with open("edited_server_list.json", "w") as data_file:
@@ -435,6 +451,7 @@ async def mystats(ctx):
     response_msg.add_field(name="Current Rank:", value="Your current rank is: "+new_rank,inline=False)
     response_msg.add_field(name="KDA:", value=f"Kills and assists per death: {KDA}",inline=False)
     response_msg.add_field(name="ADR:", value=f"Average damage per game: {ADR}",inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow
 
     await channel.send(embed=response_msg)
 
@@ -643,6 +660,7 @@ async def update():
 
     response_msg.add_field(name="Finished:",
         value=f"Roles and ranks have been synced.",inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow
     await channel.send(embed=response_msg)
     print('Updated everyones stats')
 
