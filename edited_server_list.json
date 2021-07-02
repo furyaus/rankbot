@@ -1,22 +1,4 @@
 {
-  "337889441009893376": {
-    "IGN": "0cker",
-    "ID": "f81f8eb12b944def83cb2e5e57ec7893",
-    "Rank": "Diamond",
-    "c_rank": "Diamond",
-    "c_rank_points": 3112,
-    "h_rank": "Diamond",
-    "h_rank_points": 3350,
-    "games_played": 288,
-    "team_kills": 0,
-    "season_wins": 33,
-    "KDA": 1.91,
-    "ADR": 245.0,
-    "punisher": 0,
-    "terminator": 0,
-    "team_killer": 0,
-    "general": 1
-  },
   "142744407123165184": {
     "IGN": "furyaus",
     "ID": "6be60825d4fa400aa6817ad9b546d03e",
@@ -30,27 +12,9 @@
     "season_wins": 11,
     "KDA": 1.2,
     "ADR": 183.0,
-    "punisher": 0,
-    "terminator": 0,
-    "team_killer": 0,
-    "general": 0
-  },
-  "225149521863114753": {
-    "IGN": "Trag1ks",
-    "ID": "a27a06bebb0149ab8a6bd8bdd67457e1",
-    "Rank": "Diamond",
-    "c_rank": "Diamond",
-    "c_rank_points": 3061,
-    "h_rank": "Diamond",
-    "h_rank_points": 3167,
-    "games_played": 94,
-    "team_kills": 0,
-    "season_wins": 16,
-    "KDA": 2.35,
-    "ADR": 292.0,
     "punisher": 1,
     "terminator": 1,
     "team_killer": 0,
-    "general": 0
+    "general": 1
   }
 }
