@@ -55,7 +55,7 @@ curr_key = 0
 @client.command()
 async def inspire(ctx):
   response_msg = discord.Embed(
-      colour=discord.Colour.red())
+      colour=discord.Colour.orange())
   response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
   response = requests.get("https://zenquotes.io/api/random")
   json_data = json.loads(response.text)
@@ -74,7 +74,7 @@ async def on_ready():
 @client.command(pass_context=True)
 async def help(ctx):
     help_msg = discord.Embed(
-        colour=discord.Colour.red(),
+        colour=discord.Colour.orange(),
         title="Help for Rank Bot",
         description="Rank Bot manages the roles, ranks and other stats for gamers within this discord.")
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
@@ -86,7 +86,7 @@ async def help(ctx):
 @client.command(pass_context=True)
 async def adminhelp(ctx):
     help_msg = discord.Embed(
-        colour=discord.Colour.red(),
+        colour=discord.Colour.orange(),
         title="Admin Help for Rank Bot",
         description="Admin users can remove users and call for global updates.")
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
@@ -110,7 +110,7 @@ async def checkstats(ctx, user_ign):
           user_ign = server_list[user]['IGN']
 
     response_msg = discord.Embed(
-      colour=discord.Colour.red(),
+      colour=discord.Colour.orange(),
       title="Stats for "+user_ign,)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     curr_header = header
@@ -158,7 +158,7 @@ async def link(ctx, user_ign):
     global no_requests
     channel = client.get_channel(d_channel)
     response_msg = discord.Embed(
-      colour=discord.Colour.red(),
+      colour=discord.Colour.orange(),
       title="Stats for "+user_ign,)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     curr_header = header
@@ -237,7 +237,7 @@ async def mystats(ctx):
     user = ctx.message.author
     user_id = user.id
     response_msg = discord.Embed(
-      colour=discord.Colour.red(),
+      colour=discord.Colour.orange(),
       title="Stats for "+str(user),)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     if str(user_id) in server_list:
@@ -294,6 +294,7 @@ async def mystats(ctx):
                 response_msg.add_field(name="Rank:", value=f"There was an error changing your rank :"+ str(e),inline=False)
     else:
       response_msg.add_field(name="Rank:", value=f"You currently don't have a rank and your IGN isn't added to the list so use .link command to link",inline=False)
+
     response_msg.add_field(name="KDA:", value=f"Kills and assists per death: {KDA}",inline=False)
     response_msg.add_field(name="ADR:", value=f"Average damage per game: {ADR}",inline=False)
 
@@ -317,9 +318,9 @@ async def removeuser(ctx, member: discord.Member):
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
 async def updatestatsall(ctx):
-    top50ranks.start()
-    top50adr.start()
-    top50kda.start()
+    await top50ranks()
+    await top50adr()
+    await top50kda()
     await updateEverything()
 
 @tasks.loop(hours=.05)
@@ -327,7 +328,7 @@ async def top50adr():
     channel = client.get_channel(top50adr_channel)
     message = await channel.fetch_message(top50adr_msg)
     response_msg = discord.Embed(
-      colour=discord.Colour.red(),
+      colour=discord.Colour.orange(),
       title="Top 50 ADR in the 101 Club",)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     new_server_list = sorted(server_list.values(), key=itemgetter('ADR'))
@@ -354,7 +355,7 @@ async def top50kda():
     channel = client.get_channel(top50kda_channel)
     message = await channel.fetch_message(top50kda_msg)
     response_msg = discord.Embed(
-      colour=discord.Colour.red(),
+      colour=discord.Colour.orange(),
       title="Top 50 KDA in the 101 Club",)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     new_server_list = sorted(server_list.values(), key=itemgetter('KDA'))
@@ -382,7 +383,7 @@ async def top50ranks():
     message = await channel.fetch_message(top50ranks_msg)
     new_server_list = sorted(server_list.values(), key=itemgetter('c_rank_points'))
     response_msg = discord.Embed(
-      colour=discord.Colour.red(),
+      colour=discord.Colour.orange(),
       title="Top 50 Rank holders in the 101 Club",)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     top_50_string = ''
@@ -409,7 +410,7 @@ async def updateEverything():
     global header 
     global no_requests
     response_msg = discord.Embed(
-      colour=discord.Colour.red(),
+      colour=discord.Colour.orange(),
       title="Auto Sync Ranks")
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     curr_header = header
@@ -417,8 +418,6 @@ async def updateEverything():
     guild = client.get_guild(d_server)
     channel = client.get_channel(d_channel)
     print('Updating everyones stats and roles')
-    promoted_users = []
-    demoted_users = []
     for user in server_list:
         player_id = server_list[user]['ID']
         user_ign = server_list[user]['IGN']
@@ -464,25 +463,11 @@ async def updateEverything():
         server_list[str(user)]['general'] = curr_general
 
         if new_role != curr_role:
-            try:
-                member = discord.utils.get(guild.members, id=user)
-                await member.add_roles(discord.utils.get(guild.roles, name=new_role))
-                server_list[user]['Rank'] = new_role
-                if curr_role != 'Bronze':
-                    await member.remove_roles(discord.utils.get(guild.roles, name=curr_role))
-                if server_roles.index(new_role) > server_roles.index(curr_role):
-                    promoted_users.append(user)
-                else:
-                    demoted_users.append(user)
-            except Exception as e:
-                print("There was an error changing your rank " + str(e))
-
-    if len(promoted_users) > 0:
-        await channel.send("The following users have been promoted:")
-        for user in promoted_users:
-            member = discord.utils.get(guild.members, id=int(user))
-            response_msg.add_field(name="Updated Ranks: ",
-              value=f"""{member.mention}""",inline=False)
+            role = discord.utils.get(guild.roles, name=curr_role)
+            member = await guild.fetch_member(user)
+            await member.remove_roles(role)
+            role = discord.utils.get(guild.roles, name=new_role)
+            await member.add_roles(role)
 
     max_kda = 0
     max_kda_user = ''
