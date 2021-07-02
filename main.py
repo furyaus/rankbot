@@ -30,6 +30,13 @@ API_key_p4 = os.environ['API_key_p4']
 d_server  = int(os.environ['discord_server'])
 d_channel = int(os.environ['discord_channel'])
 
+top50ranks_channel  = int(os.environ['top50ranks_channel'])
+top50ranks_msg = int(os.environ['top50ranks_msg'])
+top50kda_channel = int(os.environ['top50kda_channel'])
+top50kda_msg = int(os.environ['top50kda_msg'])
+top50adr_channel = int(os.environ['top50adr_channel'])
+top50adr_msg = int(os.environ['top50adr_msg'])
+
 #Keys in order - furyaus, ocker, p4
 keys = ["Bearer "+API_key_fury,"Bearer "+API_key_ocker,"Bearer "+API_key_p4]
 header = {"Authorization": "Bearer "+API_key_fury,"Accept": "application/vnd.api+json"}
@@ -46,6 +53,9 @@ curr_key = 0
 
 @client.event
 async def on_ready():
+    top50ranks.start()
+    top50adr.start()
+    top50kda.start()
     updateEverything.start()
     print("Bot is ready.")
 
@@ -77,6 +87,21 @@ async def adminhelp(ctx):
     help_msg.add_field(name="punisher:", value=".getpunisher, will update highest ADR", inline=False)
     help_msg.add_field(name="general:", value=".getgeneral, will update the highest rank in server", inline=False)
     await ctx.send(embed=help_msg)
+
+def get_quote():
+  response = requests.get("https://zenquotes.io/api/random")
+  json_data = json.loads(response.text)
+  quote = json_data[0]['q'] + " -" + json_data[0]['a']
+  return(quote)
+
+@client.event
+async def on_message(message):
+  if message.author == client.user:
+    return
+
+  if message.content.startswith('.inspire'):
+    quote = get_quote()
+    await message.channel.send(quote)
 
 @client.command()
 async def checkstats(ctx, user_ign):
@@ -470,13 +495,13 @@ async def getteamkiller(ctx):
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
 
-@client.command()
-async def top50adr(ctx):
-    channel = client.get_channel(d_channel)
-    await ctx.send("Calculating top50adr - please check rank bot channel for output.")
+@tasks.loop(hours=.1)
+async def top50adr():
+    channel = client.get_channel(top50adr_channel)
+    message = await channel.fetch_message(top50adr_msg)
     response_msg = discord.Embed(
       colour=discord.Colour.red(),
-      title="Top 50 ADR in this server",)
+      title="Top 50 ADR in the 101 Club",)
     new_server_list = sorted(server_list.values(), key=itemgetter('ADR'))
     top_50_string = ''
     total_length = len(new_server_list)
@@ -492,15 +517,16 @@ async def top50adr(ctx):
             break
         i -= 1
     response_msg.add_field(name="Top ADR:", value=top_50_string,inline=False)
-    await channel.send(embed=response_msg)
+    #await channel.send(embed=response_msg)
+    await message.edit(embed=response_msg)
 
-@client.command()
-async def top50kda(ctx):
-    channel = client.get_channel(d_channel)
-    await ctx.send("Calculating top50kda - please check rank bot channel for output.")
+@tasks.loop(hours=.1)
+async def top50kda():
+    channel = client.get_channel(top50kda_channel)
+    message = await channel.fetch_message(top50kda_msg)
     response_msg = discord.Embed(
       colour=discord.Colour.red(),
-      title="Top 50 KDA in this server",)
+      title="Top 50 KDA in the 101 Club",)
     new_server_list = sorted(server_list.values(), key=itemgetter('KDA'))
     top_50_string = ''
     total_length = len(new_server_list)
@@ -509,23 +535,24 @@ async def top50kda(ctx):
     while i > -(total_length+1):
         ign = new_server_list[i]['IGN']
         player_adr = new_server_list[i]['KDA']
-        curr_line = "%i : %s, ADR = %.2f\n" % (abs(j), ign, player_adr)
+        curr_line = "%i : %s, KDA = %.2f\n" % (abs(j), ign, player_adr)
         top_50_string += curr_line
         j += 1
         if j == 51:
             break
         i -= 1
     response_msg.add_field(name="Top KDA:", value=top_50_string,inline=False)
-    await channel.send(embed=response_msg)
+    #await channel.send(embed=response_msg)
+    await message.edit(embed=response_msg)
 
-@client.command()
-async def top50ranks(ctx):
-    channel = client.get_channel(d_channel)
-    await ctx.send("Calculating top50ranks - please check rank bot channel for output.")
+@tasks.loop(hours=.1)
+async def top50ranks():
+    channel = client.get_channel(top50ranks_channel)
+    message = await channel.fetch_message(top50ranks_msg)
     new_server_list = sorted(server_list.values(), key=itemgetter('c_rank_points'))
     response_msg = discord.Embed(
       colour=discord.Colour.red(),
-      title="Top 50 Rank holders in this server",)
+      title="Top 50 Rank holders in the 101 Club",)
     top_50_string = ''
     i = -1
     total_length = len(new_server_list)
@@ -540,7 +567,8 @@ async def top50ranks(ctx):
             break
         i -= 1
     response_msg.add_field(name="Top rank holders:", value=top_50_string,inline=False)
-    await channel.send(embed=response_msg)
+    #await channel.send(embed=response_msg)
+    await message.edit(embed=response_msg)
 
 @tasks.loop(hours=4.0)
 async def updateEverything():
