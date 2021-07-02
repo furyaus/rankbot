@@ -13,6 +13,7 @@ from operator import itemgetter
 import requests
 import json
 import os
+import re
 
 clientintents = discord.Intents.all()
 client = commands.Bot(command_prefix=".",intents=clientintents)
@@ -65,12 +66,9 @@ async def help(ctx):
         colour=discord.Colour.red(),
         title="Help for Rank Bot",
         description="Rank Bot manages the roles, ranks and other stats for gamers within this discord.")
-    help_msg.add_field(name="enlist:", value=".enlist PUBG ign, links your discord useridwith your PUBG in-game name, for example '.enlist furyaus'",inline=False)
+    help_msg.add_field(name="link:", value=".link PUBG ign, links your discord useridwith your PUBG in-game name, for example '.link furyaus'",inline=False)
     help_msg.add_field(name="checkstats:", value=".checkstats PUBG ign, used to check someone's squad FPP stats, for example '.checkstats furyaus'", inline=False)
-    help_msg.add_field(name="updatestats:", value=".updatestats , Updates your ranks if your stats have changed", inline=False)
-    help_msg.add_field(name="top 50 Ranks", value=".top50ranks , Top 50 Rank Points", inline=False)
-    help_msg.add_field(name="top 50 ADR:", value=".top50adr , Top 50 ADR", inline=False)
-    help_msg.add_field(name="top 50 KDA:", value=".top50kda , Top 50 KDA", inline=False)
+    help_msg.add_field(name="mystats:", value=".mystats , Updates your ranks if your stats have changed", inline=False)
     await ctx.send(embed=help_msg)
 
 @client.command(pass_context=True)
@@ -79,29 +77,14 @@ async def adminhelp(ctx):
         colour=discord.Colour.red(),
         title="Admin Help for Rank Bot",
         description="Admin users can remove users and call for global updates.")
-    help_msg.add_field(name="total enlisted:", value=".totalenlisted will return the total number of currently stored players", inline=False)
-    help_msg.add_field(name="remove user:", value=".removeuser @username (discord user), will allow someone to re-enlist to fix issues", inline=False)
+    help_msg.add_field(name="total linked:", value=".total linked users will return the total number of currently stored players", inline=False)
+    help_msg.add_field(name="remove user:", value=".removeuser @username (discord user), will allow someone to re-link to fix issues", inline=False)
     help_msg.add_field(name="Update all stats:", value=".updatestatsall will force a full resync with PUBG - only do once per hour", inline=False)
     help_msg.add_field(name="team killer", value=".getteamkiller, finds the player with largest number of team kills", inline=False)
     help_msg.add_field(name="terminator", value=".getterminator, will update top killer", inline=False)
     help_msg.add_field(name="punisher:", value=".getpunisher, will update highest ADR", inline=False)
     help_msg.add_field(name="general:", value=".getgeneral, will update the highest rank in server", inline=False)
     await ctx.send(embed=help_msg)
-
-def get_quote():
-  response = requests.get("https://zenquotes.io/api/random")
-  json_data = json.loads(response.text)
-  quote = json_data[0]['q'] + " -" + json_data[0]['a']
-  return(quote)
-
-@client.event
-async def on_message(message):
-  if message.author == client.user:
-    return
-
-  if message.content.startswith('.inspire'):
-    quote = get_quote()
-    await message.channel.send(quote)
 
 @client.command()
 async def checkstats(ctx, user_ign):
@@ -110,6 +93,16 @@ async def checkstats(ctx, user_ign):
     global no_requests
     channel = client.get_channel(d_channel)
     await ctx.send("Checking stats - please check rank bot channel for output.")
+
+    user_ign = user_ign.replace("<","")
+    user_ign = user_ign.replace(">","")
+    user_ign = user_ign.replace("@","")
+    user_ign = user_ign.replace("!","")
+
+    for user in server_list:
+      if (user == user_ign):
+          user_ign = server_list[user]['IGN']
+
     response_msg = discord.Embed(
       colour=discord.Colour.red(),
       title="Rank for "+user_ign,)
@@ -152,12 +145,11 @@ async def checkstats(ctx, user_ign):
         await channel.send(embed=response_msg)
 
 @client.command(pass_context=True)
-async def enlist(ctx, user_ign):
+async def link(ctx, user_ign):
     global keys
     global header
     global no_requests
     channel = client.get_channel(d_channel)
-    await ctx.send("Enlisting - please check rank bot channel for output.")
     response_msg = discord.Embed(
       colour=discord.Colour.red(),
       title="Rank for "+user_ign,
@@ -167,7 +159,7 @@ async def enlist(ctx, user_ign):
     user = ctx.message.author
     user_id = user.id
     if str(user_id) in server_list:
-        await ctx.send("Your IGN has already been added to the list, just use .updaterole to update your role")
+        await ctx.send("Your IGN has already been added to the list, just use .mystats to update your rank")
     else:
         url = "https://api.pubg.com/shards/steam/players?filter[playerNames]=" + user_ign
         initial_r = requests.get(url, headers=curr_header)
@@ -175,7 +167,7 @@ async def enlist(ctx, user_ign):
         if initial_r.status_code != 200:
             await ctx.send(
                 "Wrong username (capitals in username matters) or the PUBG API is down or too many people are trying "
-                "to enlist at the same time (maximum of 5 per minute)")
+                "to link at the same time (maximum of 5 per minute)")
         else:
             player_info = json.loads(initial_r.text)
             player_id = player_info['data'][0]['id'].replace('account.', '')
@@ -196,7 +188,7 @@ async def enlist(ctx, user_ign):
             season_wins = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['wins']
             season_damage = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['damageDealt']
 
-            new_role = c_rank
+            new_role = c_rank +" "+ c_tier
             ADR = round(season_damage/games_played,0)
             KDA = round(KDA,2)
             server_list.update({str(user_id): {'IGN': user_ign, 'ID': player_id, 'Rank': new_role}})
@@ -228,7 +220,7 @@ async def enlist(ctx, user_ign):
                 json.dump(server_list, data_file, indent=2)
 
 @client.command()
-async def updatestats(ctx):
+async def mystats(ctx):
     global keys
     global header
     global no_requests
@@ -266,7 +258,7 @@ async def updatestats(ctx):
         season_wins = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['wins']
         season_damage = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['damageDealt']
 
-        new_role = c_rank
+        new_role = c_rank +" "+ c_tier
         ADR = round(season_damage/games_played,0)
         KDA = round(KDA,2)
         server_list[str(user_id)]['c_rank'] = c_rank
@@ -295,7 +287,7 @@ async def updatestats(ctx):
             except Exception as e:
                 response_msg.add_field(name="Rank:", value=f"There was an error changing your rank :"+ str(e),inline=False)
     else:
-      response_msg.add_field(name="Rank:", value=f"You currently don't have a rank and your IGN isn't added to the list so use .enlist command to enlist",inline=False)
+      response_msg.add_field(name="Rank:", value=f"You currently don't have a rank and your IGN isn't added to the list so use .link command to link",inline=False)
 
     await channel.send(embed=response_msg)
 
@@ -304,7 +296,7 @@ async def updatestats(ctx):
 
 @client.command()
 async def totalenlisted(ctx):
-    await ctx.send(f"There are currently {len(server_list)} people enlisted in this server!")
+    await ctx.send(f"There are currently {len(server_list)} people linked in this server!")
 
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
@@ -318,6 +310,9 @@ async def removeuser(ctx, member: discord.Member):
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
 async def updatestatsall(ctx):
     await ctx.send("Updating everyone's stats - please check rank bot channel for output.")
+    top50ranks.start()
+    top50adr.start()
+    top50kda.start()
     await updateEverything()
 
 @client.command()
@@ -495,7 +490,7 @@ async def getteamkiller(ctx):
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
 
-@tasks.loop(hours=.1)
+@tasks.loop(hours=.05)
 async def top50adr():
     channel = client.get_channel(top50adr_channel)
     message = await channel.fetch_message(top50adr_msg)
@@ -519,8 +514,9 @@ async def top50adr():
     response_msg.add_field(name="Top ADR:", value=top_50_string,inline=False)
     #await channel.send(embed=response_msg)
     await message.edit(embed=response_msg)
+    print("top50adr updated")
 
-@tasks.loop(hours=.1)
+@tasks.loop(hours=.05)
 async def top50kda():
     channel = client.get_channel(top50kda_channel)
     message = await channel.fetch_message(top50kda_msg)
@@ -544,8 +540,9 @@ async def top50kda():
     response_msg.add_field(name="Top KDA:", value=top_50_string,inline=False)
     #await channel.send(embed=response_msg)
     await message.edit(embed=response_msg)
+    print("top50kda updated")
 
-@tasks.loop(hours=.1)
+@tasks.loop(hours=.05)
 async def top50ranks():
     channel = client.get_channel(top50ranks_channel)
     message = await channel.fetch_message(top50ranks_msg)
@@ -569,6 +566,7 @@ async def top50ranks():
     response_msg.add_field(name="Top rank holders:", value=top_50_string,inline=False)
     #await channel.send(embed=response_msg)
     await message.edit(embed=response_msg)
+    print("top50ranks updated")
 
 @tasks.loop(hours=4.0)
 async def updateEverything():
@@ -599,8 +597,10 @@ async def updateEverything():
         no_requests += 1
         season_info = json.loads(second_request.text)
         c_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
+        c_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['subTier']
         c_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentRankPoint']
         h_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestTier']['tier']
+        h_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestTier']['subTier']
         h_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestRankPoint']
         games_played = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['roundsPlayed']
         team_kills = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['teamKills']
@@ -608,13 +608,15 @@ async def updateEverything():
         season_wins = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['wins']
         season_damage = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['damageDealt']
         
-        new_role = c_rank
+        new_role = c_rank +" "+ c_tier
         ADR = round(season_damage/games_played,0)
         KDA = round(KDA,2)
         server_list.update({str(user): {'IGN': user_ign, 'ID': player_id, 'Rank': new_role}})
         server_list[str(user)]['c_rank'] = c_rank
+        server_list[str(user)]['c_tier'] = c_tier
         server_list[str(user)]['c_rank_points'] = c_rank_points
         server_list[str(user)]['h_rank'] = h_rank
+        server_list[str(user)]['h_tier'] = h_tier
         server_list[str(user)]['h_rank_points'] = h_rank_points
         server_list[str(user)]['games_played'] = games_played
         server_list[str(user)]['team_kills'] = team_kills
