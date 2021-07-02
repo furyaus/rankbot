@@ -403,7 +403,7 @@ async def getgeneral(ctx):
         role = discord.utils.get(ctx.guild.roles, name='general')
         member = await ctx.guild.fetch_member(current_general)
         await member.remove_roles(role)
-        server_list[current_general]['general '] = 0
+        server_list[current_general]['general'] = 0
         member = await ctx.guild.fetch_member(max_points_user)
         await member.add_roles(role)
         response_msg.add_field(name="general:", value=f"Previous general (highest rank in server) has been replaced by {member.mention}. Congrats!",inline=False)
@@ -678,7 +678,7 @@ async def updateEverything():
         role = discord.utils.get(guild.roles, name='General')
         member = await guild.fetch_member(current_general)
         await member.remove_roles(role)
-        server_list[current_general]['general '] = 0
+        server_list[current_general]['general'] = 0
         member = await guild.fetch_member(max_points_user)
         await member.add_roles(role)
         response_msg.add_field(name="general:", value=f"Previous general (highest rank in server) has been replaced by {member.mention}. Congrats!",inline=False)
