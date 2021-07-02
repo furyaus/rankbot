@@ -469,7 +469,7 @@ async def update():
     channel = client.get_channel(d_channel)
     response_msg = discord.Embed(
       colour=discord.Colour.orange(),
-      title="Auto Sync Ranks")
+      title="Auto Sync Ranks for The 101 Club")
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     curr_header = header
     curr_header["Authorization"] = keys[no_requests%(len(keys))]
