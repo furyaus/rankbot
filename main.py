@@ -28,6 +28,7 @@ bot_token = os.environ['discord_token']
 API_key_fury = os.environ['API_key_fury']
 API_key_ocker = os.environ['API_key_ocker']
 API_key_p4 = os.environ['API_key_p4']
+API_key_progdog  = os.environ['API_key_progdog']
 d_server  = int(os.environ['discord_server'])
 d_channel = int(os.environ['discord_channel'])
 top50ranks_channel  = int(os.environ['top50ranks_channel'])
@@ -44,10 +45,11 @@ starter_encouragements = [
   "Cheer up! 17 kill win on the way!",
   "Hang in there. Chicken dinner next game!",
   "You rock at PUBG!"
+  "I saw that flick, you got this."
 ]
 
-# Keys in order - furyaus, ocker, p4
-keys = ["Bearer "+API_key_fury,"Bearer "+API_key_ocker,"Bearer "+API_key_p4]
+# Keys in order - furyaus, ocker, p4, progdog
+keys = ["Bearer "+API_key_fury,"Bearer "+API_key_ocker,"Bearer "+API_key_p4,"Bearer "+API_key_progdog]
 header = {"Authorization": "Bearer "+API_key_fury,"Accept": "application/vnd.api+json"}
 
 # Open edited_server_list.json file for editing
@@ -90,7 +92,7 @@ async def support(ctx):
         description="Rank Bot is here to support you through that 3rd, 14th place in scrims")
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     help_msg.add_field(name=".inspire:", value="Responses with inspiration quotes, to really get you back on track```.inspire```",inline=False)
-    help_msg.add_field(name=".checkstats:", value="Retireve live PUBG API data for a single user and display. No stats, ranks or roles are changed or stored. ```.checkstats 0cker```", inline=False)
+    help_msg.add_field(name=".keywords", value="Rank Bot monitors The 101 Club for PBT (PUBG Burnout). Just let the Bot know. ```Keywords in chat```", inline=False)
     await ctx.send(embed=help_msg)
 
 # Inspire your day
