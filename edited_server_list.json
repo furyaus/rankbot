@@ -1,21 +1,4 @@
 {
-  "142744407123165184": {
-    "IGN": "furyaus",
-    "ID": "6be60825d4fa400aa6817ad9b546d03e",
-    "Rank": "Diamond",
-    "c_rank": "Diamond",
-    "c_rank_points": 3078,
-    "h_rank": "Diamond",
-    "h_rank_points": 3097,
-    "games_played": 139,
-    "team_kills": 0,
-    "season_wins": 11,
-    "KDA": 1.2,
-    "ADR": 183.0,
-    "Punisher": 1,
-    "Terminator": 1,
-    "team_killer": 1
-  },
   "391544354893856769": {
     "IGN": "Tazzii_",
     "ID": "187c1fa122aa4c1d80199b434a7da046",
@@ -29,9 +12,9 @@
     "season_wins": 11,
     "KDA": 2.21,
     "ADR": 243.0,
-    "Punisher": 1,
+    "Punisher": 0,
     "Terminator": 1,
-    "team_killer": 1
+    "team_killer": 0
   },
   "150579587351314432": {
     "IGN": "EndGame",
@@ -48,7 +31,7 @@
     "ADR": 299.0,
     "Punisher": 1,
     "Terminator": 0,
-    "team_killer": 1
+    "team_killer": 0
   },
   "137495310988607488": {
     "IGN": "TTV-NeonLili",
@@ -65,7 +48,7 @@
     "ADR": 98.0,
     "Punisher": 0,
     "Terminator": 0,
-    "team_killer": 1
+    "team_killer": 0
   },
   "337889441009893376": {
     "IGN": "0cker",
@@ -82,6 +65,23 @@
     "ADR": 245.0,
     "Punisher": 0,
     "Terminator": 0,
-    "team_killer": 1
+    "team_killer": 0
+  },
+  "142744407123165184": {
+    "IGN": "furyaus",
+    "ID": "6be60825d4fa400aa6817ad9b546d03e",
+    "Rank": "Diamond",
+    "c_rank": "Diamond",
+    "c_rank_points": 3078,
+    "h_rank": "Diamond",
+    "h_rank_points": 3097,
+    "games_played": 139,
+    "team_kills": 0,
+    "season_wins": 11,
+    "KDA": 1.2,
+    "ADR": 183.0,
+    "Punisher": 0,
+    "Terminator": 0,
+    "team_killer": 0
   }
 }
