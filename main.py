@@ -92,13 +92,10 @@ async def checkstats(ctx, user_ign):
     global header
     global no_requests
     channel = client.get_channel(d_channel)
-    await ctx.send("Checking stats - please check rank bot channel for output.")
-
     user_ign = user_ign.replace("<","")
     user_ign = user_ign.replace(">","")
     user_ign = user_ign.replace("@","")
     user_ign = user_ign.replace("!","")
-
     for user in server_list:
       if (user == user_ign):
           user_ign = server_list[user]['IGN']
@@ -225,7 +222,6 @@ async def mystats(ctx):
     global header
     global no_requests
     channel = client.get_channel(d_channel)
-    await ctx.send("Updating your stats, rank and roles - please check rank bot channel for output.")
     curr_header = header
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     user = ctx.message.author
@@ -309,7 +305,6 @@ async def removeuser(ctx, member: discord.Member):
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
 async def updatestatsall(ctx):
-    await ctx.send("Updating everyone's stats - please check rank bot channel for output.")
     top50ranks.start()
     top50adr.start()
     top50kda.start()
@@ -318,7 +313,6 @@ async def updatestatsall(ctx):
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
 async def getterminator(ctx):
-    await ctx.send("Calculating who should get the terminator role - please check rank bot channel for output.")
     response_msg = discord.Embed(
       colour=discord.Colour.red(),
       title="terminator (highest KDA)",)
@@ -360,7 +354,6 @@ async def getterminator(ctx):
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
 async def getpunisher(ctx):
-    await ctx.send("Calculating who should get the punisher role - please check rank bot channel for output.")
     response_msg = discord.Embed(
       colour=discord.Colour.red(),
       title="punisher (highest ADR)",)
@@ -403,7 +396,6 @@ async def getpunisher(ctx):
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
 async def getgeneral(ctx):
-    await ctx.send("Calculating who should get the general role (highest rank in server) - please check rank bot channel for output.")
     response_msg = discord.Embed(
       colour=discord.Colour.red(),
       title="general (highest rank in server)",)
@@ -446,7 +438,6 @@ async def getgeneral(ctx):
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
 async def getteamkiller(ctx):
-    await ctx.send("Calculating who should get the team-killer role - please check rank bot channel for output.")
     channel = client.get_channel(d_channel)
     response_msg = discord.Embed(
       colour=discord.Colour.red(),
