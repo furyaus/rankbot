@@ -78,9 +78,9 @@ async def help(ctx):
         title="Help for Rank Bot",
         description="Rank Bot manages the roles, ranks and other stats for gamers within this discord.")
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    help_msg.add_field(name="link:", value=".link PUBG ign, links your discord useridwith your PUBG in-game name, for example '.link furyaus'",inline=False)
-    help_msg.add_field(name="checkstats:", value=".checkstats PUBG ign, used to check someone's squad FPP stats, for example '.checkstats furyaus'", inline=False)
-    help_msg.add_field(name="mystats:", value=".mystats , Updates your ranks if your stats have changed", inline=False)
+    help_msg.add_field(name="Link:", value=".link PUBG ign, links your discord useridwith your PUBG in-game name, for example '.link furyaus'",inline=False)
+    help_msg.add_field(name="Checkstats:", value=".checkstats PUBG ign, used to check someone's squad FPP stats, for example '.checkstats furyaus'", inline=False)
+    help_msg.add_field(name="Mystats:", value=".mystats , Updates your ranks if your stats have changed", inline=False)
     await ctx.send(embed=help_msg)
 
 @client.command(pass_context=True)
@@ -90,13 +90,9 @@ async def adminhelp(ctx):
         title="Admin Help for Rank Bot",
         description="Admin users can remove users and call for global updates.")
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    help_msg.add_field(name="total linked:", value=".total linked users will return the total number of currently stored players", inline=False)
-    help_msg.add_field(name="remove user:", value=".removeuser @username (discord user), will allow someone to re-link to fix issues", inline=False)
+    help_msg.add_field(name="Total linked:", value=".linked users will return the total number of currently stored players", inline=False)
+    help_msg.add_field(name="Remove user:", value=".removeuser @username (discord user), will allow someone to re-link to fix issues", inline=False)
     help_msg.add_field(name="Update all stats:", value=".updatestatsall will force a full resync with PUBG - only do once per hour", inline=False)
-    help_msg.add_field(name="team killer", value=".getteamkiller, finds the player with largest number of team kills", inline=False)
-    help_msg.add_field(name="terminator", value=".getterminator, will update top killer", inline=False)
-    help_msg.add_field(name="The Punisher:", value=".getpunisher, will update highest ADR", inline=False)
-    help_msg.add_field(name="The General:", value=".getgeneral, will update the highest rank in server", inline=False)
     await ctx.send(embed=help_msg)
 
 @client.command()
@@ -115,7 +111,7 @@ async def checkstats(ctx, user_ign):
 
     response_msg = discord.Embed(
       colour=discord.Colour.red(),
-      title="Rank for "+user_ign,)
+      title="Stats for "+user_ign,)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     curr_header = header
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
@@ -163,7 +159,7 @@ async def link(ctx, user_ign):
     channel = client.get_channel(d_channel)
     response_msg = discord.Embed(
       colour=discord.Colour.red(),
-      title="Rank for "+user_ign,)
+      title="Stats for "+user_ign,)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     curr_header = header
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
@@ -242,7 +238,7 @@ async def mystats(ctx):
     user_id = user.id
     response_msg = discord.Embed(
       colour=discord.Colour.red(),
-      title="Rank for "+str(user),)
+      title="Stats for "+str(user),)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     if str(user_id) in server_list:
         curr_rank = server_list[str(user_id)]['Rank']
@@ -307,7 +303,7 @@ async def mystats(ctx):
         json.dump(server_list, data_file, indent=2)
 
 @client.command()
-async def totalenlisted(ctx):
+async def linked(ctx):
     await ctx.send(f"There are currently {len(server_list)} people linked in this server!")
 
 @client.command()
@@ -325,180 +321,6 @@ async def updatestatsall(ctx):
     top50adr.start()
     top50kda.start()
     await updateEverything()
-
-@client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
-async def getterminator(ctx):
-    response_msg = discord.Embed(
-      colour=discord.Colour.red(),
-      title="terminator (highest KDA)",)
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    channel = client.get_channel(d_channel)
-    max_kda = 0
-    max_kda_user = ''
-    current_terminator = 'None'
-    for user in server_list:
-        if server_list[user]['terminator'] == 1:
-            current_terminator = user
-
-    for user in server_list:
-        if (server_list[user]['KDA'] > max_kda):
-            max_kda = server_list[user]['KDA']
-            max_kda_user = user
-
-    server_list[max_kda_user]['terminator'] = 1
-
-    if current_terminator == 'None':
-        role = discord.utils.get(ctx.guild.roles, name='The Terminator')
-        member = await ctx.guild.fetch_member(max_kda_user)
-        await member.add_roles(role)
-        response_msg.add_field(name="The Terminator:", value=f"A new terminator role (highest KDA) has been assigned to {member.mention}. Congrats!",inline=False)
-    elif current_terminator == max_kda_user:
-        response_msg.add_field(name="The Terminator:", value=f"terminator is the same as before.",inline=False)
-    else:
-        role = discord.utils.get(ctx.guild.roles, name='The Terminator')
-        member = await ctx.guild.fetch_member(current_terminator)
-        await member.remove_roles(role)
-        server_list[current_terminator]['terminator'] = 0
-        member = await ctx.guild.fetch_member(max_kda_user)
-        await member.add_roles(role)
-        response_msg.add_field(name="The Terminator:", value=f"Previous terminator (highest KDA) has been replaced by {member.mention}. Congrats!",inline=False)
-
-    await channel.send(embed=response_msg)
-    with open("edited_server_list.json", "w") as data_file:
-        json.dump(server_list, data_file, indent=2)
-
-@client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
-async def getpunisher(ctx):
-    response_msg = discord.Embed(
-      colour=discord.Colour.red(),
-      title="punisher (highest ADR)",)
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    channel = client.get_channel(d_channel)
-    max_adr = 0
-    max_adr_user = ''
-    current_punisher = 'None'
-
-    for user in server_list:
-        if server_list[user]['punisher'] == 1:
-            current_punisher = user
-
-    for user in server_list:
-        if (server_list[user]['ADR'] > max_adr):
-            max_adr = server_list[user]['ADR']
-            max_adr_user = user
-
-    server_list[max_adr_user]['punisher'] = 1
-
-    if current_punisher == 'None':
-        role = discord.utils.get(ctx.guild.roles, name='The Punisher')
-        member = await ctx.guild.fetch_member(max_adr_user)
-        await member.add_roles(role)
-        response_msg.add_field(name="The Punisher:", value=f"A new punisher role (highest ADR) has been assigned to {member.mention}. Congrats!",inline=False)
-    elif current_punisher == max_adr_user:
-        response_msg.add_field(name="The Punisher:", value=f"punisher is the same as before.",inline=False)
-    else:
-        role = discord.utils.get(ctx.guild.roles, name='The Punisher')
-        member = await ctx.guild.fetch_member(current_punisher)
-        await member.remove_roles(role)
-        server_list[current_punisher]['punisher'] = 0
-        member = await ctx.guild.fetch_member(max_adr_user)
-        await member.add_roles(role)
-        response_msg.add_field(name="The Punisher:", value=f"Previous punisher (highest ADR) has been replaced by {member.mention}. Congrats!",inline=False)
-
-    await channel.send(embed=response_msg)
-    with open("edited_server_list.json", "w") as data_file:
-        json.dump(server_list, data_file, indent=2)
-
-@client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
-async def getgeneral(ctx):
-    response_msg = discord.Embed(
-      colour=discord.Colour.red(),
-      title="general (highest rank in server)",)
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    channel = client.get_channel(d_channel)
-    max_points = 0
-    max_points_user = ''
-    current_general = 'None'
-
-    for user in server_list:
-        if server_list[user]['general'] == 1:
-            current_general = user
-
-    for user in server_list:
-        if (server_list[user]['c_rank_points'] > max_points):
-            max_points = server_list[user]['c_rank_points']
-            max_points_user = user
-
-    server_list[max_points_user]['general'] = 1
-
-    if current_general == 'None':
-        role = discord.utils.get(ctx.guild.roles, name='The General')
-        member = await ctx.guild.fetch_member(max_points_user)
-        await member.add_roles(role)
-        response_msg.add_field(name="The General:", value=f"A new general role (highest rank in server) has been assigned to {member.mention}. Congrats!",inline=False)
-    elif current_general == max_points_user:
-        response_msg.add_field(name="The General:", value=f"general is the same as before.",inline=False)
-    else:
-        role = discord.utils.get(ctx.guild.roles, name='The General')
-        member = await ctx.guild.fetch_member(current_general)
-        await member.remove_roles(role)
-        server_list[current_general]['general'] = 0
-        member = await ctx.guild.fetch_member(max_points_user)
-        await member.add_roles(role)
-        response_msg.add_field(name="The General:", value=f"Previous general (highest rank in server) has been replaced by {member.mention}. Congrats!",inline=False)
-
-    await channel.send(embed=response_msg)
-    with open("edited_server_list.json", "w") as data_file:
-        json.dump(server_list, data_file, indent=2)
-
-@client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
-async def getteamkiller(ctx):
-    channel = client.get_channel(d_channel)
-    response_msg = discord.Embed(
-      colour=discord.Colour.red(),
-      title="Literal dog water",)
-    max_team_kills = 0
-    max_team_kills_user = ''
-    current_team_killer = 'None'
-
-    for user in server_list:
-        if server_list[user]['team_killer'] == 1:
-            current_team_killer = user
-
-    for user in server_list:
-        if server_list[user]['team_kills'] > max_team_kills:
-            max_team_kills = server_list[user]['team_kills']
-            max_team_kills_user = user
-
-    if max_team_kills_user != '':
-        server_list[max_team_kills_user]['team_killer'] = 1
-
-    if max_team_kills_user == '':
-        response_msg.add_field(name="Team killer:", value="No one has any ranked team kills!",inline=False)
-    elif current_team_killer == 'None':
-        role = discord.utils.get(ctx.guild.roles, name='Dog water')
-        member = await ctx.guild.fetch_member(max_team_kills_user)
-        await member.add_roles(role)
-        response_msg.add_field(name="Team killer:", value=f"A new dog water role has been assigned to {member.mention}, for the most teamkills this season.",inline=False)
-    elif current_team_killer == max_team_kills_user:
-        response_msg.add_field(name="Team killer:", value=f"{member.mention} still has the highest ranked team kills.",inline=False)
-    else:
-        role = discord.utils.get(ctx.guild.roles, name='Dog water')
-        member = await ctx.guild.fetch_member(current_team_killer)
-        await member.remove_roles(role)
-        server_list[current_team_killer]['team_killer'] = 0
-        member = await ctx.guild.fetch_member(max_team_kills_user)
-        await member.add_roles(role)
-        response_msg.add_field(name="Team killer:", value=f"Previous dog water player has been replaced by {member.mention}, with "
-            f"{server_list[max_team_kills_user]['team_kills']} teamkills this season",inline=False)
-
-    await channel.send(embed=response_msg)
-    with open("edited_server_list.json", "w") as data_file:
-        json.dump(server_list, data_file, indent=2)
 
 @tasks.loop(hours=.05)
 async def top50adr():
@@ -621,7 +443,6 @@ async def updateEverything():
         KDA = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['kda']
         season_wins = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['wins']
         season_damage = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['damageDealt']
-        
         new_role = c_rank +" "+ c_tier
         ADR = round(season_damage/games_played,0)
         KDA = round(KDA,2)
@@ -683,10 +504,10 @@ async def updateEverything():
         member = await guild.fetch_member(max_kda_user)
         await member.add_roles(role)
         response_msg.add_field(name="The Terminator:",
-            value=f"A new terminator role (highest KDA) has been assigned to {member.mention}. Congrats!",inline=False)
+            value=f"A new The Terminator role (highest KDA) has been assigned to {member.mention}. Congrats!",inline=False)
     elif current_terminator == max_kda_user:
         response_msg.add_field(name="The Terminator:",
-            value=f"terminator is the same as before.",inline=False)
+            value=f"The Terminator is the same as before.",inline=False)
     else:
         role = discord.utils.get(guild.roles, name='The Terminator')
         member = await guild.fetch_member(current_terminator)
@@ -695,7 +516,7 @@ async def updateEverything():
         member = await guild.fetch_member(max_kda_user)
         await member.add_roles(role)
         response_msg.add_field(name="The Terminator:",
-            value=f"Previous terminator (highest KDA) has been replaced by {member.mention}. Congrats!",inline=False)
+            value=f"Previous Terminator (highest KDA) has been replaced by {member.mention}. Congrats!",inline=False)
 
     max_adr = 0
     max_adr_user = ''
@@ -717,10 +538,10 @@ async def updateEverything():
         member = await guild.fetch_member(max_adr_user)
         await member.add_roles(role)
         response_msg.add_field(name="The Punisher:",
-            value=f"A new punisher role (highest ADR) has been assigned to {member.mention}. Congrats!",inline=False)
+            value=f"A new The Punisher role (highest ADR) has been assigned to {member.mention}. Congrats!",inline=False)
     elif current_punisher == max_adr_user:
         response_msg.add_field(name="The Punisher:",
-            value=f"punisher is the same as before.",inline=False)
+            value=f"The Punisher is the same as before.",inline=False)
     else:
         role = discord.utils.get(guild.roles, name='The Punisher')
         member = await guild.fetch_member(current_punisher)
@@ -729,7 +550,7 @@ async def updateEverything():
         member = await guild.fetch_member(max_adr_user)
         await member.add_roles(role)
         response_msg.add_field(name="The Punisher:",
-            value=f"Previous punisher (highest ADR) has been replaced by {member.mention}. Congrats!",inline=False)
+            value=f"Previous Punisher (highest ADR) has been replaced by {member.mention}. Congrats!",inline=False)
 
     max_points = 0
     max_points_user = ''
@@ -750,9 +571,9 @@ async def updateEverything():
         role = discord.utils.get(guild.roles, name='The General')
         member = await guild.fetch_member(max_points_user)
         await member.add_roles(role)
-        response_msg.add_field(name="The General:", value=f"A new general role (highest rank in server) has been assigned to {member.mention}. Congrats!",inline=False)
+        response_msg.add_field(name="The General:", value=f"A new The General role (highest rank in server) has been assigned to {member.mention}. Congrats!",inline=False)
     elif current_general == max_points_user:
-        response_msg.add_field(name="The General:", value=f"general is the same as before.",inline=False)
+        response_msg.add_field(name="The General:", value=f"The General is the same as before.",inline=False)
     else:
         role = discord.utils.get(guild.roles, name='The General')
         member = await guild.fetch_member(current_general)
@@ -760,12 +581,46 @@ async def updateEverything():
         server_list[current_general]['general'] = 0
         member = await guild.fetch_member(max_points_user)
         await member.add_roles(role)
-        response_msg.add_field(name="The General:", value=f"Previous general (highest rank in server) has been replaced by {member.mention}. Congrats!",inline=False)
+        response_msg.add_field(name="The General:", value=f"Previous General (highest rank in server) has been replaced by {member.mention}. Congrats!",inline=False)
+
+    max_team_kills = 0
+    max_team_kills_user = ''
+    current_team_killer = 'None'
+
+    for user in server_list:
+        if server_list[user]['team_killer'] == 1:
+            current_team_killer = user
+
+    for user in server_list:
+        if server_list[user]['team_kills'] > max_team_kills:
+            max_team_kills = server_list[user]['team_kills']
+            max_team_kills_user = user
+
+    if max_team_kills_user != '':
+        server_list[max_team_kills_user]['team_killer'] = 1
+
+    if max_team_kills_user == '':
+        response_msg.add_field(name="Dog water:", value="No one has any ranked team kills!",inline=False)
+    elif current_team_killer == 'None':
+        role = discord.utils.get(guild.roles, name='Dog water')
+        member = await guild.fetch_member(max_team_kills_user)
+        await member.add_roles(role)
+        response_msg.add_field(name="Dog water:", value=f"A new dog water role has been assigned to {member.mention}, for the most teamkills this season.",inline=False)
+    elif current_team_killer == max_team_kills_user:
+        response_msg.add_field(name="Dog water:", value=f"{member.mention} still has the highest ranked team kills.",inline=False)
+    else:
+        role = discord.utils.get(guild.roles, name='Dog water')
+        member = await guild.fetch_member(current_team_killer)
+        await member.remove_roles(role)
+        server_list[current_team_killer]['team_killer'] = 0
+        member = await guild.fetch_member(max_team_kills_user)
+        await member.add_roles(role)
+        response_msg.add_field(name="Dog water:", value=f"Previous dog water player has been replaced by {member.mention}, with "
+            f"{server_list[max_team_kills_user]['team_kills']} teamkills this season",inline=False)
 
     response_msg.add_field(name="Finished:",
         value=f"Roles and ranks have been synced.",inline=False)
     await channel.send(embed=response_msg)
-
 
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
