@@ -68,9 +68,9 @@ async def help(ctx):
         title="Help for Rank Bot",
         description="Rank Bot manages the roles, ranks and other stats for gamers within this discord.")
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    help_msg.add_field(name="Link:", value=".link PUBG IGN, this links your discord userid with your PUBG in-game name. ie .link furyaus",inline=False)
-    help_msg.add_field(name="Checkstats:", value=".checkstats PUBG IGN or discord @user. Live PUBG API data only. ie '.checkstats 0cker'", inline=False)
-    help_msg.add_field(name="Mystats:", value=".mystats , Querys PUBG API for latest data and stores it via JSON file. ie '.mystats GAMMB1T'", inline=False)
+    help_msg.add_field(name="Link:", value=".link PUBG IGN, this links your discord userid with your PUBG in-game name. ```.link furyaus```",inline=False)
+    help_msg.add_field(name="Checkstats:", value=".checkstats PUBG IGN or discord @user. Live PUBG API data only. ```.checkstats 0cker```", inline=False)
+    help_msg.add_field(name="Mystats:", value=".mystats , Querys PUBG API for latest data and stores it via JSON file. ```.mystats GAMMB1T```", inline=False)
     await ctx.send(embed=help_msg)
 
 # Admin help
@@ -81,9 +81,9 @@ async def adminhelp(ctx):
         title="Admin help for Rank Bot",
         description="Admin users can remove users and call for global updates.")
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    help_msg.add_field(name="Total linked:", value=".linked users will return the total number of currently stored players", inline=False)
-    help_msg.add_field(name="Remove user:", value=".removeuser @username (discord user), will allow someone to re-link to fix issues", inline=False)
-    help_msg.add_field(name="Update all stats:", value=".updatestatsall will force a full resync with PUBG - only do once per hour", inline=False)
+    help_msg.add_field(name="Total linked:", value=".linked users will return the total number of currently stored players. ```.linked```", inline=False)
+    help_msg.add_field(name="Remove user:", value=".removeuser @username (discord user), will allow someone to re-link to fix issues. ```.removeuser 36C_P4```", inline=False)
+    help_msg.add_field(name="Update all stats:", value=".updatestatsall will force a full resync for all stored players with PUBG API. Only do once per hour. ```.updatestatsall```", inline=False)
     await ctx.send(embed=help_msg)
 
 # Check my stats - live, direct api data response - look at JSON later
@@ -226,7 +226,6 @@ async def mystats(ctx):
     global header
     global no_requests    
     channel = client.get_channel(d_channel)
-    guild = client.get_guild(d_server)
     curr_header = header
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     user = ctx.message.author
@@ -404,7 +403,6 @@ async def updateEverything():
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     curr_header = header
     curr_header["Authorization"] = keys[no_requests%(len(keys))]
-    print('Updating everyones stats and roles')
     for user in server_list:
         player_id = server_list[user]['ID']
         user_ign = server_list[user]['IGN']
@@ -592,8 +590,8 @@ async def updateEverything():
 
     response_msg.add_field(name="Finished:",
         value=f"Roles and ranks have been synced.",inline=False)
-    await channel.send(embed=response_msg)
-    print("Rank Bot is running...")
+    #await channel.send(embed=response_msg)
+    print('Updated everyones stats')
 
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
