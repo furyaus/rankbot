@@ -1,5 +1,5 @@
 # RankedBot
-# Version: 0.9
+# Version: 1.0
 # Date: 30.06.21
 # Current Authors: fury#1662, coopzr#3717, Jobelerno#7978
 # Github: https://github.com/furyaus/rankbot
@@ -138,6 +138,7 @@ async def norequests(ctx):
     response_msg.add_field(name="PUG API Requests: ", value="```"+str(no_requests)+"```",inline=False)
     await ctx.send(embed=response_msg)
 
+# Remove user from JSON file
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
 async def remove(ctx, member: discord.Member):
@@ -146,6 +147,7 @@ async def remove(ctx, member: discord.Member):
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
 
+# Report top50adr to leaderboard
 @tasks.loop(hours=.05)
 async def top50adr():
     channel = client.get_channel(top50adr_channel)
@@ -169,10 +171,11 @@ async def top50adr():
             break
         i -= 1
     response_msg.add_field(name="Top ADR:", value="```"+top_50_string+"```",inline=False)
-    #await channel.send(embed=response_msg)
+    #await channel.send(embed=response_msg)-Needed for the first time a post is made, msg id needs updating
     await message.edit(embed=response_msg)
     print("top50adr updated")
 
+# Report top50kda to leaderboard
 @tasks.loop(hours=.05)
 async def top50kda():
     channel = client.get_channel(top50kda_channel)
@@ -196,10 +199,11 @@ async def top50kda():
             break
         i -= 1
     response_msg.add_field(name="Top KDA:", value="```"+top_50_string+"```",inline=False)
-    #await channel.send(embed=response_msg)
+    #await channel.send(embed=response_msg)-Needed for the first time a post is made, msg id needs updating
     await message.edit(embed=response_msg)
     print("top50kda updated")
 
+# Report top50rank to leaderboard
 @tasks.loop(hours=.05)
 async def top50ranks():
     channel = client.get_channel(top50ranks_channel)
@@ -223,11 +227,11 @@ async def top50ranks():
             break
         i -= 1
     response_msg.add_field(name="Top rank holders:", value="```"+top_50_string+"```",inline=False)
-    #await channel.send(embed=response_msg)
+    #await channel.send(embed=response_msg)-Needed for the first time a post is made, msg id needs updating
     await message.edit(embed=response_msg)
     print("top50ranks updated")
 
-# Check my stats - live, direct api data response - look at JSON later
+# Check my stats - live, direct api data response - allows any PUBG IGN
 @client.command()
 async def stats(ctx, user_ign):
     global keys
@@ -438,6 +442,7 @@ async def mystats(ctx):
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
 
+# Main program - full resync all data, ranks, roles and stats
 @tasks.loop(hours=4.0)
 async def update():
     global keys 
@@ -638,7 +643,7 @@ async def update():
 
     response_msg.add_field(name="Finished:",
         value=f"Roles and ranks have been synced.",inline=False)
-    #await channel.send(embed=response_msg)
+    await channel.send(embed=response_msg)
     print('Updated everyones stats')
 
     with open("edited_server_list.json", "w") as data_file:
