@@ -626,7 +626,7 @@ async def update():
         await member.add_roles(role)
         response_msg.add_field(name="Dog water", value=f"A new dog water role has been assigned to {member.mention}, for the most teamkills this season.",inline=False)
     elif current_team_killer == max_team_kills_user:
-        response_msg.add_field(name="Dog water", value="The dog water is still the same. ```"+member.name+"```"",inline=False)
+        response_msg.add_field(name="Dog water", value="The dog water is still the same. ```"+member.name+"```",inline=False)
     else:
         role = discord.utils.get(guild.roles, name='Dog water')
         member = await guild.fetch_member(current_team_killer)
