@@ -525,7 +525,7 @@ async def updateEverything():
     global no_requests
     response_msg = discord.Embed(
       colour=discord.Colour.red(),
-      title="Daily rank and role sync")
+      title="Auto rank and role sync - every 4hours")
     curr_header = header
     curr_header["Authorization"] = keys[no_requests%(len(keys))]
     guild = client.get_guild(d_server)
