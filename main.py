@@ -269,7 +269,6 @@ async def stats(ctx, user_ign):
     for user in server_list:
       if (user == user_ign):
           user_ign = server_list[user]['IGN']
-
     response_msg = discord.Embed(
       colour=discord.Colour.orange(),
       title="Stats for "+user_ign,)
@@ -302,7 +301,6 @@ async def stats(ctx, user_ign):
         season_damage = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['damageDealt']
         ADR = round(season_damage/games_played,0)
         KDA = round(KDA,2)
-
         response_msg.add_field(name="Rank:",
             value=f"Current rank is: {c_rank} {c_tier}: {c_rank_points}\nHighest rank is: {h_rank} {h_tier}: {h_rank_points}",inline=False)
         response_msg.add_field(name="KDA:",
@@ -310,7 +308,6 @@ async def stats(ctx, user_ign):
         response_msg.add_field(name="ADR:",
             value=f"Average damage per game: {ADR}",inline=False)
         response_msg.timestamp = datetime.datetime.utcnow()
-
         await channel.send(embed=response_msg)
 
 # Link Discord user id with PUBG IGN and create user
@@ -357,7 +354,6 @@ async def link(ctx, user_ign):
             KDA = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['kda']
             season_wins = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['wins']
             season_damage = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['damageDealt']
-
             new_rank = c_rank +" "+ c_tier
             ADR = round(season_damage/games_played,0)
             KDA = round(KDA,2)
@@ -377,15 +373,12 @@ async def link(ctx, user_ign):
             server_list[str(user_id)]['terminator'] = 0
             server_list[str(user_id)]['team_killer'] = 0
             server_list[str(user_id)]['general'] = 0
-
             role = discord.utils.get(ctx.guild.roles, name=new_rank)
             await user.add_roles(role)
-
             response_msg.add_field(name="Rank:", value=f"Current rank is: {c_rank} {c_tier}: {c_rank_points}\nHighest rank is: {h_rank} {h_tier}: {h_rank_points}",inline=False)
             response_msg.add_field(name="KDA:", value=f"Kills and assists per death: {KDA}",inline=False)
             response_msg.add_field(name="ADR:", value=f"Average damage per game: {ADR}",inline=False)
             response_msg.timestamp = datetime.datetime.utcnow()
-
             await channel.send(embed=response_msg)
             with open("edited_server_list.json", "w") as data_file:
                 json.dump(server_list, data_file, indent=2)
@@ -428,7 +421,6 @@ async def mystats(ctx):
         KDA = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['kda']
         season_wins = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['wins']
         season_damage = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['damageDealt']
-
         new_rank = c_rank +" "+ c_tier
         ADR = round(season_damage/games_played,0)
         KDA = round(KDA,2)
@@ -448,23 +440,18 @@ async def mystats(ctx):
         server_list[str(user_id)]['terminator'] = curr_terminator
         server_list[str(user_id)]['team_killer'] = curr_teamkiller
         server_list[str(user_id)]['general'] = curr_general
-
         if new_rank != curr_rank:
             role = discord.utils.get(ctx.guild.roles, name=curr_rank)
             await user.remove_roles(role)
             role = discord.utils.get(user.guild.roles, name=new_rank)
             await user.add_roles(role)
-
     else:
       response_msg.add_field(name="Rank:", value=f"You currently don't have a rank and your IGN isn't added to the list so use .link command to link",inline=False)
-
     response_msg.add_field(name="Current Rank:", value="Your current rank is: "+new_rank,inline=False)
     response_msg.add_field(name="KDA:", value=f"Kills and assists per death: {KDA}",inline=False)
     response_msg.add_field(name="ADR:", value=f"Average damage per game: {ADR}",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
-
     await channel.send(embed=response_msg)
-
 
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
@@ -537,18 +524,14 @@ async def update():
     max_kda = 0
     max_kda_user = ''
     current_terminator = 'None'
-
     for user in server_list:
         if server_list[user]['terminator'] == 1:
             current_terminator = user
-
     for user in server_list:
         if (server_list[user]['KDA'] > max_kda):
             max_kda = server_list[user]['KDA']
             max_kda_user = user
-
     server_list[max_kda_user]['terminator'] = 1
-
     if current_terminator == 'None':
         role = discord.utils.get(guild.roles, name='The Terminator')
         member = await guild.fetch_member(max_kda_user)
@@ -571,18 +554,14 @@ async def update():
     max_adr = 0
     max_adr_user = ''
     current_punisher = 'None'
-
     for user in server_list:
         if server_list[user]['punisher'] == 1:
             current_punisher = user
-
     for user in server_list:
         if (server_list[user]['ADR'] > max_adr):
             max_adr = server_list[user]['ADR']
             max_adr_user = user
-
     server_list[max_adr_user]['punisher'] = 1
-
     if current_punisher == 'None':
         role = discord.utils.get(guild.roles, name='The Punisher')
         member = await guild.fetch_member(max_adr_user)
@@ -605,18 +584,14 @@ async def update():
     max_points = 0
     max_points_user = ''
     current_general = 'None'
-
     for user in server_list:
         if server_list[user]['general'] == 1:
             current_general = user
-
     for user in server_list:
         if (server_list[user]['c_rank_points'] > max_points):
             max_points = server_list[user]['c_rank_points']
             max_points_user = user
-
     server_list[max_points_user]['general'] = 1
-
     if current_general == 'None':
         role = discord.utils.get(guild.roles, name='The General')
         member = await guild.fetch_member(max_points_user)
@@ -636,19 +611,15 @@ async def update():
     max_team_kills = 0
     max_team_kills_user = ''
     current_team_killer = 'None'
-
     for user in server_list:
         if server_list[user]['team_killer'] == 1:
             current_team_killer = user
-
     for user in server_list:
         if server_list[user]['team_kills'] > max_team_kills:
             max_team_kills = server_list[user]['team_kills']
             max_team_kills_user = user
-
     if max_team_kills_user != '':
         server_list[max_team_kills_user]['team_killer'] = 1
-
     if max_team_kills_user == '':
         response_msg.add_field(name="Dog water:", value="No one has any ranked team kills!",inline=False)
     elif current_team_killer == 'None':
