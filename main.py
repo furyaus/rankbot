@@ -128,7 +128,7 @@ async def announce(ctx, *, text):
     channel = client.get_channel(announce_channel)
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    response_msg.add_field(name="Rank Bot says:", value=f"{text}", inline=False)
+    response_msg.add_field(name="Announcement:", value=f"{text}", inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
