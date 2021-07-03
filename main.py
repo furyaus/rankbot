@@ -171,7 +171,7 @@ async def top25ranks():
     channel = client.get_channel(top25ranks_channel)
     message = await channel.fetch_message(top25ranks_msg)
     new_server_list = sorted(server_list.values(), key=itemgetter('c_rank_points'))
-    response_msg = discord.Embed(colour=discord.Colour.orange(),title="Top 50 rank holders in the 101 Club",)
+    response_msg = discord.Embed(colour=discord.Colour.orange(),title="Top 25 rank holders in the 101 Club",)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     top_50_string = ''
     i = -1
@@ -198,7 +198,7 @@ async def top25ranks():
 async def top25kda():
     channel = client.get_channel(top25kda_channel)
     message = await channel.fetch_message(top25kda_msg)
-    response_msg = discord.Embed(colour=discord.Colour.orange(),title="Top 50 KDA in the 101 Club",)
+    response_msg = discord.Embed(colour=discord.Colour.orange(),title="Top 25 KDA in the 101 Club",)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     new_server_list = sorted(server_list.values(), key=itemgetter('KDA'))
     top_50_string = ''
@@ -225,7 +225,7 @@ async def top25kda():
 async def top25adr():
     channel = client.get_channel(top25adr_channel)
     message = await channel.fetch_message(top25adr_msg)
-    response_msg = discord.Embed(colour=discord.Colour.orange(),title="Top 50 ADR in the 101 Club",)
+    response_msg = discord.Embed(colour=discord.Colour.orange(),title="Top 25 ADR in the 101 Club",)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     new_server_list = sorted(server_list.values(), key=itemgetter('ADR'))
     top_50_string = ''
