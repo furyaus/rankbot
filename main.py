@@ -30,7 +30,7 @@ API_key_ocker = os.environ['API_key_ocker']
 API_key_p4 = os.environ['API_key_p4']
 API_key_progdog = os.environ['API_key_progdog']
 d_server = int(os.environ['discord_server'])
-d_channel = int(os.environ['discord_channel'])
+stats_channel = int(os.environ['stats_channel'])
 general_channel = int(os.environ['general_channel'])
 botinfo_channel = int(os.environ['botinfo_channel'])
 botinfo_msg = int(os.environ['botinfo_msg'])
@@ -53,7 +53,6 @@ json_file_path = "edited_server_list.json"
 with open(json_file_path, 'r') as j:
     server_list = json.loads(j.read())
 
-
 # Catch unknown commands
 @client.event
 async def on_command_error(ctx, error):
@@ -63,7 +62,6 @@ async def on_command_error(ctx, error):
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
-
 # Help
 @client.command(pass_context=True)
 async def help(ctx):
@@ -72,9 +70,9 @@ async def help(ctx):
     help_msg.add_field(name=".link:",value="This links your discord userid with your PUBG in-game name. ```.link furyaus```",inline=False)
     help_msg.add_field(name=".stats:",value="Retireve live PUBG API data for a single user and display. No stats, ranks or roles are changed or stored. ```.stats 0cker```",inline=False)
     help_msg.add_field(name=".mystats:",value="Queries PUBG API for your latest data, updates ranks, roles and stats which are stored via a JSON file. ```.mystats```",inline=False)
+    help_msg.add_field(name="Report issues: ",value="Head to github and create a new issue or feature request [https://github.com/furyaus/rankbot/issues](https://github.com/furyaus/rankbot/issues)",inline=False)
     help_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=help_msg)
-
 
 # Admin help
 @client.command(pass_context=True)
@@ -89,7 +87,6 @@ async def adminhelp(ctx):
     help_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=help_msg)
 
-
 # Support help
 @client.command(pass_context=True)
 async def support(ctx):
@@ -99,7 +96,6 @@ async def support(ctx):
     help_msg.add_field(name=".keywords",value="Rank Bot monitors The 101 Club for PBT (PUBG Burnout). Just let the Bot know. ```Bot is here for you```",inline=False)
     help_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=help_msg)
-
 
 # Inspire your day
 @client.command()
@@ -113,7 +109,6 @@ async def inspire(ctx):
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
-
 # Say
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
@@ -121,10 +116,9 @@ async def say(ctx, *, text):
     channel = client.get_channel(general_channel)
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    response_msg.add_field(name="The 101 Club Bot:", value=f"{text}", inline=False)
+    response_msg.add_field(name="Rank Bot says:", value=f"{text}", inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
-
 
 # Report how many users in JSON file
 @client.command()
@@ -136,7 +130,6 @@ async def linked(ctx):
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
-
 # Report number of PUBG API requests
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
@@ -146,7 +139,6 @@ async def norequests(ctx):
     response_msg.add_field(name="PUG API Requests: ",value="```" + str(no_requests) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
-
 
 # Remove user from JSON file
 @client.command()
@@ -160,7 +152,6 @@ async def remove(ctx, member: discord.Member):
     response_msg.add_field(name="Removed: ",value="```" + str(member.name) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
-
 
 # Report top50rank to leaderboard
 @tasks.loop(hours=.05)
@@ -186,10 +177,9 @@ async def top50ranks():
         i -= 1
     response_msg.add_field(name="Top rank holders:", value="```"+top_50_string+"```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
-    #await channel.send(embed=response_msg)-Needed for the first time a post is made, msg id needs updating
+    #await channel.send(embed=response_msg)
     await message.edit(embed=response_msg)
     print("top50ranks updated")
-
 
 # Report top50kda to leaderboard
 @tasks.loop(hours=.05)
@@ -214,10 +204,9 @@ async def top50kda():
         i -= 1
     response_msg.add_field(name="Top KDA:", value="```"+top_50_string+"```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
-    #await channel.send(embed=response_msg)-Needed for the first time a post is made, msg id needs updating
+    #await channel.send(embed=response_msg)
     await message.edit(embed=response_msg)
     print("top50kda updated")
-
 
 # Report top50adr to leaderboard
 @tasks.loop(hours=.05)
@@ -246,14 +235,13 @@ async def top50adr():
     await message.edit(embed=response_msg)
     print("top50adr updated")
 
-
 # Check my stats - live, direct api data response - allows any PUBG IGN
 @client.command()
 async def stats(ctx, user_ign):
     global keys
     global header
     global no_requests
-    channel = client.get_channel(d_channel)
+    channel = client.get_channel(stats_channel)
     user_ign = user_ign.replace("<", "")
     user_ign = user_ign.replace(">", "")
     user_ign = user_ign.replace("@", "")
@@ -296,14 +284,13 @@ async def stats(ctx, user_ign):
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
-
 # Link Discord user id with PUBG IGN and create user
 @client.command(pass_context=True)
 async def link(ctx, user_ign):
     global keys
     global header
     global no_requests
-    channel = client.get_channel(d_channel)
+    channel = client.get_channel(stats_channel)
     response_msg = discord.Embed(
         colour=discord.Colour.orange(),
         title="Linking " + user_ign,)
@@ -369,14 +356,13 @@ async def link(ctx, user_ign):
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
-
 # Pull stats for current user and update database
 @client.command()
 async def mystats(ctx):
     global keys
     global header
     global no_requests
-    channel = client.get_channel(d_channel)
+    channel = client.get_channel(stats_channel)
     curr_header = header
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     user = ctx.message.author
@@ -442,7 +428,6 @@ async def mystats(ctx):
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
-
 # Main program - full resync all data, ranks, roles and stats
 @tasks.loop(hours=4.0)
 async def update():
@@ -450,10 +435,9 @@ async def update():
     global header
     global no_requests
     guild = client.get_guild(d_server)
-    channel = client.get_channel(d_channel)
-    response_msg = discord.Embed(colour=discord.Colour.orange(),title="Sync all data for The 101 Club")
     channel = client.get_channel(botinfo_channel)
     message = await channel.fetch_message(botinfo_msg)
+    response_msg = discord.Embed(colour=discord.Colour.orange(),title="Sync all data for The 101 Club")
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     curr_header = header
     curr_header["Authorization"] = keys[no_requests % (len(keys))]
@@ -630,7 +614,7 @@ async def update():
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
     response_msg.timestamp = datetime.datetime.utcnow()
-    #await channel.send(embed=response_msg)-Needed for the first time a post is made, msg id needs updating
+    #await channel.send(embed=response_msg)
     await message.edit(embed=response_msg)
 
 
