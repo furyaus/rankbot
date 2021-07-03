@@ -632,7 +632,7 @@ async def resync(ctx):
     await top50kda()
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    response_msg.add_field(name="Resync completed: ",value="PUGB API Requests comppleted: ```" + str(no_requests) + "```",inline=False)
+    response_msg.add_field(name="Resync completed: ",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
