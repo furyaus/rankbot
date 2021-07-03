@@ -40,7 +40,7 @@ top50kda_channel = int(os.environ['top50kda_channel'])
 top50kda_msg = int(os.environ['top50kda_msg'])
 top50adr_channel = int(os.environ['top50adr_channel'])
 top50adr_msg = int(os.environ['top50adr_msg'])
-admin_roles = ["Moderators", "Admins", "Boss", "The General", "The Punisher", "The Terminator",]
+admin_roles = ["Moderators", "Admin", "Boss", "The General", "The Punisher", "The Terminator",]
 no_requests = 0
 curr_key = 0
 
@@ -609,6 +609,7 @@ async def update():
         member = await guild.fetch_member(max_team_kills_user)
         await member.add_roles(role)
         response_msg.add_field(name="Dog water", value=f"Previous dog water player has been replaced. Congrats! ```{member.name}```",inline=False)
+    response_msg.add_field(name="Resync completed: ",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
     response_msg.add_field(name="Finished:",value=f"Roles and ranks have been synced.",inline=False)
     print('Updated everyones stats')
     with open("edited_server_list.json", "w") as data_file:
