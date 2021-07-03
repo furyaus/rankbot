@@ -18,7 +18,7 @@ from datetime import timedelta
 from pytz import timezone
 import asyncio
 
-# Frustrating new discord requirements to pull user.id
+# Setup bot and command
 clientintents = discord.Intents.all()
 client = commands.Bot(command_prefix=".", intents=clientintents)
 client.remove_command("help")
