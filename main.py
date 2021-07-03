@@ -16,6 +16,7 @@ from json import loads, dumps
 import os
 import datetime
 from datetime import timedelta
+from pytz import timezone
 import asyncio
 
 # Frustrating new discord requirements to pull user.id
@@ -102,7 +103,6 @@ async def support(ctx):
     help_msg = discord.Embed(colour=discord.Colour.orange(),title="Support for The 101 Club members",description="Rank Bot is here to support you through that 3rd, 14th place in scrims")
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     help_msg.add_field(name=".inspire:",value="Responses with inspiration quotes, to really get you back on track```.inspire```",inline=False)
-    help_msg.add_field(name=".keywords",value="Rank Bot monitors The 101 Club for PBT (PUBG Burnout). Just let the Bot know. ```Bot is here for you```",inline=False)
     help_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=help_msg)
 
@@ -458,6 +458,8 @@ async def update():
     global keys
     global header
     global no_requests
+    aest = timezone('Australia/Melbourne')
+    timestamp = datetime.datetime.now(aest)
     user_list=get_data()
     guild = client.get_guild(d_server)
     channel = client.get_channel(botinfo_channel)
@@ -640,7 +642,7 @@ async def update():
         await member.add_roles(role)
         response_msg.add_field(name="Dog water", value=f"Previous dog water player has been replaced. Congrats! ```{member.name}```",inline=False)
     response_msg.add_field(name="Resync completed: ",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
-    response_msg.add_field(name="Finished:",value=f"All player stats, ranks, roles have been updated. Next sync at "+((datetime.datetime.utcnow() + timedelta(hours=1)).strftime('%H:%M:%S')),inline=False)
+    response_msg.add_field(name="Finished:",value=f"All player stats, ranks, roles have been updated. The next sync will take place at "+((timestamp+ timedelta(hours=1)).strftime(r"%I:%M %p")),inline=False)
     print('Updated everyones stats')
     set_data(user_list)
     response_msg.timestamp = datetime.datetime.utcnow()
