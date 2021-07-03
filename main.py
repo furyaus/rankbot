@@ -32,6 +32,7 @@ API_key_p4 = os.environ['API_key_p4']
 API_key_progdog = os.environ['API_key_progdog']
 d_server = int(os.environ['discord_server'])
 d_channel = int(os.environ['discord_channel'])
+general_channel = int(os.environ['general_channel'])
 botinfo_channel = int(os.environ['botinfo_channel'])
 botinfo_msg = int(os.environ['botinfo_msg'])
 top50ranks_channel = int(os.environ['top50ranks_channel'])
@@ -71,7 +72,7 @@ async def help(ctx):
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     help_msg.add_field(name=".link:",value="This links your discord userid with your PUBG in-game name. ```.link furyaus```",inline=False)
     help_msg.add_field(name=".stats:",value="Retireve live PUBG API data for a single user and display. No stats, ranks or roles are changed or stored. ```.stats 0cker```",inline=False)
-    help_msg.add_field(name=".mystats:",value="Queries PUBG API for your latest data, updates ranks, roles and stats which are stored via a JSON file. ```.mystats GAMMB1T```",inline=False)
+    help_msg.add_field(name=".mystats:",value="Queries PUBG API for your latest data, updates ranks, roles and stats which are stored via a JSON file.",inline=False)
     help_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=help_msg)
 
@@ -112,6 +113,18 @@ async def inspire(ctx):
     response_msg.add_field(name="Quote:", value=quote, inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
+
+
+# Say
+@client.command()
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
+async def say(ctx, *, text):
+    channel = client.get_channel(general_channel)
+    response_msg = discord.Embed(colour=discord.Colour.orange())
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg.add_field(name="The 101 Club Bot:", value=f"{text}", inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow()
+    await channel.send(embed=response_msg)
 
 
 # Report how many users in JSON file
@@ -162,8 +175,9 @@ async def top50ranks():
     j = 1 
     while i > -(total_length+1):
         ign = new_server_list[i]['IGN']
-        player_rank = new_server_list[i]['c_rank_points']
-        curr_line = "%i : %s, Rank Points = %.0f\n" % (abs(j), ign, player_rank)
+        player_rank_points = new_server_list[i]['c_rank_points']
+        player_rank = new_server_list[i]['Rank'] 
+        curr_line = "%i : %s, %s, %.0f\n" % (abs(j), ign,player_rank,player_rank_points)
         top_50_string += curr_line
         j += 1
         if j == 51:
