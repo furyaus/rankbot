@@ -15,6 +15,7 @@ import json
 from json import loads, dumps
 import os
 import datetime
+from datetime import timedelta
 import asyncio
 
 # Frustrating new discord requirements to pull user.id
@@ -452,7 +453,7 @@ async def mystats(ctx):
     await channel.send(embed=response_msg)
 
 # Main program - full resync all data, ranks, roles and stats
-@tasks.loop(hours=4.0)
+@tasks.loop(hours=1.0)
 async def update():
     global keys
     global header
@@ -639,7 +640,7 @@ async def update():
         await member.add_roles(role)
         response_msg.add_field(name="Dog water", value=f"Previous dog water player has been replaced. Congrats! ```{member.name}```",inline=False)
     response_msg.add_field(name="Resync completed: ",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
-    response_msg.add_field(name="Finished:",value=f"Roles and ranks have been synced.",inline=False)
+    response_msg.add_field(name="Finished:",value=f"All player stats, ranks, roles have been updated. Next sync at "+((datetime.datetime.utcnow() + timedelta(hours=1)).strftime('%H:%M:%S')),inline=False)
     print('Updated everyones stats')
     set_data(user_list)
     response_msg.timestamp = datetime.datetime.utcnow()
