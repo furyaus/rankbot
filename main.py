@@ -35,12 +35,12 @@ stats_channel = int(os.environ['stats_channel'])
 general_channel = int(os.environ['general_channel'])
 botinfo_channel = int(os.environ['botinfo_channel'])
 botinfo_msg = int(os.environ['botinfo_msg'])
-top50ranks_channel = int(os.environ['top50ranks_channel'])
-top50ranks_msg = int(os.environ['top50ranks_msg'])
-top50kda_channel = int(os.environ['top50kda_channel'])
-top50kda_msg = int(os.environ['top50kda_msg'])
-top50adr_channel = int(os.environ['top50adr_channel'])
-top50adr_msg = int(os.environ['top50adr_msg'])
+top25ranks_channel = int(os.environ['top25ranks_channel'])
+top25ranks_msg = int(os.environ['top25ranks_msg'])
+top25kda_channel = int(os.environ['top25kda_channel'])
+top25kda_msg = int(os.environ['top25kda_msg'])
+top25adr_channel = int(os.environ['top25adr_channel'])
+top25adr_msg = int(os.environ['top25adr_msg'])
 admin_roles = ["Moderators", "Admin", "Boss", "The General", "The Punisher", "The Terminator",]
 no_requests = 0
 curr_key = 0
@@ -165,11 +165,11 @@ async def remove(ctx, member: discord.Member):
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
-# Report top50rank to leaderboard
+# Report top25rank to leaderboard
 @tasks.loop(hours=.05)
-async def top50ranks():
-    channel = client.get_channel(top50ranks_channel)
-    message = await channel.fetch_message(top50ranks_msg)
+async def top25ranks():
+    channel = client.get_channel(top25ranks_channel)
+    message = await channel.fetch_message(top25ranks_msg)
     new_server_list = sorted(server_list.values(), key=itemgetter('c_rank_points'))
     response_msg = discord.Embed(colour=discord.Colour.orange(),title="Top 50 rank holders in the 101 Club",)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
@@ -184,20 +184,20 @@ async def top50ranks():
         curr_line = "%i : %s, %s, %.0f\n" % (abs(j), ign,player_rank,player_rank_points)
         top_50_string += curr_line
         j += 1
-        if j == 51:
+        if j == 26:
             break
         i -= 1
     response_msg.add_field(name="Top rank holders:", value="```"+top_50_string+"```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     #await channel.send(embed=response_msg)
     await message.edit(embed=response_msg)
-    print("top50ranks updated")
+    print("top25ranks updated")
 
-# Report top50kda to leaderboard
+# Report top25kda to leaderboard
 @tasks.loop(hours=.05)
-async def top50kda():
-    channel = client.get_channel(top50kda_channel)
-    message = await channel.fetch_message(top50kda_msg)
+async def top25kda():
+    channel = client.get_channel(top25kda_channel)
+    message = await channel.fetch_message(top25kda_msg)
     response_msg = discord.Embed(colour=discord.Colour.orange(),title="Top 50 KDA in the 101 Club",)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     new_server_list = sorted(server_list.values(), key=itemgetter('KDA'))
@@ -211,20 +211,20 @@ async def top50kda():
         curr_line = "%i : %s, KDA = %.2f\n" % (abs(j), ign, player_adr)
         top_50_string += curr_line
         j += 1
-        if j == 51:
+        if j == 26:
             break
         i -= 1
     response_msg.add_field(name="Top KDA:", value="```"+top_50_string+"```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     #await channel.send(embed=response_msg)
     await message.edit(embed=response_msg)
-    print("top50kda updated")
+    print("top25kda updated")
 
-# Report top50adr to leaderboard
+# Report top25adr to leaderboard
 @tasks.loop(hours=.05)
-async def top50adr():
-    channel = client.get_channel(top50adr_channel)
-    message = await channel.fetch_message(top50adr_msg)
+async def top25adr():
+    channel = client.get_channel(top25adr_channel)
+    message = await channel.fetch_message(top25adr_msg)
     response_msg = discord.Embed(colour=discord.Colour.orange(),title="Top 50 ADR in the 101 Club",)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     new_server_list = sorted(server_list.values(), key=itemgetter('ADR'))
@@ -238,14 +238,14 @@ async def top50adr():
         curr_line = "%i : %s, ADR = %.0f\n" % (abs(j), ign, player_adr)
         top_50_string += curr_line
         j += 1
-        if j == 51:
+        if j == 26:
             break
         i -= 1
     response_msg.add_field(name="Top ADR:", value="```"+top_50_string+"```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     #await channel.send(embed=response_msg)-Needed for the first time a post is made, msg id needs updating
     await message.edit(embed=response_msg)
-    print("top50adr updated")
+    print("top25adr updated")
 
 # Check my stats - live, direct api data response - allows any PUBG IGN
 @client.command()
@@ -640,9 +640,9 @@ async def resync(ctx):
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
     await update()
-    await top50ranks()
-    await top50adr()
-    await top50kda()
+    await top25ranks()
+    await top25adr()
+    await top25kda()
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     response_msg.add_field(name="Resync completed: ",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
@@ -654,9 +654,9 @@ async def resync(ctx):
 @client.event
 async def on_ready():
     update.start()
-    top50ranks.start()
-    top50adr.start()
-    top50kda.start()
+    top25ranks.start()
+    top25adr.start()
+    top25kda.start()
 
 # Run the bot
 client.run(bot_token)
