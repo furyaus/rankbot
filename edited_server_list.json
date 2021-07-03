@@ -37,7 +37,7 @@
     "punisher": 1,
     "terminator": 0,
     "team_killer": 0,
-    "general": 1
+    "general": 0
   },
   "297038055221624842": {
     "IGN": "Pwn_OCE",
@@ -56,6 +56,46 @@
     "ADR": 353.0,
     "punisher": 0,
     "terminator": 1,
+    "team_killer": 0,
+    "general": 0
+  },
+  "178784637697392640": {
+    "IGN": "Truism",
+    "ID": "e8338ea03d304810b61a5abc6a866bb4",
+    "Rank": "Diamond 4",
+    "c_rank": "Diamond",
+    "c_tier": "4",
+    "c_rank_points": 3189,
+    "h_rank": "Diamond",
+    "h_tier": "3",
+    "h_rank_points": 3228,
+    "games_played": 288,
+    "team_kills": 0,
+    "season_wins": 25,
+    "KDA": 1.59,
+    "ADR": 214.0,
+    "punisher": 0,
+    "terminator": 0,
+    "team_killer": 0,
+    "general": 1
+  },
+  "142744407123165184": {
+    "IGN": "furyaus",
+    "ID": "6be60825d4fa400aa6817ad9b546d03e",
+    "Rank": "Diamond 5",
+    "c_rank": "Diamond",
+    "c_tier": "5",
+    "c_rank_points": 3078,
+    "h_rank": "Diamond",
+    "h_tier": "4",
+    "h_rank_points": 3113,
+    "games_played": 141,
+    "team_kills": 0,
+    "season_wins": 11,
+    "KDA": 1.2,
+    "ADR": 183.0,
+    "punisher": 0,
+    "terminator": 0,
     "team_killer": 0,
     "general": 0
   }

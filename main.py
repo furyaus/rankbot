@@ -13,7 +13,6 @@ from operator import itemgetter
 import requests
 import json
 import os
-import random
 import datetime
 
 # Frustrating new discord requirements to pull user.id
@@ -382,7 +381,7 @@ async def mystats(ctx):
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     user = ctx.message.author
     user_id = user.id
-    response_msg = discord.Embed(colour=discord.Colour.orange(),title="Stats for " + str(user),)
+    response_msg = discord.Embed(colour=discord.Colour.orange(),title="Stats for " + user.name,)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     if str(user_id) in server_list:
         curr_rank = server_list[str(user_id)]['Rank']
@@ -431,12 +430,13 @@ async def mystats(ctx):
             await user.remove_roles(role)
             role = discord.utils.get(user.guild.roles, name=new_rank)
             await user.add_roles(role)
+        response_msg.add_field(name="Rank:", value=f"Current rank is: {c_rank} {c_tier}: {c_rank_points}\nHighest rank is: {h_rank} {h_tier}: {h_rank_points}", inline=False)
+        response_msg.add_field(name="KDA:",value=f"Kills and assists per death: {KDA}", inline=False)
+        response_msg.add_field(name="ADR:",value=f"Average damage per game: {ADR}", inline=False)
+        response_msg.add_field(name="Done: ",value=f"Updated stats and saved to file.", inline=False)
     else:
         response_msg.add_field(name="Rank:",value=f"You currently don't have a rank and your IGN isn't added to the list so use .link command to link",inline=False)
-    response_msg.add_field(name="Rank:", value=f"Current rank is: {c_rank} {c_tier}: {c_rank_points}\nHighest rank is: {h_rank} {h_tier}: {h_rank_points}", inline=False)
-    response_msg.add_field(name="KDA:",value=f"Kills and assists per death: {KDA}", inline=False)
-    response_msg.add_field(name="ADR:",value=f"Average damage per game: {ADR}", inline=False)
-    response_msg.add_field(name="Done: ",value=f"Updated stats and saved to file.", inline=False)
+
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
     response_msg.timestamp = datetime.datetime.utcnow()
