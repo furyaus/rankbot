@@ -40,21 +40,9 @@ top50kda_channel = int(os.environ['top50kda_channel'])
 top50kda_msg = int(os.environ['top50kda_msg'])
 top50adr_channel = int(os.environ['top50adr_channel'])
 top50adr_msg = int(os.environ['top50adr_msg'])
-admin_roles = ["Mods", "Admin", "Boss"]
+admin_roles = ["Moderators", "Admins", "Boss", "The General", "The Punisher", "The Terminator",]
 no_requests = 0
 curr_key = 0
-sad_words = ["sad", "depressed", "unhappy", "angry", "miserable"]
-starter_encouragements = [
-    "Cheer up! 17 kill win on the way!",
-    "Hang in there. Chicken dinner next game!", 
-    "You rock at PUBG!",
-    "I saw that flick, you got this."]
-hack_words = ["cheat", "cheater", "cheats", "cheating", "hacks","hacker", "hax", "haxer", "teaming"]
-hack_encouragements = [
-    "I hope those losers, lose.",
-    "Cheaters suck at the game!", 
-    "Ignore the hackers, your better!",
-    "Just change to EU, its always easier."]
 
 # Keys in order - furyaus, ocker, p4, progdog
 keys = ["Bearer " + API_key_fury, "Bearer " + API_key_ocker, "Bearer " + API_key_p4, "Bearer " + API_key_progdog]
@@ -90,6 +78,7 @@ async def help(ctx):
 
 # Admin help
 @client.command(pass_context=True)
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
 async def adminhelp(ctx):
     help_msg = discord.Embed(colour=discord.Colour.orange(),title="Admin help for Rank Bot",description="Admin users can remove users and call for global updates.")
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
@@ -125,26 +114,9 @@ async def inspire(ctx):
     await ctx.send(embed=response_msg)
 
 
-# Reponse positively
-@client.event
-async def on_message(message):
-    response_msg = discord.Embed(colour=discord.Colour.orange())
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    if message.author == client.user:
-        return
-    msg = message.content
-    if any(word in msg for word in sad_words):
-        response_msg.add_field(name=message.author.name,value=random.choice(starter_encouragements),inline=False)
-        response_msg.timestamp = datetime.datetime.utcnow()
-    if any(word in msg for word in hack_words):
-        response_msg.add_field(name=message.author.name,value=random.choice(hack_encouragements),inline=False)
-        response_msg.timestamp = datetime.datetime.utcnow()
-    if any(word in msg for word in sad_words or hack_words):
-        await message.channel.send(embed=response_msg)
-
-
 # Report how many users in JSON file
 @client.command()
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
 async def linked(ctx):
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
@@ -155,6 +127,7 @@ async def linked(ctx):
 
 # Report number of PUBG API requests
 @client.command()
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
 async def norequests(ctx):
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
@@ -165,7 +138,7 @@ async def norequests(ctx):
 
 # Remove user from JSON file
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
 async def remove(ctx, member: discord.Member):
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
@@ -646,7 +619,7 @@ async def update():
 
 
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2])
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
 async def resync(ctx):
     await update()
     await top50ranks()
