@@ -48,8 +48,13 @@ starter_encouragements = [
     "Cheer up! 17 kill win on the way!",
     "Hang in there. Chicken dinner next game!", 
     "You rock at PUBG!",
-    "I saw that flick, you got this."
-]
+    "I saw that flick, you got this."]
+hack_words = ["cheat", "cheater", "cheats", "cheating", "hacks","hacker", "hax", "haxer", "teaming"]
+hack_encouragements = [
+    "I hope those losers, lose.",
+    "Cheaters suck at the game!", 
+    "Ignore the hackers, your better!",
+    "Just change to EU, its always easier."]
 
 # Keys in order - furyaus, ocker, p4, progdog
 keys = ["Bearer " + API_key_fury, "Bearer " + API_key_ocker, "Bearer " + API_key_p4, "Bearer " + API_key_progdog]
@@ -120,7 +125,7 @@ async def inspire(ctx):
     await ctx.send(embed=response_msg)
 
 
-# Response positively
+# Reponse positively
 @client.event
 async def on_message(message):
     response_msg = discord.Embed(colour=discord.Colour.orange())
@@ -131,6 +136,10 @@ async def on_message(message):
     if any(word in msg for word in sad_words):
         response_msg.add_field(name=message.author.name,value=random.choice(starter_encouragements),inline=False)
         response_msg.timestamp = datetime.datetime.utcnow()
+    if any(word in msg for word in hack_words):
+        response_msg.add_field(name=message.author.name,value=random.choice(hack_encouragements),inline=False)
+        response_msg.timestamp = datetime.datetime.utcnow()
+    if any(word in msg for word in sad_words or hack_words):
         await message.channel.send(embed=response_msg)
 
 
