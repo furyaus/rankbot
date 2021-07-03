@@ -30,6 +30,7 @@ API_key_ocker = os.environ['API_key_ocker']
 API_key_p4 = os.environ['API_key_p4']
 API_key_progdog = os.environ['API_key_progdog']
 d_server = int(os.environ['discord_server'])
+announce_channel = int(os.environ['stats_channel'])
 stats_channel = int(os.environ['stats_channel'])
 general_channel = int(os.environ['general_channel'])
 botinfo_channel = int(os.environ['botinfo_channel'])
@@ -124,7 +125,7 @@ async def say(ctx, *, text):
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
 async def announce(ctx, *, text):
-    channel = client.get_channel(general_channel)
+    channel = client.get_channel(announce_channel)
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     response_msg.add_field(name="Rank Bot says:", value=f"{text}", inline=False)
