@@ -14,6 +14,6 @@ Project Approach:
 Previous python code can be provided for a bot which worked last year. This template will make this project much easier. Many thanks for the original author, Mazun19 from the PUBG community (GOD squad). 
 
 Project Extension:
-This project could lead to future opportunities within the PUBG scene across the world. 
+This project could help other discords who want a similar bot!
 
 Bot Invite - <https://discord.com/api/oauth2/authorize?client_id=859319806016225310&permissions=268958784&scope=bot>
