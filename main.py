@@ -120,7 +120,8 @@ async def inspire(ctx):
     await ctx.send(embed=response_msg)
 
 
-# Reponse positively
+# Response positively
+@client.event
 async def on_message(message):
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
