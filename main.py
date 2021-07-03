@@ -12,7 +12,6 @@ from discord.ext import commands, tasks
 from operator import itemgetter
 import requests
 import json
-from json import loads, dumps
 import os
 import datetime
 from datetime import timedelta
@@ -59,6 +58,7 @@ def get_data():
     with open(json_file_path, "r") as file:
         return json.loads(file.read())
 
+# Close user list and store in JSON file
 def set_data(server_list):
     with open(json_file_path, 'w') as file:
         json.dump(server_list, file, indent=2)
@@ -291,6 +291,12 @@ async def stats(ctx, user_ign):
         second_request = requests.get(season_url, headers=curr_header)
         curr_header['Authorization'] = keys[no_requests % (len(keys))]
         no_requests += 1
+        if second_request.status_code == 429:
+            print('Too many API requests, sleep 60secs')
+            await asyncio.sleep(60)
+            curr_header['Authorization'] = keys[no_requests % (len(keys))]
+            second_request = requests.get(season_url, headers=curr_header)
+            no_requests += 1
         season_info = json.loads(second_request.text)
         c_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
         c_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['subTier']
@@ -340,6 +346,12 @@ async def link(ctx, user_ign):
             curr_header['Authorization'] = keys[no_requests % (len(keys))]
             second_request = requests.get(season_url, headers=curr_header)
             no_requests += 1
+            if second_request.status_code == 429:
+                print('Too many API requests, sleep 60secs')
+                await asyncio.sleep(60)
+                curr_header['Authorization'] = keys[no_requests % (len(keys))]
+                second_request = requests.get(season_url, headers=curr_header)
+                no_requests += 1
             season_info = json.loads(second_request.text)
             c_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
             c_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['subTier']
@@ -406,6 +418,12 @@ async def mystats(ctx):
         season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
         second_request = requests.get(season_url, headers=curr_header)
         no_requests += 1
+        if second_request.status_code == 429:
+            print('Too many API requests, sleep 60secs')
+            await asyncio.sleep(60)
+            curr_header['Authorization'] = keys[no_requests % (len(keys))]
+            second_request = requests.get(season_url, headers=curr_header)
+            no_requests += 1
         season_info = json.loads(second_request.text)
         c_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
         c_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['subTier']
