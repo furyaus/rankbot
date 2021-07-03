@@ -637,11 +637,20 @@ async def update():
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
 async def resync(ctx):
+    response_msg = discord.Embed(colour=discord.Colour.orange())
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg.add_field(name="Resync started: ",value="This could take a long time based on the number of users and the PUBG API, please wait for the comfirmation message before more commands.",inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow()
+    await ctx.send(embed=response_msg)
     await update()
     await top50ranks()
     await top50adr()
     await top50kda()
-    print("Rank Bot forced re-sync.")
+    response_msg = discord.Embed(colour=discord.Colour.orange())
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg.add_field(name="Resync completed: ",value="PUGB API Requests comppleted: ```" + str(no_requests) + "```",inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow()
+    await ctx.send(embed=response_msg)
 
 
 # main

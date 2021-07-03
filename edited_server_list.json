@@ -77,7 +77,7 @@
     "punisher": 0,
     "terminator": 0,
     "team_killer": 0,
-    "general": 1
+    "general": 0
   },
   "142744407123165184": {
     "IGN": "furyaus",
@@ -98,5 +98,25 @@
     "terminator": 0,
     "team_killer": 0,
     "general": 0
+  },
+  "235046493696819201": {
+    "IGN": "Defy_Astrx",
+    "ID": "9f018a654e8e4e41b9954b6274e7624d",
+    "Rank": "Master 1",
+    "c_rank": "Master",
+    "c_tier": "1",
+    "c_rank_points": 3502,
+    "h_rank": "Master",
+    "h_tier": "1",
+    "h_rank_points": 3534,
+    "games_played": 186,
+    "team_kills": 0,
+    "season_wins": 37,
+    "KDA": 2.12,
+    "ADR": 272.0,
+    "punisher": 0,
+    "terminator": 0,
+    "team_killer": 0,
+    "general": 1
   }
 }
