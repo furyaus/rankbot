@@ -91,7 +91,7 @@ async def adminhelp(ctx):
     help_msg.add_field(name=".linked:",value="Returns the total number of currently stored players in JSON file. ```.linked```",inline=False)
     help_msg.add_field(name=".norequests:",value="Returns the total number of requests made to the PUG API. ```.norequests```",inline=False)
     help_msg.add_field(name=".remove:",value="Will allow admin to remove link between Discord user id and PUBG IGN. User can then complete a link again. ```.remove @P4```",inline=False)
-    help_msg.add_field(name=".resync:",value="This will force a full resync for all stored players with PUBG API. Only do once per hour. ```.resync```",inline=False)
+    help_msg.add_field(name=".resync:",value="This will force a full resync for all stored players with PUBG API. 50 users per minute, wait till complete. ```.resync```",inline=False)
     help_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=help_msg)
 
@@ -464,7 +464,6 @@ async def update():
     response_msg = discord.Embed(colour=discord.Colour.orange(),title="Sync all data for The 101 Club")
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     curr_header = header
-    curr_header["Authorization"] = keys[no_requests % (len(keys))]
     for user in user_list:
         player_id = user_list[user]['ID']
         user_ign = user_list[user]['IGN']
@@ -474,14 +473,14 @@ async def update():
         curr_teamkiller = user_list[user]['team_killer']
         curr_general = user_list[user]['general']
         season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
-        second_request = requests.get(season_url, headers=curr_header)
         curr_header['Authorization'] = keys[no_requests % (len(keys))]
+        second_request = requests.get(season_url, headers=curr_header)
         no_requests += 1
         if second_request.status_code == 429:
-            print('Too many API requests, sleep 100secs')
+            print('Too many API requests, sleep 60secs')
             await asyncio.sleep(60)
-            second_request = requests.get(season_url, headers=curr_header)
             curr_header['Authorization'] = keys[no_requests % (len(keys))]
+            second_request = requests.get(season_url, headers=curr_header)
             no_requests += 1
         season_info = json.loads(second_request.text)
         c_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
@@ -653,7 +652,7 @@ async def update():
 async def resync(ctx):
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    response_msg.add_field(name="Resync started: ",value="This could take a long time based on the number of users and the PUBG API, please wait for the comfirmation message before more commands.",inline=False)
+    response_msg.add_field(name="Resync started: ",value="This could take a long time based on the number of users and the PUBG API, please wait for the comfirmation message before more commands. 50 users per minute is our limit.",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
     await update()
