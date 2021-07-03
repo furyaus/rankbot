@@ -120,6 +120,17 @@ async def say(ctx, *, text):
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
+# announce
+@client.command()
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
+async def announce(ctx, *, text):
+    channel = client.get_channel(general_channel)
+    response_msg = discord.Embed(colour=discord.Colour.orange())
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg.add_field(name="Rank Bot says:", value=f"{text}", inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow()
+    await channel.send(embed=response_msg)
+
 # Report how many users in JSON file
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
