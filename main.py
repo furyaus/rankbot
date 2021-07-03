@@ -72,7 +72,7 @@ async def help(ctx):
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     help_msg.add_field(name=".link:",value="This links your discord userid with your PUBG in-game name. ```.link furyaus```",inline=False)
     help_msg.add_field(name=".stats:",value="Retireve live PUBG API data for a single user and display. No stats, ranks or roles are changed or stored. ```.stats 0cker```",inline=False)
-    help_msg.add_field(name=".mystats:",value="Queries PUBG API for your latest data, updates ranks, roles and stats which are stored via a JSON file.",inline=False)
+    help_msg.add_field(name=".mystats:",value="Queries PUBG API for your latest data, updates ranks, roles and stats which are stored via a JSON file. ```.mystats```",inline=False)
     help_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=help_msg)
 
@@ -97,7 +97,7 @@ async def support(ctx):
     help_msg = discord.Embed(colour=discord.Colour.orange(),title="Support for The 101 Club members",description="Rank Bot is here to support you through that 3rd, 14th place in scrims")
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     help_msg.add_field(name=".inspire:",value="Responses with inspiration quotes, to really get you back on track```.inspire```",inline=False)
-    help_msg.add_field(name=".keywords",value="Rank Bot monitors The 101 Club for PBT (PUBG Burnout). Just let the Bot know. ```Keywords in chat```",inline=False)
+    help_msg.add_field(name=".keywords",value="Rank Bot monitors The 101 Club for PBT (PUBG Burnout). Just let the Bot know. ```Bot is here for you```",inline=False)
     help_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=help_msg)
 
@@ -155,10 +155,12 @@ async def norequests(ctx):
 async def remove(ctx, member: discord.Member):
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    del server_list[str(member.id)]
     with open("edited_server_list.json", "w") as data_file:
         json.dump(server_list, data_file, indent=2)
-    response_msg.add_field(name="Removed: ",value="```" + str(member.id) + "```",inline=False)
+    response_msg.add_field(name="Removed: ",value="```" + str(member.name) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
+    await ctx.send(embed=response_msg)
 
 
 # Report top50rank to leaderboard

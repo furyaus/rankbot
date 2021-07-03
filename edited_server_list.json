@@ -1,24 +1,4 @@
 {
-  "142744407123165184": {
-    "IGN": "furyaus",
-    "ID": "6be60825d4fa400aa6817ad9b546d03e",
-    "Rank": "Diamond 5",
-    "c_rank": "Diamond",
-    "c_tier": "5",
-    "c_rank_points": 3078,
-    "h_rank": "Diamond",
-    "h_tier": "4",
-    "h_rank_points": 3113,
-    "games_played": 141,
-    "team_kills": 0,
-    "season_wins": 11,
-    "KDA": 1.2,
-    "ADR": 183.0,
-    "punisher": 0,
-    "terminator": 0,
-    "team_killer": 0,
-    "general": 0
-  },
   "337889441009893376": {
     "IGN": "0cker",
     "ID": "f81f8eb12b944def83cb2e5e57ec7893",
@@ -57,7 +37,7 @@
     "punisher": 1,
     "terminator": 0,
     "team_killer": 0,
-    "general": 0
+    "general": 1
   },
   "297038055221624842": {
     "IGN": "Pwn_OCE",
@@ -78,45 +58,5 @@
     "terminator": 1,
     "team_killer": 0,
     "general": 0
-  },
-  "178784637697392640": {
-    "IGN": "Truism",
-    "ID": "e8338ea03d304810b61a5abc6a866bb4",
-    "Rank": "Diamond 4",
-    "c_rank": "Diamond",
-    "c_tier": "4",
-    "c_rank_points": 3189,
-    "h_rank": "Diamond",
-    "h_tier": "3",
-    "h_rank_points": 3228,
-    "games_played": 288,
-    "team_kills": 0,
-    "season_wins": 25,
-    "KDA": 1.59,
-    "ADR": 214.0,
-    "punisher": 0,
-    "terminator": 0,
-    "team_killer": 0,
-    "general": 0
-  },
-  "235046493696819201": {
-    "IGN": "Defy_Astrx",
-    "ID": "9f018a654e8e4e41b9954b6274e7624d",
-    "Rank": "Master 1",
-    "c_rank": "Master",
-    "c_tier": "1",
-    "c_rank_points": 3502,
-    "h_rank": "Master",
-    "h_tier": "1",
-    "h_rank_points": 3534,
-    "games_played": 186,
-    "team_kills": 0,
-    "season_wins": 37,
-    "KDA": 2.12,
-    "ADR": 272.0,
-    "punisher": 0,
-    "terminator": 0,
-    "team_killer": 0,
-    "general": 1
   }
 }
