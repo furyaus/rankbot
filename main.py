@@ -91,7 +91,7 @@ async def adminhelp(ctx):
     help_msg = discord.Embed(colour=discord.Colour.orange(),title="Admin help for Rank Bot",description="Admin users can remove users and call for global updates.")
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     help_msg.add_field(name=".linked:",value="Returns the total number of currently stored players in JSON file. ```.linked```",inline=False)
-    help_msg.add_field(name=".say:",value="Allows admin to message any channel. Can take channelname or channelID. Look out for icons when using channelname. 1024 character limit. ```.say channelname message```",inline=False)
+    help_msg.add_field(name=".say:",value="Allows admin to message any channel. Can take channel name or channel ID. Look out for icons when using channel name. 1024 character limit. ```.say channel_name message```",inline=False)
     help_msg.add_field(name=".announce:",value="Allows admin to send a announcement to the announcement channel only. 1024 character limit. ```.announce message```",inline=False)
     help_msg.add_field(name=".norequests:",value="Returns the total number of requests made to the PUG API. ```.norequests```",inline=False)
     help_msg.add_field(name=".remove:",value="Will allow admin to remove link between Discord user id and PUBG IGN. User can then complete a link again. ```.remove @P4```",inline=False)
@@ -175,6 +175,13 @@ async def remove(ctx, member: discord.Member):
     await ctx.send(embed=response_msg)
     set_data(user_list)
 
+# Remove user from JSON when they leave server
+@client.event
+async def on_member_remove(member):
+    user_list=get_data()
+    del user_list[str(member.id)]
+    set_data(user_list)
+
 # Report top25rank to leaderboard
 @tasks.loop(hours=.05)
 async def top25ranks():
@@ -202,7 +209,7 @@ async def top25ranks():
     response_msg.timestamp = datetime.datetime.utcnow()
     #await channel.send(embed=response_msg)
     await message.edit(embed=response_msg)
-    print("top25ranks updated")
+    print("top25 ranks updated")
 
 # Report top25kda to leaderboard
 @tasks.loop(hours=.05)
@@ -230,7 +237,7 @@ async def top25kda():
     response_msg.timestamp = datetime.datetime.utcnow()
     #await channel.send(embed=response_msg)
     await message.edit(embed=response_msg)
-    print("top25kda updated")
+    print("top25 kda updated")
 
 # Report top25adr to leaderboard
 @tasks.loop(hours=.05)
@@ -258,7 +265,7 @@ async def top25adr():
     response_msg.timestamp = datetime.datetime.utcnow()
     #await channel.send(embed=response_msg)-Needed for the first time a post is made, msg id needs updating
     await message.edit(embed=response_msg)
-    print("top25adr updated")
+    print("top25 adr updated")
 
 # Check my stats - live, direct api data response - allows any PUBG IGN
 @client.command()
@@ -668,7 +675,6 @@ async def update():
     #await channel.send(embed=response_msg)
     await message.edit(embed=response_msg)
 
-
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
 async def resync(ctx):
@@ -686,7 +692,6 @@ async def resync(ctx):
     response_msg.add_field(name="Resync completed: ",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
-
 
 # main
 @client.event
