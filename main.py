@@ -259,7 +259,8 @@ async def stats(ctx, user_ign):
         player_info = json.loads(initial_r.text)
         player_id = player_info['data'][0]['id'].replace('account.', '')
         #Consolidated playerInfo in a def
-        second_request = playerInfo(player_id, curr_header)
+        second_request = await playerInfo(player_id, curr_header)
+        t = second_request['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
         #Added all session infor to a new playerStats class
         playerStats = playerStatistics.statsCalc(player_id,second_request)
         response_msg.add_field(name="Rank:",value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}",inline=False)
@@ -299,7 +300,7 @@ async def link(ctx, user_ign):
             player_info = json.loads(initial_r.text)
             player_id = player_info['data'][0]['id'].replace('account.', '')
             #Consolidated playerInfo in a def
-            second_request = playerInfo(player_id, curr_header)
+            second_request = await playerInfo(player_id, curr_header)
             #Added all session infor to a new playerStats class
             playerStats = playerStatistics.statsCalc(player_id,second_request)
             #Def to update all user information from stats class
@@ -381,7 +382,7 @@ async def mystats(ctx):
         player_id = user_list[str(user_id)]['ID']
         user_ign = user_list[str(user_id)]['IGN']
         #Consolidated playerInfo in a def
-        second_request = playerInfo(player_id, curr_header)
+        second_request = await playerInfo(player_id, curr_header)
         #Added all session infor to a new playerStats class
         playerStats = playerStatistics.statsCalc(player_id,second_request)
         #Def to update all user information from stats class
@@ -429,7 +430,8 @@ async def update():
         curr_punisher = user_list[user]['punisher']
         curr_general = user_list[user]['general']
         #Consolidated playerInfo in a def
-        second_request = playerInfo(player_id, curr_header)
+        second_request = await playerInfo(player_id, curr_header)
+        t = second_request['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
         #Added all session infor to a new playerStats class
         playerStats = playerStatistics.statsCalc(player_id,second_request)
         #Def to update all user information from stats class
