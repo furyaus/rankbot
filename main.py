@@ -343,7 +343,7 @@ async def playerInfo(player_id,curr_header):
     return season_info
 
 def updateUserList(user_list, user_id, user_ign, player_id, playerStats, curr_punisher=0, curr_terminator=0, curr_general=0, curr_teamkiller=0):
-    user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
+    user_list.update({str(user_id): {'IGN': user_ign,'ID': str(player_id),'Rank': playerStats.pStats.new_rank}})
     user_list[str(user_id)]['c_rank'] = playerStats.pStats.c_rank
     user_list[str(user_id)]['c_tier'] = playerStats.pStats.c_tier
     user_list[str(user_id)]['c_rank_points'] = playerStats.pStats.c_rank_points
@@ -445,7 +445,7 @@ async def update():
         #user_list.update({str(player_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
         #user_list = updateUserList(user_list, player_id, playerStats, curr_punisher, curr_terminator, curr_general)
         #Original code added back in
-        user_list.update( {str(user): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
+        user_list.update( {str(user): {'IGN': user_ign,'ID': str(player_id),'Rank': playerStats.pStats.new_rank}})
         user_list[str(user)]['c_rank'] = playerStats.pStats.c_rank
         user_list[str(user)]['c_tier'] = playerStats.pStats.c_tier
         user_list[str(user)]['c_rank_points'] = playerStats.pStats.c_rank_points
