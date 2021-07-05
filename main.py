@@ -296,7 +296,6 @@ async def stats(ctx, user_ign):
     data_list = get_data(data_file)
     no_requests = data_list['no_requests']
     user_list=get_data(users_file)
-    channel = client.get_channel(stats_channel)
     user_ign = user_ign.replace("<", "")
     user_ign = user_ign.replace(">", "")
     user_ign = user_ign.replace("@", "")
@@ -321,7 +320,7 @@ async def stats(ctx, user_ign):
         api_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
         api_msg.add_field(name="API request limit: ",value="Too many API requests, bot will respond in 60 seconds, please wait.",inline=False)
         response_msg.timestamp = datetime.datetime.utcnow()
-        await channel.send(embed=response_msg)
+        await ctx.send(embed=response_msg)
         await asyncio.sleep(60)
     if initial_r.status_code != 200:
         response_msg.add_field(name="Error: ",value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
@@ -341,7 +340,7 @@ async def stats(ctx, user_ign):
             api_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
             api_msg.add_field(name="API request limit: ",value="Too many API requests, bot will respond in 60 seconds, please wait.",inline=False)
             response_msg.timestamp = datetime.datetime.utcnow()
-            await channel.send(embed=response_msg)
+            await ctx.send(embed=response_msg)
             await asyncio.sleep(60)
         season_info = json.loads(second_request.text)
         c_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
@@ -359,7 +358,7 @@ async def stats(ctx, user_ign):
         response_msg.add_field(name="KDA:",value=f"Kills and assists per death: {KDA}",inline=False)
         response_msg.add_field(name="ADR:",value=f"Average damage per game: {ADR}",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
-    await channel.send(embed=response_msg)
+    await ctx.send(embed=response_msg)
     data_list['no_requests'] = no_requests
     set_data(data_file, data_list)
 
@@ -372,7 +371,6 @@ async def link(ctx, user_ign):
     data_list = get_data(data_file)
     no_requests = data_list['no_requests']
     user_list=get_data(users_file)
-    channel = client.get_channel(stats_channel)
     response_msg = discord.Embed(
         colour=discord.Colour.orange(),
         title="Linking " + user_ign,)
@@ -396,7 +394,7 @@ async def link(ctx, user_ign):
             api_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
             api_msg.add_field(name="API request limit: ",value="Too many API requests, bot will respond in 60 seconds, please wait.",inline=False)
             response_msg.timestamp = datetime.datetime.utcnow()
-            await channel.send(embed=response_msg)
+            await ctx.send(embed=response_msg)
             await asyncio.sleep(60)
         if initial_r.status_code != 200:
             response_msg.add_field(name="Issue: ",value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
@@ -416,7 +414,7 @@ async def link(ctx, user_ign):
                 api_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
                 api_msg.add_field(name="API request limit: ",value="Too many API requests, bot will respond in 60 seconds, please wait.",inline=False)
                 response_msg.timestamp = datetime.datetime.utcnow()
-                await channel.send(embed=response_msg)
+                await ctx.send(embed=response_msg)
                 await asyncio.sleep(60)
             season_info = json.loads(second_request.text)
             c_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
@@ -452,7 +450,7 @@ async def link(ctx, user_ign):
             response_msg.add_field(name="Done: ",value="Discord linked with PUBG IGN and stats saved to file.",inline=False)
     set_data(users_file, user_list)
     response_msg.timestamp = datetime.datetime.utcnow()
-    await channel.send(embed=response_msg)
+    await ctx.send(embed=response_msg)
     data_list['no_requests'] = no_requests
     set_data(data_file, data_list)
 
@@ -465,7 +463,6 @@ async def mystats(ctx):
     data_list = get_data(data_file)
     no_requests = data_list['no_requests']
     user_list=get_data(users_file)
-    channel = client.get_channel(stats_channel)
     curr_header = header
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     user = ctx.message.author
@@ -491,7 +488,7 @@ async def mystats(ctx):
             api_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
             api_msg.add_field(name="API request limit: ",value="Too many API requests, bot will respond in 60 seconds, please wait.",inline=False)
             response_msg.timestamp = datetime.datetime.utcnow()
-            await channel.send(embed=response_msg)
+            await ctx.send(embed=response_msg)
             await asyncio.sleep(60)
         season_info = json.loads(second_request.text)
         c_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
@@ -534,7 +531,7 @@ async def mystats(ctx):
         response_msg.add_field(name="Rank:",value=f"You currently don't have a rank and your IGN isn't added to the list so use .link command to link",inline=False)
     set_data(users_file, user_list)
     response_msg.timestamp = datetime.datetime.utcnow()
-    await channel.send(embed=response_msg)
+    await ctx.send(embed=response_msg)
     data_list['no_requests'] = no_requests
     set_data(data_file, data_list)
 
