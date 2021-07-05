@@ -250,16 +250,8 @@ async def stats(ctx, user_ign):
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     curr_header = header
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
-    url = "https://api.pubg.com/shards/steam/players?filter[playerNames]=" + user_ign
-    initial_r = requests.get(url, headers=curr_header)
-    curr_header['Authorization'] = keys[no_requests % (len(keys))]
-    no_requests += 1
-    if initial_r.status_code == 429:
-        print('Too many API requests, sleep 60secs')
-        await asyncio.sleep(60)
-        curr_header['Authorization'] = keys[no_requests % (len(keys))]
-        second_request = requests.get(url, headers=curr_header)
-        no_requests += 1
+    #Consolidated IGN parts into single def
+    initial_r = playerIgn(curr_header, user_ign)
     if initial_r.status_code != 200:
         response_msg.add_field(name="Error: ",value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
     else:
@@ -295,7 +287,7 @@ async def link(ctx, user_ign):
         response_msg.add_field(name="Issue: ",value="Your IGN has already been added to the list, just use .mystats to update your rank",inline=False)
     else:
         #Consolidated IGN parts into single def
-        initial_r = playerIgn(curr_header)
+        initial_r = playerIgn(curr_header, user_ign)
         if initial_r.status_code != 200:
             response_msg.add_field(name="Issue: ",value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
         else:
@@ -316,7 +308,7 @@ async def link(ctx, user_ign):
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
-async def playerIgn(curr_header):
+async def playerIgn(curr_header, user_ign):
     url = "https://api.pubg.com/shards/steam/players?filter[playerNames]=" + user_ign
     initial_r = requests.get(url, headers=curr_header)
     no_requests += 1
