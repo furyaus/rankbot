@@ -90,7 +90,7 @@ async def help(ctx):
 async def adminhelp(ctx):
     help_msg = discord.Embed(colour=discord.Colour.orange(),title="Admin help for Rank Bot",description="Admin users can remove users and call for global updates.")
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    help_msg.add_field(name=".linked:",value="Returns the total number of currently stored players in JSON file. ```.linked```",inline=False)
+    help_msg.add_field(name=".linked:",value="Returns the total number of currently stored users in JSON file. ```.linked```",inline=False)
     help_msg.add_field(name=".say:",value="Allows admin to message any channel. Can take channel name or channel ID. Look out for icons when using channel name. 1024 character limit. ```.say channel_name message```",inline=False)
     help_msg.add_field(name=".announce:",value="Allows admin to send a announcement to the announcement channel only. 1024 character limit. ```.announce message```",inline=False)
     help_msg.add_field(name=".norequests:",value="Returns the total number of requests made to the PUG API. ```.norequests```",inline=False)
@@ -148,7 +148,7 @@ async def linked(ctx):
     user_list=get_data()
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    response_msg.add_field(name="Users stored: ",value="```" + str(len(user_list)) + "```",inline=False)
+    response_msg.add_field(name="Users linked: ",value="```" + str(len(user_list)) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
@@ -290,6 +290,12 @@ async def stats(ctx, user_ign):
     initial_r = requests.get(url, headers=curr_header)
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     no_requests += 1
+    if initial_r.status_code == 429:
+        print('Too many API requests, sleep 60secs')
+        await asyncio.sleep(60)
+        curr_header['Authorization'] = keys[no_requests % (len(keys))]
+        second_request = requests.get(url, headers=curr_header)
+        no_requests += 1
     if initial_r.status_code != 200:
         response_msg.add_field(name="Error: ",value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
     else:
@@ -345,6 +351,12 @@ async def link(ctx, user_ign):
         url = "https://api.pubg.com/shards/steam/players?filter[playerNames]=" + user_ign
         initial_r = requests.get(url, headers=curr_header)
         no_requests += 1
+        if initial_r.status_code == 429:
+            print('Too many API requests, sleep 60secs')
+            await asyncio.sleep(60)
+            curr_header['Authorization'] = keys[no_requests % (len(keys))]
+            second_request = requests.get(url, headers=curr_header)
+            no_requests += 1
         if initial_r.status_code != 200:
             response_msg.add_field(name="Issue: ",value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
         else:
@@ -368,7 +380,6 @@ async def link(ctx, user_ign):
             h_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestTier']['subTier']
             h_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestRankPoint']
             games_played = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['roundsPlayed']
-            team_kills = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['teamKills']
             KDA = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['kda']
             season_wins = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['wins']
             season_damage = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['damageDealt']
@@ -383,19 +394,15 @@ async def link(ctx, user_ign):
             user_list[str(user_id)]['h_tier'] = h_tier
             user_list[str(user_id)]['h_rank_points'] = h_rank_points
             user_list[str(user_id)]['games_played'] = games_played
-            user_list[str(user_id)]['team_kills'] = team_kills
             user_list[str(user_id)]['season_wins'] = season_wins
             user_list[str(user_id)]['KDA'] = KDA
             user_list[str(user_id)]['ADR'] = ADR
             user_list[str(user_id)]['punisher'] = 0
             user_list[str(user_id)]['terminator'] = 0
-            user_list[str(user_id)]['team_killer'] = 0
             user_list[str(user_id)]['general'] = 0
             role = discord.utils.get(ctx.guild.roles, name=new_rank)
             await user.add_roles(role)
             response_msg.add_field(name="Rank:",value=f"Current rank is: {c_rank} {c_tier}: {c_rank_points}\nHighest rank is: {h_rank} {h_tier}: {h_rank_points}",inline=False)
-            response_msg.add_field(name="KDA:",value=f"Kills and assists per death: {KDA}",inline=False)
-            response_msg.add_field(name="ADR:",value=f"Average damage per game: {ADR}",inline=False)
             response_msg.add_field(name="Done: ",value="Discord linked with PUBG IGN and stats saved to file.",inline=False)
     set_data(user_list)
     response_msg.timestamp = datetime.datetime.utcnow()
@@ -419,7 +426,6 @@ async def mystats(ctx):
         curr_rank = user_list[str(user_id)]['Rank']
         curr_terminator = user_list[str(user_id)]['terminator']
         curr_punisher = user_list[str(user_id)]['punisher']
-        curr_teamkiller = user_list[str(user_id)]['team_killer']
         curr_general = user_list[str(user_id)]['general']
         player_id = user_list[str(user_id)]['ID']
         user_ign = user_list[str(user_id)]['IGN']
@@ -440,7 +446,6 @@ async def mystats(ctx):
         h_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestTier']['subTier']
         h_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestRankPoint']
         games_played = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['roundsPlayed']
-        team_kills = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['teamKills']
         KDA = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['kda']
         season_wins = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['wins']
         season_damage = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['damageDealt']
@@ -455,13 +460,11 @@ async def mystats(ctx):
         user_list[str(user_id)]['h_tier'] = h_tier
         user_list[str(user_id)]['h_rank_points'] = h_rank_points
         user_list[str(user_id)]['games_played'] = games_played
-        user_list[str(user_id)]['team_kills'] = team_kills
         user_list[str(user_id)]['season_wins'] = season_wins
         user_list[str(user_id)]['KDA'] = KDA
         user_list[str(user_id)]['ADR'] = ADR
         user_list[str(user_id)]['punisher'] = curr_punisher
         user_list[str(user_id)]['terminator'] = curr_terminator
-        user_list[str(user_id)]['team_killer'] = curr_teamkiller
         user_list[str(user_id)]['general'] = curr_general
         if new_rank != curr_rank:
             role = discord.utils.get(ctx.guild.roles, name=curr_rank)
@@ -499,7 +502,6 @@ async def update():
         curr_rank = user_list[user]['Rank']
         curr_terminator = user_list[user]['terminator']
         curr_punisher = user_list[user]['punisher']
-        curr_teamkiller = user_list[user]['team_killer']
         curr_general = user_list[user]['general']
         season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
         curr_header['Authorization'] = keys[no_requests % (len(keys))]
@@ -519,7 +521,6 @@ async def update():
         h_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestTier']['subTier']
         h_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestRankPoint']
         games_played = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['roundsPlayed']
-        team_kills = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['teamKills']
         KDA = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['kda']
         season_wins = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['wins']
         season_damage = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['damageDealt']
@@ -534,13 +535,11 @@ async def update():
         user_list[str(user)]['h_tier'] = h_tier
         user_list[str(user)]['h_rank_points'] = h_rank_points
         user_list[str(user)]['games_played'] = games_played
-        user_list[str(user)]['team_kills'] = team_kills
         user_list[str(user)]['season_wins'] = season_wins
         user_list[str(user)]['KDA'] = KDA
         user_list[str(user)]['ADR'] = ADR
         user_list[str(user)]['punisher'] = curr_punisher
         user_list[str(user)]['terminator'] = curr_terminator
-        user_list[str(user)]['team_killer'] = curr_teamkiller
         user_list[str(user)]['general'] = curr_general
         if new_rank != curr_rank:
             role = discord.utils.get(guild.roles, name=curr_rank)
@@ -636,38 +635,8 @@ async def update():
         await member.add_roles(role)
         response_msg.add_field(name="The Punisher",value=f"Previous Punisher (highest ADR) has been replaced. Congrats! ```{member.name}```",inline=False)
 
-    max_team_kills = 0
-    max_team_kills_user = ''
-    current_team_killer = 'None'
-    for user in user_list:
-        if user_list[user]['team_killer'] == 1:
-            current_team_killer = user
-    for user in user_list:
-        if user_list[user]['team_kills'] > max_team_kills:
-            max_team_kills = user_list[user]['team_kills']
-            max_team_kills_user = user
-    if max_team_kills_user != '':
-        user_list[max_team_kills_user]['team_killer'] = 1
-    if max_team_kills_user == '':
-        response_msg.add_field(name="Dog water",value="No one has any ranked team kills.",inline=False)
-    elif current_team_killer == 'None':
-        role = discord.utils.get(guild.roles, name='Dog water')
-        member = await guild.fetch_member(max_team_kills_user)
-        await member.add_roles(role)
-        response_msg.add_field(name="Dog water",value=f"A new dog water role has been assigned for the most teamkills this season. ```{member.name}```",inline=False)
-    elif current_team_killer == max_team_kills_user:
-        role = discord.utils.get(guild.roles, name='Dog water')
-        member = await guild.fetch_member(max_team_kills_user)
-        response_msg.add_field(name="Dog water",value=f"The dog water is still the same. ```{member.name}```",inline=False)
-    else:
-        role = discord.utils.get(guild.roles, name='Dog water')
-        member = await guild.fetch_member(current_team_killer)
-        await member.remove_roles(role)
-        user_list[current_team_killer]['team_killer'] = 0
-        member = await guild.fetch_member(max_team_kills_user)
-        await member.add_roles(role)
-        response_msg.add_field(name="Dog water", value=f"Previous dog water player has been replaced. Congrats! ```{member.name}```",inline=False)
-    response_msg.add_field(name="Resync completed: ",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
+    response_msg.add_field(name="Sync completed: ",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
+    response_msg.add_field(name="Users linked: ",value="```" + str(len(user_list)) + "```",inline=False)
     response_msg.add_field(name="Finished:",value=f"All player stats, ranks, roles have been updated. The next sync will take place at "+((timestamp+ timedelta(hours=1)).strftime(r"%I:%M %p")),inline=False)
     print('Updated everyones stats')
     set_data(user_list)
@@ -696,7 +665,7 @@ async def resync(ctx):
 # main
 @client.event
 async def on_ready():
-    update.start()
+    await update.start()
     top25ranks.start()
     top25adr.start()
     top25kda.start()
