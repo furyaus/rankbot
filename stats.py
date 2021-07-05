@@ -21,7 +21,7 @@ class statsCalc:
             
     def __init__(self, playerid, playerJson):
         self.player = playerid
-        self.playerStats = playerStats(playerJson)
+        self.playerStats = playerStats(self.gatherStats(playerJson))
 
     def gatherStats(self, jsonPayload):
         season_info = json.loads(jsonPayload)
