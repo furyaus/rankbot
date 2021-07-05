@@ -535,6 +535,8 @@ async def update():
     response_msg.timestamp = datetime.datetime.utcnow()
     #await channel.send(embed=response_msg)
     await message.edit(embed=response_msg)
+    data_list['no_requests'] = no_requests
+    set_data(data_file, data_list)
 
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
@@ -551,8 +553,6 @@ async def resync(ctx):
     response_msg.add_field(name="Resync completed: ",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
-    data_list['no_requests'] = no_requests
-    set_data(data_file, data_list)
 
 # main
 @client.event
