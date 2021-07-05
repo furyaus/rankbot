@@ -18,7 +18,7 @@ import datetime
 from datetime import timedelta
 from pytz import timezone
 import asyncio
-import stats as playerStats
+import stats as playerStatistics
 
 # Setup bot and command
 clientintents = discord.Intents.all()
@@ -261,7 +261,7 @@ async def stats(ctx, user_ign):
         #Consolidated playerInfo in a def
         second_request = playerInfo(player_id, curr_header)
         #Added all session infor to a new playerStats class
-        playerStats = playerStats.statsCalc(player_id,json.loads(second_request.text))
+        playerStats = playerStatistics.statsCalc(player_id,json.loads(second_request.text))
         response_msg.add_field(name="Rank:",value=f"Current rank is: {playerStats.playerStats.c_rank} {playerStats.playerStats.c_tier}: {playerStats.playerStats.c_rank_points}\nHighest rank is: {playerStats.playerStats.h_rank} {playerStats.playerStats.h_tier}: {playerStats.playerStats.h_rank_points}",inline=False)
         response_msg.add_field(name="KDA:",value=f"Kills and assists per death: {playerStats.playerStats.KDA}",inline=False)
         response_msg.add_field(name="ADR:",value=f"Average damage per game: {playerStats.playerStats.ADR}",inline=False)
@@ -301,7 +301,7 @@ async def link(ctx, user_ign):
             #Consolidated playerInfo in a def
             second_request = playerInfo(player_id, curr_header)
             #Added all session infor to a new playerStats class
-            playerStats = playerStats.statsCalc(player_id,json.loads(second_request.text))
+            playerStats = playerStatistics.statsCalc(player_id,json.loads(second_request.text))
             #Def to update all user information from stats class
             user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.playerStats.new_rank}})
             user_list = updateUserList(user_list, user_id, playerStats)
@@ -382,7 +382,7 @@ async def mystats(ctx):
         #Consolidated playerInfo in a def
         second_request = playerInfo(player_id, curr_header)
         #Added all session infor to a new playerStats class
-        playerStats = playerStats.statsCalc(player_id,json.loads(second_request.text))
+        playerStats = playerStatistics.statsCalc(player_id,json.loads(second_request.text))
         #Def to update all user information from stats class
         user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.playerStats.new_rank}})
         user_list = updateUserList(user_list, user_id, playerStats, curr_punisher, curr_terminator, curr_general)
@@ -430,7 +430,7 @@ async def update():
         #Consolidated playerInfo in a def
         second_request = playerInfo(player_id, curr_header)
         #Added all session infor to a new playerStats class
-        playerStats = playerStats.statsCalc(player_id,json.loads(second_request.text))
+        playerStats = playerStatistics.statsCalc(player_id,json.loads(second_request.text))
         #Def to update all user information from stats class
         user_list.update({str(player_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.playerStats.new_rank}})
         user_list = updateUserList(user_list, player_id, playerStats, curr_punisher, curr_terminator, curr_general)
