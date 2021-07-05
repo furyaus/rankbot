@@ -262,9 +262,9 @@ async def stats(ctx, user_ign):
         second_request = playerInfo(player_id, curr_header)
         #Added all session infor to a new playerStats class
         playerStats = playerStatistics.statsCalc(player_id,second_request)
-        response_msg.add_field(name="Rank:",value=f"Current rank is: {playerStats.playerStats.c_rank} {playerStats.playerStats.c_tier}: {playerStats.playerStats.c_rank_points}\nHighest rank is: {playerStats.playerStats.h_rank} {playerStats.playerStats.h_tier}: {playerStats.playerStats.h_rank_points}",inline=False)
-        response_msg.add_field(name="KDA:",value=f"Kills and assists per death: {playerStats.playerStats.KDA}",inline=False)
-        response_msg.add_field(name="ADR:",value=f"Average damage per game: {playerStats.playerStats.ADR}",inline=False)
+        response_msg.add_field(name="Rank:",value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}",inline=False)
+        response_msg.add_field(name="KDA:",value=f"Kills and assists per death: {playerStats.pStats.KDA}",inline=False)
+        response_msg.add_field(name="ADR:",value=f"Average damage per game: {playerStats.pStats.ADR}",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
     data_list['no_requests'] = no_requests
@@ -303,11 +303,11 @@ async def link(ctx, user_ign):
             #Added all session infor to a new playerStats class
             playerStats = playerStatistics.statsCalc(player_id,second_request)
             #Def to update all user information from stats class
-            user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.playerStats.new_rank}})
+            user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
             user_list = updateUserList(user_list, user_id, playerStats)
-            role = discord.utils.get(ctx.guild.roles, name=playerStats.playerStats.new_rank)
+            role = discord.utils.get(ctx.guild.roles, name=playerStats.pStats.new_rank)
             await user.add_roles(role)
-            response_msg.add_field(name="Rank:",value=f"Current rank is: {playerStats.playerStats.c_rank} {playerStats.playerStats.c_tier}: {playerStats.playerStats.c_rank_points}\nHighest rank is: {playerStats.playerStats.h_rank} {playerStats.playerStats.h_tier}: {playerStats.playerStats.h_rank_points}",inline=False)
+            response_msg.add_field(name="Rank:",value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}",inline=False)
             response_msg.add_field(name="Done: ",value="Discord linked with PUBG IGN and stats saved to file.",inline=False)
     set_data(users_file, user_list)
     response_msg.timestamp = datetime.datetime.utcnow()
@@ -342,16 +342,16 @@ async def playerInfo(player_id,curr_header):
     return season_info
 
 def updateUserList(user_list, user_id, playerStats, curr_punisher=0, curr_terminator=0, curr_general=0):
-    user_list[str(user_id)]['c_rank'] = playerStats.playerStats.c_rank
-    user_list[str(user_id)]['c_tier'] = playerStats.playerStats.c_tier
-    user_list[str(user_id)]['c_rank_points'] = playerStats.playerStats.c_rank_points
-    user_list[str(user_id)]['h_rank'] = playerStats.playerStats.h_rank
-    user_list[str(user_id)]['h_tier'] = playerStats.playerStats.h_tier
-    user_list[str(user_id)]['h_rank_points'] = playerStats.playerStats.h_rank_points
-    user_list[str(user_id)]['games_played'] = playerStats.playerStats.games_played
-    user_list[str(user_id)]['season_wins'] = playerStats.playerStats.season_wins
-    user_list[str(user_id)]['KDA'] = playerStats.playerStats.KDA
-    user_list[str(user_id)]['ADR'] = playerStats.playerStats.ADR
+    user_list[str(user_id)]['c_rank'] = playerStats.pStats.c_rank
+    user_list[str(user_id)]['c_tier'] = playerStats.pStats.c_tier
+    user_list[str(user_id)]['c_rank_points'] = playerStats.pStats.c_rank_points
+    user_list[str(user_id)]['h_rank'] = playerStats.pStats.h_rank
+    user_list[str(user_id)]['h_tier'] = playerStats.pStats.h_tier
+    user_list[str(user_id)]['h_rank_points'] = playerStats.pStats.h_rank_points
+    user_list[str(user_id)]['games_played'] = playerStats.pStats.games_played
+    user_list[str(user_id)]['season_wins'] = playerStats.pStats.season_wins
+    user_list[str(user_id)]['KDA'] = playerStats.pStats.KDA
+    user_list[str(user_id)]['ADR'] = playerStats.pStats.ADR
     user_list[str(user_id)]['punisher'] = curr_punisher
     user_list[str(user_id)]['terminator'] = curr_terminator
     user_list[str(user_id)]['general'] = curr_general
@@ -385,16 +385,16 @@ async def mystats(ctx):
         #Added all session infor to a new playerStats class
         playerStats = playerStatistics.statsCalc(player_id,second_request)
         #Def to update all user information from stats class
-        user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.playerStats.new_rank}})
+        user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
         user_list = updateUserList(user_list, user_id, playerStats, curr_punisher, curr_terminator, curr_general)
-        if playerStats.playerStats.new_rank != playerStats.playerStats.curr_rank:
-            role = discord.utils.get(ctx.guild.roles, name=playerStats.playerStats.curr_rank)
+        if playerStats.pStats.new_rank != playerStats.pStats.curr_rank:
+            role = discord.utils.get(ctx.guild.roles, name=playerStats.pStats.curr_rank)
             await user.remove_roles(role)
-            role = discord.utils.get(user.guild.roles, name=playerStats.playerStats.new_rank)
+            role = discord.utils.get(user.guild.roles, name=playerStats.pStats.new_rank)
             await user.add_roles(role)
-        response_msg.add_field(name="Rank:", value=f"Current rank is: {playerStats.playerStats.c_rank} {playerStats.playerStats.c_tier}: {playerStats.playerStats.c_rank_points}\nHighest rank is: {playerStats.playerStats.h_rank} {h_tier}: {playerStats.playerStats.h_rank_points}", inline=False)
-        response_msg.add_field(name="KDA:",value=f"Kills and assists per death: {playerStats.playerStats.KDA}", inline=False)
-        response_msg.add_field(name="ADR:",value=f"Average damage per game: {playerStats.playerStats.ADR}", inline=False)
+        response_msg.add_field(name="Rank:", value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {h_tier}: {playerStats.pStats.h_rank_points}", inline=False)
+        response_msg.add_field(name="KDA:",value=f"Kills and assists per death: {playerStats.pStats.KDA}", inline=False)
+        response_msg.add_field(name="ADR:",value=f"Average damage per game: {playerStats.pStats.ADR}", inline=False)
         response_msg.add_field(name="Done: ",value=f"Updated stats and saved to file.", inline=False)
     else:
         response_msg.add_field(name="Rank:",value=f"You currently don't have a rank and your IGN isn't added to the list so use .link command to link",inline=False)
@@ -433,13 +433,13 @@ async def update():
         #Added all session infor to a new playerStats class
         playerStats = playerStatistics.statsCalc(player_id,second_request)
         #Def to update all user information from stats class
-        user_list.update({str(player_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.playerStats.new_rank}})
+        user_list.update({str(player_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
         user_list = updateUserList(user_list, player_id, playerStats, curr_punisher, curr_terminator, curr_general)
-        if playerStats.playerStats.new_rank != playerStats.playerStats.curr_rank:
-            role = discord.utils.get(guild.roles, name=playerStats.playerStats.curr_rank)
+        if playerStats.pStats.new_rank != playerStats.pStats.curr_rank:
+            role = discord.utils.get(guild.roles, name=playerStats.pStats.curr_rank)
             member = await guild.fetch_member(user)
             await member.remove_roles(role)
-            role = discord.utils.get(guild.roles, name=playerStats.playerStats.new_rank)
+            role = discord.utils.get(guild.roles, name=playerStats.pStats.new_rank)
             await member.add_roles(role)
 
     max_points = 0
