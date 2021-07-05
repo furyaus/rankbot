@@ -25,7 +25,8 @@ client = commands.Bot(command_prefix=".", intents=clientintents)
 client.remove_command("help")
 
 # Global variables
-json_file_path = "users.json"
+users_file = "users.json"
+data_file = "data.json"
 curr_season = "division.bro.official.pc-2018-12"
 prev_season = "division.bro.official.pc-2018-11"
 prev_prev_season = "division.bro.official.pc-2018-10"
@@ -56,14 +57,14 @@ keys = ["Bearer " + API_key_fury, "Bearer " + API_key_ocker, "Bearer " + API_key
 header = {"Authorization": "Bearer " + API_key_fury,"Accept": "application/vnd.api+json"}
 
 # Open user list and load into arrray
-def get_data():
-    with open(json_file_path, "r") as file:
+def get_data(file):
+    with open(file, "r") as file:
         return json.loads(file.read())
 
 # Close user list and store in JSON file
-def set_data(server_list):
-    with open(json_file_path, 'w') as file:
-        json.dump(server_list, file, indent=2)
+def set_data(file, data):
+    with open(users_file, 'w') as file:
+        json.dump(data, file, indent=2)
 
 # Catch unknown commands
 @client.event
@@ -147,7 +148,7 @@ async def announce(ctx, *, text):
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
 async def linked(ctx):
-    user_list=get_data()
+    user_list=get_data(users_file)
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     response_msg.add_field(name="Users linked: ",value="```" + str(len(user_list)) + "```",inline=False)
@@ -168,26 +169,26 @@ async def norequests(ctx):
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
 async def remove(ctx, member: discord.Member):
-    user_list=get_data()
+    user_list=get_data(users_file)
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     del user_list[str(member.id)]
     response_msg.add_field(name="Removed: ",value="```" + str(member.name) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
-    set_data(user_list)
+    set_data(users_file, user_list)
 
 # Remove user from JSON when they leave server
 @client.event
 async def on_member_remove(member):
-    user_list=get_data()
+    user_list=get_data(users_file)
     del user_list[str(member.id)]
-    set_data(user_list)
+    set_data(users_file, user_list)
 
 
 @tasks.loop(hours=loop_timer)
 async def top25update():
-    user_list=get_data()
+    user_list=get_data(users_file)
     reportTypeMessage = ''
     reportTypes = ['ADR', 'KDA', 'c_rank_points']
     for reportType in reportTypes:
@@ -237,7 +238,9 @@ async def stats(ctx, user_ign):
     global keys
     global header
     global no_requests
-    user_list=get_data()
+    data_list = get_data(data_file)
+    no_requests = data_list['no_requests']
+    user_list=get_data(users_file)
     channel = client.get_channel(stats_channel)
     user_ign = user_ign.replace("<", "")
     user_ign = user_ign.replace(">", "")
@@ -266,6 +269,8 @@ async def stats(ctx, user_ign):
         response_msg.add_field(name="ADR:",value=f"Average damage per game: {playerStats.playerStats.ADR}",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
+    data_list['no_requests'] = no_requests
+    set_data(data_file, data_list)
 
 # Link Discord user id with PUBG IGN and create user
 @client.command(pass_context=True)
@@ -273,7 +278,9 @@ async def link(ctx, user_ign):
     global keys
     global header
     global no_requests
-    user_list=get_data()
+    user_list=get_data(users_file)
+    data_list = get_data(data_file)
+    no_requests = data_list['no_requests']
     channel = client.get_channel(stats_channel)
     response_msg = discord.Embed(
         colour=discord.Colour.orange(),
@@ -304,7 +311,7 @@ async def link(ctx, user_ign):
             await user.add_roles(role)
             response_msg.add_field(name="Rank:",value=f"Current rank is: {playerStats.playerStats.c_rank} {playerStats.playerStats.c_tier}: {playerStats.playerStats.c_rank_points}\nHighest rank is: {playerStats.playerStats.h_rank} {playerStats.playerStats.h_tier}: {playerStats.playerStats.h_rank_points}",inline=False)
             response_msg.add_field(name="Done: ",value="Discord linked with PUBG IGN and stats saved to file.",inline=False)
-    set_data(user_list)
+    set_data(users_file, user_list)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
@@ -354,7 +361,9 @@ async def mystats(ctx):
     global keys
     global header
     global no_requests
-    user_list=get_data()
+    user_list=get_data(users_file)
+    data_list = get_data(data_file)
+    no_requests = data_list['no_requests']
     channel = client.get_channel(stats_channel)
     curr_header = header
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
@@ -387,9 +396,11 @@ async def mystats(ctx):
         response_msg.add_field(name="Done: ",value=f"Updated stats and saved to file.", inline=False)
     else:
         response_msg.add_field(name="Rank:",value=f"You currently don't have a rank and your IGN isn't added to the list so use .link command to link",inline=False)
-    set_data(user_list)
+    set_data(users_file, user_list)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
+    data_list['no_requests'] = no_requests
+    set_data(data_file, data_list)
 
 # Main program - full resync all data, ranks, roles and stats
 @tasks.loop(hours=1.0)
@@ -399,7 +410,9 @@ async def update():
     global no_requests
     aest = timezone('Australia/Melbourne')
     timestamp = datetime.datetime.now(aest)
-    user_list=get_data()
+    user_list=get_data(users_file)
+    data_list = get_data(data_file)
+    no_requests = data_list['no_requests']
     guild = client.get_guild(d_server)
     channel = client.get_channel(botinfo_channel)
     message = await channel.fetch_message(botinfo_msg)
@@ -518,7 +531,7 @@ async def update():
     response_msg.add_field(name="Users linked: ",value="```" + str(len(user_list)) + "```",inline=False)
     response_msg.add_field(name="Finished:",value=f"All player stats, ranks, roles have been updated. The next sync will take place at "+((timestamp+ timedelta(hours=1)).strftime(r"%I:%M %p")),inline=False)
     print('Updated everyones stats')
-    set_data(user_list)
+    set_data(users_file, user_list)
     response_msg.timestamp = datetime.datetime.utcnow()
     #await channel.send(embed=response_msg)
     await message.edit(embed=response_msg)
@@ -538,6 +551,8 @@ async def resync(ctx):
     response_msg.add_field(name="Resync completed: ",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
+    data_list['no_requests'] = no_requests
+    set_data(data_file, data_list)
 
 # main
 @client.event
