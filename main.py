@@ -252,7 +252,7 @@ async def stats(ctx, user_ign):
     curr_header = header
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     #Consolidated IGN parts into single def
-    initial_r = playerIgn(curr_header, user_ign)
+    initial_r = await playerIgn(curr_header, user_ign)
     if initial_r.status_code != 200:
         response_msg.add_field(name="Error: ",value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
     else:
@@ -293,7 +293,7 @@ async def link(ctx, user_ign):
         response_msg.add_field(name="Issue: ",value="Your IGN has already been added to the list, just use .mystats to update your rank",inline=False)
     else:
         #Consolidated IGN parts into single def
-        initial_r = playerIgn(curr_header, user_ign)
+        initial_r = await playerIgn(curr_header, user_ign)
         if initial_r.status_code != 200:
             response_msg.add_field(name="Issue: ",value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
         else:
