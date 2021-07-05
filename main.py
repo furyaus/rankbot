@@ -304,8 +304,8 @@ async def link(ctx, user_ign):
             #Added all session infor to a new playerStats class
             playerStats = playerStatistics.statsCalc(player_id,second_request)
             #Def to update all user information from stats class
-            user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
-            user_list = updateUserList(user_list, user_id, playerStats)
+            #user_list = updateUserList(user_list, user_id, playerStats)
+            updateUserList(user_list, user_id, user_ign, player_id, playerStats)
             role = discord.utils.get(ctx.guild.roles, name=playerStats.pStats.new_rank)
             await user.add_roles(role)
             response_msg.add_field(name="Rank:",value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}",inline=False)
@@ -342,7 +342,8 @@ async def playerInfo(player_id,curr_header):
     season_info = json.loads(second_request.text)
     return season_info
 
-def updateUserList(user_list, user_id, playerStats, curr_punisher=0, curr_terminator=0, curr_general=0):
+def updateUserList(user_list, user_id, user_ign, player_id, playerStats, curr_punisher=0, curr_terminator=0, curr_general=0):
+    user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
     user_list[str(user_id)]['c_rank'] = playerStats.pStats.c_rank
     user_list[str(user_id)]['c_tier'] = playerStats.pStats.c_tier
     user_list[str(user_id)]['c_rank_points'] = playerStats.pStats.c_rank_points
@@ -356,7 +357,7 @@ def updateUserList(user_list, user_id, playerStats, curr_punisher=0, curr_termin
     user_list[str(user_id)]['punisher'] = curr_punisher
     user_list[str(user_id)]['terminator'] = curr_terminator
     user_list[str(user_id)]['general'] = curr_general
-    return user_list
+    #return user_list
 
 # Pull stats for current user and update database
 @client.command()
@@ -386,8 +387,9 @@ async def mystats(ctx):
         #Added all session infor to a new playerStats class
         playerStats = playerStatistics.statsCalc(player_id,second_request)
         #Def to update all user information from stats class
-        user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
-        user_list = updateUserList(user_list, user_id, playerStats, curr_punisher, curr_terminator, curr_general)
+        updateUserList(user_list, user_id, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general)
+        #user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
+        #user_list = updateUserList(user_list, user_id, playerStats, curr_punisher, curr_terminator, curr_general)
         if playerStats.pStats.new_rank != curr_rank:
             role = discord.utils.get(ctx.guild.roles, name=curr_rank)
             await user.remove_roles(role)
@@ -435,8 +437,9 @@ async def update():
         #Added all session infor to a new playerStats class
         playerStats = playerStatistics.statsCalc(player_id,second_request)
         #Def to update all user information from stats class
-        user_list.update({str(player_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
-        user_list = updateUserList(user_list, player_id, playerStats, curr_punisher, curr_terminator, curr_general)
+        updateUserList(user_list, player_id, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general)
+        #user_list.update({str(player_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
+        #user_list = updateUserList(user_list, player_id, playerStats, curr_punisher, curr_terminator, curr_general)
         if playerStats.pStats.new_rank != curr_rank:
             role = discord.utils.get(guild.roles, name=curr_rank)
             member = await guild.fetch_member(user)
