@@ -1,8 +1,6 @@
 # Rank Bot
 PUBG Rank Bot
 
-The 101-club Discord - <https://discord.gg/2vDWqw9shM>
-
 ![alt text](https://github.com/furyaus/rankbot/blob/main/bot_logo.png?raw=true)
 
 Project Definition:
@@ -15,5 +13,7 @@ Previous python code can be provided for a bot which worked last year. This temp
 
 Project Extension:
 This project could help other discords who want a similar bot!
+
+Contact: fury#1662
 
 ![alt text](https://github.com/furyaus/rankbot/blob/main/Screenshots/1.png)
