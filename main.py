@@ -24,7 +24,8 @@ client = commands.Bot(command_prefix=".", intents=clientintents)
 client.remove_command("help")
 
 # Global variables
-json_file_path = "users.json"
+users_file = "users.json"
+data_file = "data.json"
 curr_season = "division.bro.official.pc-2018-12"
 prev_season = "division.bro.official.pc-2018-11"
 prev_prev_season = "division.bro.official.pc-2018-10"
@@ -54,15 +55,15 @@ keys = ["Bearer " + API_key_fury, "Bearer " + API_key_ocker, "Bearer " + API_key
 header = {"Authorization": "Bearer " + API_key_fury,"Accept": "application/vnd.api+json"}
 
 # Open user list and load into arrray
-def get_data():
-    with open(json_file_path, "r") as file:
+def get_data(file):
+    with open(file, "r") as file:
         return json.loads(file.read())
 
 # Close user list and store in JSON file
-def set_data(server_list):
-    with open(json_file_path, 'w') as file:
-        json.dump(server_list, file, indent=2)
-
+def set_data(file, data_list):
+    with open(file, 'w') as file:
+        json.dump(data_list, file, indent=2)
+        
 # Catch unknown commands
 @client.event
 async def on_command_error(ctx, error):
@@ -145,7 +146,7 @@ async def announce(ctx, *, text):
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
 async def linked(ctx):
-    user_list=get_data()
+    user_list=get_data(users_file)
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     response_msg.add_field(name="Users linked: ",value="```" + str(len(user_list)) + "```",inline=False)
@@ -166,26 +167,45 @@ async def norequests(ctx):
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
 async def remove(ctx, member: discord.Member):
-    user_list=get_data()
+    user_list=get_data(users_file)
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     del user_list[str(member.id)]
     response_msg.add_field(name="Removed: ",value="```" + str(member.name) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
-    set_data(user_list)
+    set_data(users_file, user_list)
 
 # Remove user from JSON when they leave server
 @client.event
 async def on_member_remove(member):
-    user_list=get_data()
+    user_list=get_data(users_file)
     del user_list[str(member.id)]
-    set_data(user_list)
+    set_data(users_file, user_list)
+
+# Admin for resync with all data
+@client.command()
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
+async def resync(ctx):
+    response_msg = discord.Embed(colour=discord.Colour.orange())
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg.add_field(name="Resync started: ",value="This could take a long time based on the number of users and the PUBG API, please wait for the comfirmation message before more commands. 50 users per minute is our limit.",inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow()
+    await ctx.send(embed=response_msg)
+    await update()
+    await top25ranks()
+    await top25adr()
+    await top25kda()
+    response_msg = discord.Embed(colour=discord.Colour.orange())
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg.add_field(name="Resync completed: ",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow()
+    await ctx.send(embed=response_msg)
 
 # Report top25rank to leaderboard
 @tasks.loop(hours=.05)
 async def top25ranks():
-    user_list=get_data()
+    user_list=get_data(users_file)
     channel = client.get_channel(top25ranks_channel)
     message = await channel.fetch_message(top25ranks_msg)
     new_user_list = sorted(user_list.values(), key=itemgetter('c_rank_points'))
@@ -214,7 +234,7 @@ async def top25ranks():
 # Report top25kda to leaderboard
 @tasks.loop(hours=.05)
 async def top25kda():
-    user_list=get_data()
+    user_list=get_data(users_file)
     channel = client.get_channel(top25kda_channel)
     message = await channel.fetch_message(top25kda_msg)
     response_msg = discord.Embed(colour=discord.Colour.orange(),title="Top 25 KDA in the 101 Club",)
@@ -242,7 +262,7 @@ async def top25kda():
 # Report top25adr to leaderboard
 @tasks.loop(hours=.05)
 async def top25adr():
-    user_list=get_data()
+    user_list=get_data(users_file)
     channel = client.get_channel(top25adr_channel)
     message = await channel.fetch_message(top25adr_msg)
     response_msg = discord.Embed(colour=discord.Colour.orange(),title="Top 25 ADR in the 101 Club",)
@@ -273,7 +293,9 @@ async def stats(ctx, user_ign):
     global keys
     global header
     global no_requests
-    user_list=get_data()
+    data_list = get_data(data_file)
+    no_requests = data_list['no_requests']
+    user_list=get_data(users_file)
     channel = client.get_channel(stats_channel)
     user_ign = user_ign.replace("<", "")
     user_ign = user_ign.replace(">", "")
@@ -292,10 +314,15 @@ async def stats(ctx, user_ign):
     no_requests += 1
     if initial_r.status_code == 429:
         print('Too many API requests, sleep 60secs')
-        await asyncio.sleep(60)
         curr_header['Authorization'] = keys[no_requests % (len(keys))]
         second_request = requests.get(url, headers=curr_header)
         no_requests += 1
+        api_msg = discord.Embed(colour=discord.Colour.orange(),title="Stats for " + user_ign,)
+        api_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+        api_msg.add_field(name="API request limit: ",value="Too many API requests, bot will respond in 60 seconds, please wait.",inline=False)
+        response_msg.timestamp = datetime.datetime.utcnow()
+        await channel.send(embed=response_msg)
+        await asyncio.sleep(60)
     if initial_r.status_code != 200:
         response_msg.add_field(name="Error: ",value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
     else:
@@ -307,10 +334,15 @@ async def stats(ctx, user_ign):
         no_requests += 1
         if second_request.status_code == 429:
             print('Too many API requests, sleep 60secs')
-            await asyncio.sleep(60)
             curr_header['Authorization'] = keys[no_requests % (len(keys))]
             second_request = requests.get(season_url, headers=curr_header)
             no_requests += 1
+            api_msg = discord.Embed(colour=discord.Colour.orange(),title="Stats for " + user_ign,)
+            api_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+            api_msg.add_field(name="API request limit: ",value="Too many API requests, bot will respond in 60 seconds, please wait.",inline=False)
+            response_msg.timestamp = datetime.datetime.utcnow()
+            await channel.send(embed=response_msg)
+            await asyncio.sleep(60)
         season_info = json.loads(second_request.text)
         c_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
         c_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['subTier']
@@ -328,6 +360,8 @@ async def stats(ctx, user_ign):
         response_msg.add_field(name="ADR:",value=f"Average damage per game: {ADR}",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
+    data_list['no_requests'] = no_requests
+    set_data(data_file, data_list)
 
 # Link Discord user id with PUBG IGN and create user
 @client.command(pass_context=True)
@@ -335,7 +369,9 @@ async def link(ctx, user_ign):
     global keys
     global header
     global no_requests
-    user_list=get_data()
+    data_list = get_data(data_file)
+    no_requests = data_list['no_requests']
+    user_list=get_data(users_file)
     channel = client.get_channel(stats_channel)
     response_msg = discord.Embed(
         colour=discord.Colour.orange(),
@@ -353,10 +389,15 @@ async def link(ctx, user_ign):
         no_requests += 1
         if initial_r.status_code == 429:
             print('Too many API requests, sleep 60secs')
-            await asyncio.sleep(60)
             curr_header['Authorization'] = keys[no_requests % (len(keys))]
             second_request = requests.get(url, headers=curr_header)
             no_requests += 1
+            api_msg = discord.Embed(colour=discord.Colour.orange(),title="Stats for " + user_ign,)
+            api_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+            api_msg.add_field(name="API request limit: ",value="Too many API requests, bot will respond in 60 seconds, please wait.",inline=False)
+            response_msg.timestamp = datetime.datetime.utcnow()
+            await channel.send(embed=response_msg)
+            await asyncio.sleep(60)
         if initial_r.status_code != 200:
             response_msg.add_field(name="Issue: ",value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
         else:
@@ -368,10 +409,15 @@ async def link(ctx, user_ign):
             no_requests += 1
             if second_request.status_code == 429:
                 print('Too many API requests, sleep 60secs')
-                await asyncio.sleep(60)
                 curr_header['Authorization'] = keys[no_requests % (len(keys))]
                 second_request = requests.get(season_url, headers=curr_header)
                 no_requests += 1
+                api_msg = discord.Embed(colour=discord.Colour.orange(),title="Stats for " + user_ign,)
+                api_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+                api_msg.add_field(name="API request limit: ",value="Too many API requests, bot will respond in 60 seconds, please wait.",inline=False)
+                response_msg.timestamp = datetime.datetime.utcnow()
+                await channel.send(embed=response_msg)
+                await asyncio.sleep(60)
             season_info = json.loads(second_request.text)
             c_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
             c_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['subTier']
@@ -404,9 +450,11 @@ async def link(ctx, user_ign):
             await user.add_roles(role)
             response_msg.add_field(name="Rank:",value=f"Current rank is: {c_rank} {c_tier}: {c_rank_points}\nHighest rank is: {h_rank} {h_tier}: {h_rank_points}",inline=False)
             response_msg.add_field(name="Done: ",value="Discord linked with PUBG IGN and stats saved to file.",inline=False)
-    set_data(user_list)
+    set_data(users_file, user_list)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
+    data_list['no_requests'] = no_requests
+    set_data(data_file, data_list)
 
 # Pull stats for current user and update database
 @client.command()
@@ -414,7 +462,9 @@ async def mystats(ctx):
     global keys
     global header
     global no_requests
-    user_list=get_data()
+    data_list = get_data(data_file)
+    no_requests = data_list['no_requests']
+    user_list=get_data(users_file)
     channel = client.get_channel(stats_channel)
     curr_header = header
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
@@ -434,10 +484,15 @@ async def mystats(ctx):
         no_requests += 1
         if second_request.status_code == 429:
             print('Too many API requests, sleep 60secs')
-            await asyncio.sleep(60)
             curr_header['Authorization'] = keys[no_requests % (len(keys))]
             second_request = requests.get(season_url, headers=curr_header)
             no_requests += 1
+            api_msg = discord.Embed(colour=discord.Colour.orange(),title="Stats for " + user_ign,)
+            api_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+            api_msg.add_field(name="API request limit: ",value="Too many API requests, bot will respond in 60 seconds, please wait.",inline=False)
+            response_msg.timestamp = datetime.datetime.utcnow()
+            await channel.send(embed=response_msg)
+            await asyncio.sleep(60)
         season_info = json.loads(second_request.text)
         c_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
         c_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['subTier']
@@ -477,9 +532,11 @@ async def mystats(ctx):
         response_msg.add_field(name="Done: ",value=f"Updated stats and saved to file.", inline=False)
     else:
         response_msg.add_field(name="Rank:",value=f"You currently don't have a rank and your IGN isn't added to the list so use .link command to link",inline=False)
-    set_data(user_list)
+    set_data(users_file, user_list)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
+    data_list['no_requests'] = no_requests
+    set_data(data_file, data_list)
 
 # Main program - full resync all data, ranks, roles and stats
 @tasks.loop(hours=1.0)
@@ -487,9 +544,11 @@ async def update():
     global keys
     global header
     global no_requests
+    data_list = get_data(data_file)
+    no_requests = data_list['no_requests']
     aest = timezone('Australia/Melbourne')
     timestamp = datetime.datetime.now(aest)
-    user_list=get_data()
+    user_list=get_data(users_file)
     guild = client.get_guild(d_server)
     channel = client.get_channel(botinfo_channel)
     message = await channel.fetch_message(botinfo_msg)
@@ -639,33 +698,17 @@ async def update():
     response_msg.add_field(name="Users linked: ",value="```" + str(len(user_list)) + "```",inline=False)
     response_msg.add_field(name="Finished:",value=f"All player stats, ranks, roles have been updated. The next sync will take place at "+((timestamp+ timedelta(hours=1)).strftime(r"%I:%M %p")),inline=False)
     print('Updated everyones stats')
-    set_data(user_list)
+    set_data(users_file, user_list)
     response_msg.timestamp = datetime.datetime.utcnow()
     #await channel.send(embed=response_msg)
     await message.edit(embed=response_msg)
-
-@client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
-async def resync(ctx):
-    response_msg = discord.Embed(colour=discord.Colour.orange())
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    response_msg.add_field(name="Resync started: ",value="This could take a long time based on the number of users and the PUBG API, please wait for the comfirmation message before more commands. 50 users per minute is our limit.",inline=False)
-    response_msg.timestamp = datetime.datetime.utcnow()
-    await ctx.send(embed=response_msg)
-    await update()
-    await top25ranks()
-    await top25adr()
-    await top25kda()
-    response_msg = discord.Embed(colour=discord.Colour.orange())
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    response_msg.add_field(name="Resync completed: ",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
-    response_msg.timestamp = datetime.datetime.utcnow()
-    await ctx.send(embed=response_msg)
+    data_list['no_requests'] = no_requests
+    set_data(data_file, data_list)
 
 # main
 @client.event
 async def on_ready():
-    await update.start()
+    update.start()
     top25ranks.start()
     top25adr.start()
     top25kda.start()
