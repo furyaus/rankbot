@@ -339,7 +339,7 @@ async def playerInfo(player_id,curr_header):
         second_request = requests.get(season_url, headers=curr_header)
         no_requests += 1
     season_info = json.loads(second_request.text)
-    return second_request
+    return season_info
 
 def updateUserList(user_list, user_id, playerStats, curr_punisher=0, curr_terminator=0, curr_general=0):
     user_list[str(user_id)]['c_rank'] = playerStats.playerStats.c_rank

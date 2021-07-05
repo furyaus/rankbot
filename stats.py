@@ -24,7 +24,7 @@ class statsCalc:
         self.playerStats = self.gatherStats(playerJson)
 
     def gatherStats(self, jsonPayload):
-        season_info = json.loads(jsonPayload)
+        season_info = jsonPayload
         c_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
         c_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['subTier']
         c_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentRankPoint']
