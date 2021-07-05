@@ -21,7 +21,7 @@ class statsCalc:
             
     def __init__(self, playerid, playerJson):
         self.player = playerid
-        self.playerStats = playerStats(self.gatherStats(playerJson))
+        self.playerStats = self.gatherStats(playerJson)
 
     def gatherStats(self, jsonPayload):
         season_info = json.loads(jsonPayload)
@@ -39,7 +39,7 @@ class statsCalc:
         ADR = round(season_damage / games_played, 0)
         KDA = round(season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['kda'], 2)
 
-        return playerStats(c_rank, c_tier, c_rank_points, h_rank, h_tier,
+        return statsCalc.playerStats(c_rank, c_tier, c_rank_points, h_rank, h_tier,
             h_rank_points, games_played, round(season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['kda'], 2), 
             season_wins, season_damage, new_rank, round(season_damage / games_played, 0))
 
