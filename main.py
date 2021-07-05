@@ -388,8 +388,8 @@ async def mystats(ctx):
         #Def to update all user information from stats class
         user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
         user_list = updateUserList(user_list, user_id, playerStats, curr_punisher, curr_terminator, curr_general)
-        if playerStats.pStats.new_rank != playerStats.pStats.c_rank:
-            role = discord.utils.get(ctx.guild.roles, name=playerStats.pStats.c_rank)
+        if playerStats.pStats.new_rank != curr_rank:
+            role = discord.utils.get(ctx.guild.roles, name=curr_rank)
             await user.remove_roles(role)
             role = discord.utils.get(user.guild.roles, name=playerStats.pStats.new_rank)
             await user.add_roles(role)
@@ -437,8 +437,8 @@ async def update():
         #Def to update all user information from stats class
         user_list.update({str(player_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
         user_list = updateUserList(user_list, player_id, playerStats, curr_punisher, curr_terminator, curr_general)
-        if playerStats.pStats.new_rank != playerStats.pStats.c_rank:
-            role = discord.utils.get(guild.roles, name=playerStats.pStats.c_rank)
+        if playerStats.pStats.new_rank != curr_rank:
+            role = discord.utils.get(guild.roles, name=curr_rank)
             member = await guild.fetch_member(user)
             await member.remove_roles(role)
             role = discord.utils.get(guild.roles, name=playerStats.pStats.new_rank)
