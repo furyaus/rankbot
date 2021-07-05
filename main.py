@@ -17,6 +17,7 @@ import datetime
 from datetime import timedelta
 from pytz import timezone
 import asyncio
+import stats
 
 # Setup bot and command
 clientintents = discord.Intents.all()
@@ -48,6 +49,7 @@ top25adr_msg = int(os.environ['top25adr_msg'])
 admin_roles = ["Moderators", "Admin", "Boss", "The General", "The Punisher", "The Terminator",]
 no_requests = 0
 curr_key = 0
+loop_timer = 0.05
 
 # Keys in order - furyaus, ocker, p4, progdog
 keys = ["Bearer " + API_key_fury, "Bearer " + API_key_ocker, "Bearer " + API_key_p4, "Bearer " + API_key_progdog]
@@ -182,90 +184,52 @@ async def on_member_remove(member):
     del user_list[str(member.id)]
     set_data(user_list)
 
-# Report top25rank to leaderboard
-@tasks.loop(hours=.05)
-async def top25ranks():
-    user_list=get_data()
-    channel = client.get_channel(top25ranks_channel)
-    message = await channel.fetch_message(top25ranks_msg)
-    new_user_list = sorted(user_list.values(), key=itemgetter('c_rank_points'))
-    response_msg = discord.Embed(colour=discord.Colour.orange(),title="Top 25 rank holders in the 101 Club",)
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    top_50_string = ''
-    i = -1
-    total_length = len(new_user_list)
-    j = 1 
-    while i > -(total_length+1):
-        ign = new_user_list[i]['IGN']
-        player_rank_points = new_user_list[i]['c_rank_points']
-        player_rank = new_user_list[i]['Rank'] 
-        curr_line = "%i : %s, %s, %.0f\n" % (abs(j), ign,player_rank,player_rank_points)
-        top_50_string += curr_line
-        j += 1
-        if j == 26:
-            break
-        i -= 1
-    response_msg.add_field(name="Top rank holders:", value="```"+top_50_string+"```",inline=False)
-    response_msg.timestamp = datetime.datetime.utcnow()
-    #await channel.send(embed=response_msg)
-    await message.edit(embed=response_msg)
-    print("top25 ranks updated")
 
-# Report top25kda to leaderboard
-@tasks.loop(hours=.05)
-async def top25kda():
+@tasks.loop(hours=loop_timer)
+async def top25update():
     user_list=get_data()
-    channel = client.get_channel(top25kda_channel)
-    message = await channel.fetch_message(top25kda_msg)
-    response_msg = discord.Embed(colour=discord.Colour.orange(),title="Top 25 KDA in the 101 Club",)
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    new_user_list = sorted(user_list.values(), key=itemgetter('KDA'))
-    top_50_string = ''
-    total_length = len(new_user_list)
-    i = -1
-    j = 1
-    while i > -(total_length+1):
-        ign = new_user_list[i]['IGN']
-        player_adr = new_user_list[i]['KDA']
-        curr_line = "%i : %s, KDA = %.2f\n" % (abs(j), ign, player_adr)
-        top_50_string += curr_line
-        j += 1
-        if j == 26:
+    reportTypeMessage = ''
+    reportTypes = ['ADR', 'KDA', 'c_rank_points']
+    for reportType in reportTypes:
+        if(reportType=='c_rank_points'):
+            channel = client.get_channel(top25ranks_channel)
+            message = await channel.fetch_message(top25ranks_msg)
+            reportTypeMessage = 'rank'
+            reportTypeStats = 'Rank'
+        elif(reportType=='KDA'):
+            channel = client.get_channel(top25kda_channel)
+            message = await channel.fetch_message(top25kda_msg)
+            reportTypeMessage = 'KDA'
+            reportTypeStats = 'KDA'
+        elif(reportType=='ADR'):
+            channel = client.get_channel(top25adr_channel)
+            message = await channel.fetch_message(top25adr_channel)
+            reportTypeMessage = 'ADR'
+            reportTypeStats = 'ADR'
+        else:
             break
-        i -= 1
-    response_msg.add_field(name="Top KDA:", value="```"+top_50_string+"```",inline=False)
-    response_msg.timestamp = datetime.datetime.utcnow()
-    #await channel.send(embed=response_msg)
-    await message.edit(embed=response_msg)
-    print("top25 kda updated")
-
-# Report top25adr to leaderboard
-@tasks.loop(hours=.05)
-async def top25adr():
-    user_list=get_data()
-    channel = client.get_channel(top25adr_channel)
-    message = await channel.fetch_message(top25adr_msg)
-    response_msg = discord.Embed(colour=discord.Colour.orange(),title="Top 25 ADR in the 101 Club",)
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    new_user_list = sorted(user_list.values(), key=itemgetter('ADR'))
-    top_50_string = ''
-    total_length = len(new_user_list)
-    i = -1
-    j = 1
-    while i > -(total_length+1):
-        ign = new_user_list[i]['IGN']
-        player_adr = new_user_list[i]['ADR']
-        curr_line = "%i : %s, ADR = %.0f\n" % (abs(j), ign, player_adr)
-        top_50_string += curr_line
-        j += 1
-        if j == 26:
-            break
-        i -= 1
-    response_msg.add_field(name="Top ADR:", value="```"+top_50_string+"```",inline=False)
-    response_msg.timestamp = datetime.datetime.utcnow()
-    #await channel.send(embed=response_msg)-Needed for the first time a post is made, msg id needs updating
-    await message.edit(embed=response_msg)
-    print("top25 adr updated")
+        new_user_list = sorted(user_list.values(), key=itemgetter(reportType))
+        response_msg = discord.Embed(colour=discord.Colour.orange(),title="Top 25 {0} holders in the 101 Club".format(reportTypeMessage),)
+        response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+        top_50_string = ''
+        i = -1
+        total_length = len(new_user_list)
+        j = 1 
+        while i > -(total_length+1):
+            ign = new_user_list[i]['IGN']
+            player_stats = new_user_list[i][reportType]
+            players = new_user_list[i][reportTypeStats] 
+            curr_line = "%i : %s, %s, %.0f\n" % (abs(j), ign,players,player_stats)
+            top_50_string += curr_line
+            j += 1
+            if j == 26:
+                break
+            i -= 1
+        response_msg.add_field(name="Top {0} holders:".format(reportTypeMessage), value="```"+top_50_string+"```",inline=False)
+        response_msg.timestamp = datetime.datetime.utcnow()
+        #await channel.send(embed=response_msg)
+        await message.edit(embed=response_msg)
+        print("top25 {0} updated".format(reportTypeMessage))
 
 # Check my stats - live, direct api data response - allows any PUBG IGN
 @client.command()
@@ -301,31 +265,13 @@ async def stats(ctx, user_ign):
     else:
         player_info = json.loads(initial_r.text)
         player_id = player_info['data'][0]['id'].replace('account.', '')
-        season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
-        second_request = requests.get(season_url, headers=curr_header)
-        curr_header['Authorization'] = keys[no_requests % (len(keys))]
-        no_requests += 1
-        if second_request.status_code == 429:
-            print('Too many API requests, sleep 60secs')
-            await asyncio.sleep(60)
-            curr_header['Authorization'] = keys[no_requests % (len(keys))]
-            second_request = requests.get(season_url, headers=curr_header)
-            no_requests += 1
-        season_info = json.loads(second_request.text)
-        c_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
-        c_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['subTier']
-        c_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentRankPoint']
-        h_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestTier']['tier']
-        h_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestTier']['subTier']
-        h_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestRankPoint']
-        games_played = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['roundsPlayed']
-        KDA = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['kda']
-        season_damage = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['damageDealt']
-        ADR = round(season_damage / games_played, 0)
-        KDA = round(KDA, 2)
-        response_msg.add_field(name="Rank:",value=f"Current rank is: {c_rank} {c_tier}: {c_rank_points}\nHighest rank is: {h_rank} {h_tier}: {h_rank_points}",inline=False)
-        response_msg.add_field(name="KDA:",value=f"Kills and assists per death: {KDA}",inline=False)
-        response_msg.add_field(name="ADR:",value=f"Average damage per game: {ADR}",inline=False)
+        #Consolidated playerInfo in a def
+        second_request = playerInfo(player_id, curr_header)
+        #Added all session infor to a new playerStats class
+        playerStats = stats.statsCalc(player_id,json.loads(second_request.text))
+        response_msg.add_field(name="Rank:",value=f"Current rank is: {playerStats.playerStats.c_rank} {playerStats.playerStats.c_tier}: {playerStats.playerStats.c_rank_points}\nHighest rank is: {playerStats.playerStats.h_rank} {playerStats.playerStats.h_tier}: {playerStats.playerStats.h_rank_points}",inline=False)
+        response_msg.add_field(name="KDA:",value=f"Kills and assists per death: {playerStats.playerStats.KDA}",inline=False)
+        response_msg.add_field(name="ADR:",value=f"Average damage per game: {playerStats.playerStats.ADR}",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
@@ -348,65 +294,67 @@ async def link(ctx, user_ign):
     if str(user_id) in user_list:
         response_msg.add_field(name="Issue: ",value="Your IGN has already been added to the list, just use .mystats to update your rank",inline=False)
     else:
-        url = "https://api.pubg.com/shards/steam/players?filter[playerNames]=" + user_ign
-        initial_r = requests.get(url, headers=curr_header)
-        no_requests += 1
-        if initial_r.status_code == 429:
-            print('Too many API requests, sleep 60secs')
-            await asyncio.sleep(60)
-            curr_header['Authorization'] = keys[no_requests % (len(keys))]
-            second_request = requests.get(url, headers=curr_header)
-            no_requests += 1
+        #Consolidated IGN parts into single def
+        initial_r = playerIgn(curr_header)
         if initial_r.status_code != 200:
             response_msg.add_field(name="Issue: ",value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
         else:
             player_info = json.loads(initial_r.text)
             player_id = player_info['data'][0]['id'].replace('account.', '')
-            season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
-            curr_header['Authorization'] = keys[no_requests % (len(keys))]
-            second_request = requests.get(season_url, headers=curr_header)
-            no_requests += 1
-            if second_request.status_code == 429:
-                print('Too many API requests, sleep 60secs')
-                await asyncio.sleep(60)
-                curr_header['Authorization'] = keys[no_requests % (len(keys))]
-                second_request = requests.get(season_url, headers=curr_header)
-                no_requests += 1
-            season_info = json.loads(second_request.text)
-            c_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
-            c_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['subTier']
-            c_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentRankPoint']
-            h_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestTier']['tier']
-            h_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestTier']['subTier']
-            h_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestRankPoint']
-            games_played = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['roundsPlayed']
-            KDA = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['kda']
-            season_wins = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['wins']
-            season_damage = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['damageDealt']
-            new_rank = c_rank + " " + c_tier
-            ADR = round(season_damage / games_played, 0)
-            KDA = round(KDA, 2)
-            user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': new_rank}})
-            user_list[str(user_id)]['c_rank'] = c_rank
-            user_list[str(user_id)]['c_tier'] = c_tier
-            user_list[str(user_id)]['c_rank_points'] = c_rank_points
-            user_list[str(user_id)]['h_rank'] = h_rank
-            user_list[str(user_id)]['h_tier'] = h_tier
-            user_list[str(user_id)]['h_rank_points'] = h_rank_points
-            user_list[str(user_id)]['games_played'] = games_played
-            user_list[str(user_id)]['season_wins'] = season_wins
-            user_list[str(user_id)]['KDA'] = KDA
-            user_list[str(user_id)]['ADR'] = ADR
-            user_list[str(user_id)]['punisher'] = 0
-            user_list[str(user_id)]['terminator'] = 0
-            user_list[str(user_id)]['general'] = 0
-            role = discord.utils.get(ctx.guild.roles, name=new_rank)
+            #Consolidated playerInfo in a def
+            second_request = playerInfo(player_id, curr_header)
+            #Added all session infor to a new playerStats class
+            playerStats = stats.statsCalc(player_id,json.loads(second_request.text))
+            #Def to update all user information from stats class
+            user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.playerStats.new_rank}})
+            user_list = updateUserList(user_list, user_id, playerStats)
+            role = discord.utils.get(ctx.guild.roles, name=playerStats.playerStats.new_rank)
             await user.add_roles(role)
-            response_msg.add_field(name="Rank:",value=f"Current rank is: {c_rank} {c_tier}: {c_rank_points}\nHighest rank is: {h_rank} {h_tier}: {h_rank_points}",inline=False)
+            response_msg.add_field(name="Rank:",value=f"Current rank is: {playerStats.playerStats.c_rank} {playerStats.playerStats.c_tier}: {playerStats.playerStats.c_rank_points}\nHighest rank is: {playerStats.playerStats.h_rank} {playerStats.playerStats.h_tier}: {playerStats.playerStats.h_rank_points}",inline=False)
             response_msg.add_field(name="Done: ",value="Discord linked with PUBG IGN and stats saved to file.",inline=False)
     set_data(user_list)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
+
+async def playerIgn(curr_header):
+    url = "https://api.pubg.com/shards/steam/players?filter[playerNames]=" + user_ign
+    initial_r = requests.get(url, headers=curr_header)
+    no_requests += 1
+    if initial_r.status_code == 429:
+        print('Too many API requests, sleep 60secs')
+        await asyncio.sleep(60)
+        curr_header['Authorization'] = keys[no_requests % (len(keys))]
+        second_request = requests.get(url, headers=curr_header)
+        no_requests += 1
+    
+async def playerInfo(player_id,curr_header):
+    season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
+    curr_header['Authorization'] = keys[no_requests % (len(keys))]
+    second_request = requests.get(season_url, headers=curr_header)
+    no_requests += 1
+    if second_request.status_code == 429:
+        print('Too many API requests, sleep 60secs')
+        await asyncio.sleep(60)
+        curr_header['Authorization'] = keys[no_requests % (len(keys))]
+        second_request = requests.get(season_url, headers=curr_header)
+        no_requests += 1
+    return second_request
+
+def updateUserList(user_list, user_id, playerStats, curr_punisher=0, curr_terminator=0, curr_general=0):
+    user_list[str(user_id)]['c_rank'] = playerStats.playerStats.c_rank
+    user_list[str(user_id)]['c_tier'] = playerStats.playerStats.c_tier
+    user_list[str(user_id)]['c_rank_points'] = playerStats.playerStats.c_rank_points
+    user_list[str(user_id)]['h_rank'] = playerStats.playerStats.h_rank
+    user_list[str(user_id)]['h_tier'] = playerStats.playerStats.h_tier
+    user_list[str(user_id)]['h_rank_points'] = playerStats.playerStats.h_rank_points
+    user_list[str(user_id)]['games_played'] = playerStats.playerStats.games_played
+    user_list[str(user_id)]['season_wins'] = playerStats.playerStats.season_wins
+    user_list[str(user_id)]['KDA'] = playerStats.playerStats.KDA
+    user_list[str(user_id)]['ADR'] = playerStats.playerStats.ADR
+    user_list[str(user_id)]['punisher'] = curr_punisher
+    user_list[str(user_id)]['terminator'] = curr_terminator
+    user_list[str(user_id)]['general'] = curr_general
+    return user_list
 
 # Pull stats for current user and update database
 @client.command()
@@ -429,51 +377,21 @@ async def mystats(ctx):
         curr_general = user_list[str(user_id)]['general']
         player_id = user_list[str(user_id)]['ID']
         user_ign = user_list[str(user_id)]['IGN']
-        season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
-        second_request = requests.get(season_url, headers=curr_header)
-        no_requests += 1
-        if second_request.status_code == 429:
-            print('Too many API requests, sleep 60secs')
-            await asyncio.sleep(60)
-            curr_header['Authorization'] = keys[no_requests % (len(keys))]
-            second_request = requests.get(season_url, headers=curr_header)
-            no_requests += 1
-        season_info = json.loads(second_request.text)
-        c_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
-        c_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['subTier']
-        c_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentRankPoint']
-        h_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestTier']['tier']
-        h_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestTier']['subTier']
-        h_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestRankPoint']
-        games_played = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['roundsPlayed']
-        KDA = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['kda']
-        season_wins = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['wins']
-        season_damage = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['damageDealt']
-        new_rank = c_rank + " " + c_tier
-        ADR = round(season_damage / games_played, 0)
-        KDA = round(KDA, 2)
-        user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': new_rank}})
-        user_list[str(user_id)]['c_rank'] = c_rank
-        user_list[str(user_id)]['c_tier'] = c_tier
-        user_list[str(user_id)]['c_rank_points'] = c_rank_points
-        user_list[str(user_id)]['h_rank'] = h_rank
-        user_list[str(user_id)]['h_tier'] = h_tier
-        user_list[str(user_id)]['h_rank_points'] = h_rank_points
-        user_list[str(user_id)]['games_played'] = games_played
-        user_list[str(user_id)]['season_wins'] = season_wins
-        user_list[str(user_id)]['KDA'] = KDA
-        user_list[str(user_id)]['ADR'] = ADR
-        user_list[str(user_id)]['punisher'] = curr_punisher
-        user_list[str(user_id)]['terminator'] = curr_terminator
-        user_list[str(user_id)]['general'] = curr_general
-        if new_rank != curr_rank:
-            role = discord.utils.get(ctx.guild.roles, name=curr_rank)
+        #Consolidated playerInfo in a def
+        second_request = playerInfo(player_id, curr_header)
+        #Added all session infor to a new playerStats class
+        playerStats = stats.statsCalc(player_id,json.loads(second_request.text))
+        #Def to update all user information from stats class
+        user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.playerStats.new_rank}})
+        user_list = updateUserList(user_list, user_id, playerStats, curr_punisher, curr_terminator, curr_general)
+        if playerStats.playerStats.new_rank != playerStats.playerStats.curr_rank:
+            role = discord.utils.get(ctx.guild.roles, name=playerStats.playerStats.curr_rank)
             await user.remove_roles(role)
-            role = discord.utils.get(user.guild.roles, name=new_rank)
+            role = discord.utils.get(user.guild.roles, name=playerStats.playerStats.new_rank)
             await user.add_roles(role)
-        response_msg.add_field(name="Rank:", value=f"Current rank is: {c_rank} {c_tier}: {c_rank_points}\nHighest rank is: {h_rank} {h_tier}: {h_rank_points}", inline=False)
-        response_msg.add_field(name="KDA:",value=f"Kills and assists per death: {KDA}", inline=False)
-        response_msg.add_field(name="ADR:",value=f"Average damage per game: {ADR}", inline=False)
+        response_msg.add_field(name="Rank:", value=f"Current rank is: {playerStats.playerStats.c_rank} {playerStats.playerStats.c_tier}: {playerStats.playerStats.c_rank_points}\nHighest rank is: {playerStats.playerStats.h_rank} {h_tier}: {playerStats.playerStats.h_rank_points}", inline=False)
+        response_msg.add_field(name="KDA:",value=f"Kills and assists per death: {playerStats.playerStats.KDA}", inline=False)
+        response_msg.add_field(name="ADR:",value=f"Average damage per game: {playerStats.playerStats.ADR}", inline=False)
         response_msg.add_field(name="Done: ",value=f"Updated stats and saved to file.", inline=False)
     else:
         response_msg.add_field(name="Rank:",value=f"You currently don't have a rank and your IGN isn't added to the list so use .link command to link",inline=False)
@@ -503,49 +421,18 @@ async def update():
         curr_terminator = user_list[user]['terminator']
         curr_punisher = user_list[user]['punisher']
         curr_general = user_list[user]['general']
-        season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
-        curr_header['Authorization'] = keys[no_requests % (len(keys))]
-        second_request = requests.get(season_url, headers=curr_header)
-        no_requests += 1
-        if second_request.status_code == 429:
-            print('Too many API requests, sleep 60secs')
-            await asyncio.sleep(60)
-            curr_header['Authorization'] = keys[no_requests % (len(keys))]
-            second_request = requests.get(season_url, headers=curr_header)
-            no_requests += 1
-        season_info = json.loads(second_request.text)
-        c_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
-        c_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['subTier']
-        c_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentRankPoint']
-        h_rank = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestTier']['tier']
-        h_tier = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestTier']['subTier']
-        h_rank_points = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['bestRankPoint']
-        games_played = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['roundsPlayed']
-        KDA = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['kda']
-        season_wins = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['wins']
-        season_damage = season_info['data']['attributes']['rankedGameModeStats']['squad-fpp']['damageDealt']
-        new_rank = c_rank + " " + c_tier
-        ADR = round(season_damage / games_played, 0)
-        KDA = round(KDA, 2)
-        user_list.update( {str(user): {'IGN': user_ign,'ID': player_id,'Rank': new_rank}})
-        user_list[str(user)]['c_rank'] = c_rank
-        user_list[str(user)]['c_tier'] = c_tier
-        user_list[str(user)]['c_rank_points'] = c_rank_points
-        user_list[str(user)]['h_rank'] = h_rank
-        user_list[str(user)]['h_tier'] = h_tier
-        user_list[str(user)]['h_rank_points'] = h_rank_points
-        user_list[str(user)]['games_played'] = games_played
-        user_list[str(user)]['season_wins'] = season_wins
-        user_list[str(user)]['KDA'] = KDA
-        user_list[str(user)]['ADR'] = ADR
-        user_list[str(user)]['punisher'] = curr_punisher
-        user_list[str(user)]['terminator'] = curr_terminator
-        user_list[str(user)]['general'] = curr_general
-        if new_rank != curr_rank:
-            role = discord.utils.get(guild.roles, name=curr_rank)
+        #Consolidated playerInfo in a def
+        second_request = playerInfo(player_id, curr_header)
+        #Added all session infor to a new playerStats class
+        playerStats = stats.statsCalc(player_id,json.loads(second_request.text))
+        #Def to update all user information from stats class
+        user_list.update({str(player_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.playerStats.new_rank}})
+        user_list = updateUserList(user_list, player_id, playerStats, curr_punisher, curr_terminator, curr_general)
+        if playerStats.playerStats.new_rank != playerStats.playerStats.curr_rank:
+            role = discord.utils.get(guild.roles, name=playerStats.playerStats.curr_rank)
             member = await guild.fetch_member(user)
             await member.remove_roles(role)
-            role = discord.utils.get(guild.roles, name=new_rank)
+            role = discord.utils.get(guild.roles, name=playerStats.playerStats.new_rank)
             await member.add_roles(role)
 
     max_points = 0
@@ -653,9 +540,7 @@ async def resync(ctx):
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
     await update()
-    await top25ranks()
-    await top25adr()
-    await top25kda()
+    await top25update()
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     response_msg.add_field(name="Resync completed: ",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
@@ -666,9 +551,7 @@ async def resync(ctx):
 @client.event
 async def on_ready():
     await update.start()
-    top25ranks.start()
-    top25adr.start()
-    top25kda.start()
+    top25update.start()
 
 # Run the bot
 client.run(bot_token)
