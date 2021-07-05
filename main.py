@@ -31,10 +31,7 @@ curr_season = "division.bro.official.pc-2018-12"
 prev_season = "division.bro.official.pc-2018-11"
 prev_prev_season = "division.bro.official.pc-2018-10"
 bot_token = os.environ['discord_token']
-API_key_fury = os.environ['API_key_fury']
-API_key_ocker = os.environ['API_key_ocker']
-API_key_p4 = os.environ['API_key_p4']
-API_key_progdog = os.environ['API_key_progdog']
+API_key_fingers = os.environ['API_key_fingers']
 d_server = int(os.environ['discord_server'])
 announce_channel = int(os.environ['announce_channel'])
 stats_channel = int(os.environ['stats_channel'])
@@ -53,8 +50,8 @@ curr_key = 0
 loop_timer = 0.05
 
 # Keys in order - furyaus, ocker, p4, progdog
-keys = ["Bearer " + API_key_fury, "Bearer " + API_key_ocker, "Bearer " + API_key_p4, "Bearer " + API_key_progdog]
-header = {"Authorization": "Bearer " + API_key_fury,"Accept": "application/vnd.api+json"}
+keys = ["Bearer " + API_key_fingers]
+header = {"Authorization": "Bearer " + API_key_fingers,"Accept": "application/vnd.api+json"}
 
 # Open user list and load into arrray
 def get_data(file):
@@ -316,6 +313,7 @@ async def link(ctx, user_ign):
     await channel.send(embed=response_msg)
 
 async def playerIgn(curr_header, user_ign):
+    global no_requests
     url = "https://api.pubg.com/shards/steam/players?filter[playerNames]=" + user_ign
     initial_r = requests.get(url, headers=curr_header)
     no_requests += 1
@@ -325,8 +323,10 @@ async def playerIgn(curr_header, user_ign):
         curr_header['Authorization'] = keys[no_requests % (len(keys))]
         second_request = requests.get(url, headers=curr_header)
         no_requests += 1
+    return initial_r
     
 async def playerInfo(player_id,curr_header):
+    global no_requests
     season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     second_request = requests.get(season_url, headers=curr_header)
@@ -535,6 +535,8 @@ async def update():
     response_msg.timestamp = datetime.datetime.utcnow()
     #await channel.send(embed=response_msg)
     await message.edit(embed=response_msg)
+    data_list['no_requests'] = no_requests
+    set_data(data_file, data_list)
 
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
@@ -551,8 +553,6 @@ async def resync(ctx):
     response_msg.add_field(name="Resync completed: ",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
-    data_list['no_requests'] = no_requests
-    set_data(data_file, data_list)
 
 # main
 @client.event
