@@ -16,6 +16,4 @@ Previous python code can be provided for a bot which worked last year. This temp
 Project Extension:
 This project could help other discords who want a similar bot!
 
-Bot Invite - <https://discord.com/api/oauth2/authorize?client_id=859319806016225310&permissions=268958784&scope=bot>
-
 ![alt text](https://github.com/furyaus/rankbot/blob/main/Screenshots/1.png)
