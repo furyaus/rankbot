@@ -561,8 +561,8 @@ async def update():
     print('Updated everyones stats')
     set_data(users_file, user_list)
     response_msg.timestamp = datetime.datetime.utcnow()
-    #await channel.send(embed=response_msg)
-    await message.edit(embed=response_msg)
+    await channel.send(embed=response_msg)
+    #await message.edit(embed=response_msg)
     data_list['no_requests'] = no_requests
     set_data(data_file, data_list)
 
