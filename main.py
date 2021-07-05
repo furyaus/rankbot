@@ -1,7 +1,8 @@
 # RankedBot
-# Version: 1.0
+# Version: 2.0
 # Date: 30.06.21
-# Current Authors: fury#1662, coopzr#3717, Jobelerno#7978
+# Current Authors: fury#1662, fingers_#5020
+# fingers making the improvements!
 # Github: https://github.com/furyaus/rankbot
 # Repl.it: https://replit.com/@furyaus/rankbot
 # Original Author: Mazun19 from the PUBG community
