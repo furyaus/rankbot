@@ -1,22 +1,42 @@
 {
-    "142744407123165184": {
+  "329883909338824715": {
+    "IGN": "fingers_",
+    "ID": "3e491bf771e8487facfc968148bcda12",
+    "Rank": "Platinum 2",
+    "c_rank": "Platinum",
+    "c_tier": "2",
+    "c_rank_points": 2890,
+    "h_rank": "Platinum",
+    "h_tier": "1",
+    "h_rank_points": 2904,
+    "games_played": 97,
+    "season_wins": 7,
+    "KDA": 1.46,
+    "ADR": 196.0,
+    "punisher": 1,
+    "terminator": 1,
+    "general": 0,
+    "team_kills": 0,
+    "team_killer": 0
+  },
+  "142744407123165184": {
     "IGN": "furyaus",
     "ID": "6be60825d4fa400aa6817ad9b546d03e",
-    "Rank": "Diamond 5",
+    "Rank": "Diamond 4",
     "c_rank": "Diamond",
-    "c_tier": "5",
-    "c_rank_points": 3099,
+    "c_tier": "4",
+    "c_rank_points": 3119,
     "h_rank": "Diamond",
     "h_tier": "3",
     "h_rank_points": 3215,
-    "games_played": 167,
-    "season_wins": 12,
-    "KDA": 1.12,
-    "ADR": 175.0,
+    "games_played": 172,
+    "season_wins": 13,
+    "KDA": 1.13,
+    "ADR": 176.0,
     "punisher": 0,
     "terminator": 0,
-    "general": 0,
-    "team_kills":0,
-    "team_killer":0
+    "general": 1,
+    "team_kills": 0,
+    "team_killer": 0
   }
 }
