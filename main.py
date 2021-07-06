@@ -56,7 +56,6 @@ curr_key = 0
 loop_timer = 0.05 #0.05 is 5 minutes #0.005 is 30 seconds
 
 # Keys in order - furyaus, ocker, p4, progdog
-# Keys in order - furyaus, ocker, p4, progdog
 keys = ["Bearer " + API_key_fury, "Bearer " + API_key_ocker, "Bearer " + API_key_p4, "Bearer " + API_key_progdog, "Bearer " + API_key_fingers]
 header = {"Authorization": "Bearer " + API_key_fury,"Accept": "application/vnd.api+json"}
 
@@ -376,7 +375,7 @@ async def debugmessage(ctx,message):
     if(debugmode == 1):
         await ctx.send(message)
 
-def updateUserList(user_list, user_id, user_ign, player_id, playerStats, curr_punisher=0, curr_terminator=0, curr_general=0, curr_teamkiller=0):
+def updateUserList(user_list, user_id, user_ign, player_id, playerStats, curr_punisher=0, curr_terminator=0, curr_general=0):
     user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
     user_list[str(user_id)]['c_rank'] = playerStats.pStats.c_rank
     user_list[str(user_id)]['c_tier'] = playerStats.pStats.c_tier
@@ -392,7 +391,6 @@ def updateUserList(user_list, user_id, user_ign, player_id, playerStats, curr_pu
     user_list[str(user_id)]['terminator'] = curr_terminator
     user_list[str(user_id)]['general'] = curr_general
     user_list[str(user_id)]['team_kills'] = playerStats.pStats.team_kills
-    user_list[str(user_id)]['team_killer'] = curr_teamkiller
     return user_list
 
 # Pull stats for current user and update database
@@ -420,14 +418,13 @@ async def mystats(ctx):
         #convert player_id to string
         player_id = str(user_list[str(user_id)]['ID'])
         user_ign = user_list[str(user_id)]['IGN']
-        curr_teamkiller = user_list[str(user_id)]['team_killer']
         #Consolidated playerInfo in a def
         second_request = await playerInfo(player_id, curr_header)
         #Added all session infor to a new playerStats class
         playerStats = playerStatistics.statsCalc(player_id, second_request)
         await debugmessage(channel, 'got player stats for id {0}'.format(player_id))
         #Def to update all user information from stats class
-        user_list = updateUserList(user_list, user_id, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general, curr_teamkiller)
+        user_list = updateUserList(user_list, user_id, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general)
         if playerStats.pStats.new_rank != curr_rank:
             role = discord.utils.get(ctx.guild.roles, name=curr_rank)
             await user.remove_roles(role)
@@ -475,14 +472,13 @@ async def update():
         curr_rank = user_list[user]['Rank']
         curr_terminator = user_list[user]['terminator']
         curr_punisher = user_list[user]['punisher']
-        curr_teamkiller = user_list[user]['team_killer']
         curr_general = user_list[user]['general']
         #Consolidated playerInfo in a def
         request = await playerInfo(player_id, curr_header)
         #Added all session infor to a new playerStats class
         playerStats = playerStatistics.statsCalc(player_id, request)
         #Def to update all user information from stats class
-        user_list = updateUserList(user_list, user, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general, curr_teamkiller)
+        user_list = updateUserList(user_list, user, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general)
         if playerStats.pStats.new_rank != curr_rank:
             role = discord.utils.get(guild.roles, name=curr_rank)
             member = await guild.fetch_member(user)
