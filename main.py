@@ -32,6 +32,10 @@ curr_season = "division.bro.official.pc-2018-12"
 prev_season = "division.bro.official.pc-2018-11"
 prev_prev_season = "division.bro.official.pc-2018-10"
 bot_token = os.environ['discord_token']
+API_key_fury = os.environ['API_key_fury']
+API_key_ocker = os.environ['API_key_ocker']
+API_key_p4 = os.environ['API_key_p4']
+API_key_progdog = os.environ['API_key_progdog']
 API_key_fingers = os.environ['API_key_fingers']
 d_server = int(os.environ['discord_server'])
 debugmode = int(os.environ['debug']) #New debug mode added, if this is 1 it'll message to the channels for the looped status updates
@@ -52,8 +56,9 @@ curr_key = 0
 loop_timer = 0.05 #0.05 is 5 minutes #0.005 is 30 seconds
 
 # Keys in order - furyaus, ocker, p4, progdog
-keys = ["Bearer " + API_key_fingers]
-header = {"Authorization": "Bearer " + API_key_fingers,"Accept": "application/vnd.api+json"}
+# Keys in order - furyaus, ocker, p4, progdog
+keys = ["Bearer " + API_key_fury, "Bearer " + API_key_ocker, "Bearer " + API_key_p4, "Bearer " + API_key_progdog, "Bearer " + API_key_fingers]
+header = {"Authorization": "Bearer " + API_key_fury,"Accept": "application/vnd.api+json"}
 
 # Open user list and load into arrray
 def get_data(file):
