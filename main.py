@@ -88,6 +88,7 @@ async def help(ctx):
     help_msg.add_field(name=".stats:",value="Retireve live PUBG API data for a single user and display. No stats, ranks or roles are changed or stored. ```.stats 0cker```",inline=False)
     help_msg.add_field(name=".mystats:",value="Queries PUBG API for your latest data, updates ranks, roles and stats which are stored via a JSON file. ```.mystats```",inline=False)
     help_msg.add_field(name="Report issues: ",value="Head to github and create a new issue or feature request [https://github.com/furyaus/rankbot/issues](https://github.com/furyaus/rankbot/issues)",inline=False)
+    help_msg.add_field(name=".inspire:",value="Responses with inspiration quotes, to really get you back on track for that chicken dinner.```.inspire```",inline=False)
     help_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=help_msg)
 
@@ -103,15 +104,6 @@ async def adminhelp(ctx):
     help_msg.add_field(name=".norequests:",value="Returns the total number of requests made to the PUG API. ```.norequests```",inline=False)
     help_msg.add_field(name=".remove:",value="Will allow admin to remove link between Discord user id and PUBG IGN. User can then complete a link again. ```.remove @P4```",inline=False)
     help_msg.add_field(name=".resync:",value="This will force a full resync for all stored players with PUBG API. 50 users per minute, wait till complete. ```.resync```",inline=False)
-    help_msg.timestamp = datetime.datetime.utcnow()
-    await ctx.send(embed=help_msg)
-
-# Support help
-@client.command()
-async def support(ctx):
-    help_msg = discord.Embed(colour=discord.Colour.orange(),title="Support for The 101 Club members",description="Rank Bot is here to support you through that 3rd, 14th place in scrims")
-    help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    help_msg.add_field(name=".inspire:",value="Responses with inspiration quotes, to really get you back on track```.inspire```",inline=False)
     help_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=help_msg)
 
@@ -193,7 +185,7 @@ async def on_member_remove(member):
     del user_list[str(member.id)]
     set_data(users_file, user_list, 'on member remove')
 
-
+# Top 25 Updates
 @tasks.loop(hours=loop_timer)
 async def top25update():
     print('Starting top 25 update')
@@ -343,6 +335,7 @@ async def link(ctx, user_ign):
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
+# Confirm legitmate PUBG IGN
 async def playerIgn(curr_header, user_ign):
     global no_requests
     url = "https://api.pubg.com/shards/steam/players?filter[playerNames]=" + user_ign
@@ -355,7 +348,8 @@ async def playerIgn(curr_header, user_ign):
         request = requests.get(url, headers=curr_header)
         no_requests += 1
     return request
-    
+
+# Collect player ranked season data  
 async def playerInfo(player_id, curr_header):
     global no_requests
     season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
@@ -371,10 +365,12 @@ async def playerInfo(player_id, curr_header):
     season_info = json.loads(request.text)
     return season_info
 
+# Set secert debug variable to 1 for extra messages
 async def debugmessage(ctx,message):
     if(debugmode == 1):
         await ctx.send(message)
 
+# User def
 def updateUserList(user_list, user_id, user_ign, player_id, playerStats, curr_punisher=0, curr_terminator=0, curr_general=0):
     user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
     user_list[str(user_id)]['c_rank'] = playerStats.pStats.c_rank
