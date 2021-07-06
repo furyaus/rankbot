@@ -345,7 +345,7 @@ async def playerIgn(curr_header, user_ign):
         no_requests += 1
     return initial_r
     
-async def playerInfo(player_id,curr_header):
+async def playerInfo(player_id, curr_header):
     global no_requests
     season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
@@ -406,7 +406,7 @@ async def mystats(ctx):
         #convert player_id to string
         player_id = str(user_list[str(user_id)]['ID'])
         user_ign = user_list[str(user_id)]['IGN']
-        curr_teamkiller = user_list[user]['team_killer']
+        curr_teamkiller = user_list[str(user_id)]['team_killer']
         #Consolidated playerInfo in a def
         second_request = await playerInfo(player_id, curr_header)
         #Added all session infor to a new playerStats class
