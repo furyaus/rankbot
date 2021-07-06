@@ -49,7 +49,7 @@ top25adr_msg = int(os.environ['top25adr_msg'])
 admin_roles = ["Moderators", "Admin", "Boss", "The General", "The Punisher", "The Terminator",]
 no_requests = 0
 curr_key = 0
-loop_timer = 0.005 #0.05 is 5 minutes #0.005 is 30 seconds
+loop_timer = 0.05 #0.05 is 5 minutes #0.005 is 30 seconds
 
 # Keys in order - furyaus, ocker, p4, progdog
 keys = ["Bearer " + API_key_fingers]
