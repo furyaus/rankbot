@@ -226,8 +226,8 @@ async def top25update():
             i -= 1
         response_msg.add_field(name="Top {0} holders:".format(reportTypeMessage), value="```"+top_50_string+"```",inline=False)
         response_msg.timestamp = datetime.datetime.utcnow()
-        #await channel.send(embed=response_msg)
-        await message.edit(embed=response_msg)
+        await channel.send(embed=response_msg)
+        #await message.edit(embed=response_msg)
         print("top25 {0} updated".format(reportTypeMessage))
 
 # Check my stats - live, direct api data response - allows any PUBG IGN
@@ -439,28 +439,28 @@ async def update():
         second_request = await playerInfo(player_id, curr_header)
         t = second_request['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
         #Added all session infor to a new playerStats class
-        playerStats = playerStatistics.statsCalc(player_id,second_request)
+        playerStats = playerStatistics.statsCalc(player_id, second_request)
         #Def to update all user information from stats class
         #updateUserList(user_list, player_id, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general)
         #user_list.update({str(player_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
-        user_list_na = updateUserList(user_list, player_id, playerStats, curr_punisher, curr_terminator, curr_general, curr_teamkiller)
+        #user_list_na = updateUserList(user_list, player_id, playerStats, curr_punisher, curr_terminator, curr_general, curr_teamkiller)
         #Original code added back in
-        # user_list.update( {str(user): {'IGN': user_ign,'ID': str(player_id),'Rank': playerStats.pStats.new_rank}})
-        # user_list[str(user)]['c_rank'] = playerStats.pStats.c_rank
-        # user_list[str(user)]['c_tier'] = playerStats.pStats.c_tier
-        # user_list[str(user)]['c_rank_points'] = playerStats.pStats.c_rank_points
-        # user_list[str(user)]['h_rank'] = playerStats.pStats.h_rank
-        # user_list[str(user)]['h_tier'] = playerStats.pStats.h_tier
-        # user_list[str(user)]['h_rank_points'] = playerStats.pStats.h_rank_points
-        # user_list[str(user)]['games_played'] = playerStats.pStats.games_played
-        # user_list[str(user)]['team_kills'] = playerStats.pStats.team_kills
-        # user_list[str(user)]['season_wins'] = playerStats.pStats.season_wins
-        # user_list[str(user)]['KDA'] = playerStats.pStats.KDA
-        # user_list[str(user)]['ADR'] = playerStats.pStats.ADR
-        # user_list[str(user)]['punisher'] = curr_punisher
-        # user_list[str(user)]['terminator'] = curr_terminator
-        # user_list[str(user)]['team_killer'] = curr_teamkiller
-        # user_list[str(user)]['general'] = curr_general
+        user_list.update( {str(user): {'IGN': user_ign,'ID': str(player_id),'Rank': playerStats.pStats.new_rank}})
+        user_list[str(user)]['c_rank'] = playerStats.pStats.c_rank
+        user_list[str(user)]['c_tier'] = playerStats.pStats.c_tier
+        user_list[str(user)]['c_rank_points'] = playerStats.pStats.c_rank_points
+        user_list[str(user)]['h_rank'] = playerStats.pStats.h_rank
+        user_list[str(user)]['h_tier'] = playerStats.pStats.h_tier
+        user_list[str(user)]['h_rank_points'] = playerStats.pStats.h_rank_points
+        user_list[str(user)]['games_played'] = playerStats.pStats.games_played
+        user_list[str(user)]['team_kills'] = playerStats.pStats.team_kills
+        user_list[str(user)]['season_wins'] = playerStats.pStats.season_wins
+        user_list[str(user)]['KDA'] = playerStats.pStats.KDA
+        user_list[str(user)]['ADR'] = playerStats.pStats.ADR
+        user_list[str(user)]['punisher'] = curr_punisher
+        user_list[str(user)]['terminator'] = curr_terminator
+        user_list[str(user)]['team_killer'] = curr_teamkiller
+        user_list[str(user)]['general'] = curr_general
         if playerStats.pStats.new_rank != curr_rank:
             role = discord.utils.get(guild.roles, name=curr_rank)
             member = await guild.fetch_member(user)
@@ -561,8 +561,8 @@ async def update():
     print('Updated everyones stats')
     set_data(users_file, user_list)
     response_msg.timestamp = datetime.datetime.utcnow()
-    #await channel.send(embed=response_msg)
-    await message.edit(embed=response_msg)
+    await channel.send(embed=response_msg)
+    #await message.edit(embed=response_msg)
     data_list['no_requests'] = no_requests
     set_data(data_file, data_list)
 
