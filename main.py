@@ -189,20 +189,34 @@ async def top25update():
     user_list=get_data(users_file)
     reportTypeMessage = ''
     reportTypes = ['ADR', 'KDA', 'c_rank_points']
+    message = ''
+    newmessage = False
     for reportType in reportTypes:
         if(reportType=='c_rank_points'):
             channel = client.get_channel(top25ranks_channel)
-            #message = await channel.fetch_message(top25ranks_msg)
+            try:
+                message = await channel.fetch_message(top25ranks_msg)
+            except:
+                newmessage = True
+                print("{0} exception occurred couldn't find {1} message.".format(reportType, top25ranks_msg))
             reportTypeMessage = 'rank'
             reportTypeStats = 'Rank'
         elif(reportType=='KDA'):
             channel = client.get_channel(top25kda_channel)
-            #message = await channel.fetch_message(top25kda_msg)
+            try:
+                message = await channel.fetch_message(top25kda_msg)
+            except:
+                newmessage = True
+                print("{0} exception occurred couldn't find {1} message.".format(reportType, top25kda_msg))
             reportTypeMessage = 'KDA'
             reportTypeStats = 'KDA'
         elif(reportType=='ADR'):
             channel = client.get_channel(top25adr_channel)
-            #message = await channel.fetch_message(top25adr_channel)
+            try:
+                message = await channel.fetch_message(top25adr_channel)
+            except:
+                newmessage = True
+                print("{0} exception occurred couldn't find {1} message.".format(reportType, top25adr_channel))
             reportTypeMessage = 'ADR'
             reportTypeStats = 'ADR'
         else:
@@ -226,8 +240,13 @@ async def top25update():
             i -= 1
         response_msg.add_field(name="Top {0} holders:".format(reportTypeMessage), value="```"+top_50_string+"```",inline=False)
         response_msg.timestamp = datetime.datetime.utcnow()
-        await channel.send(embed=response_msg)
-        #await message.edit(embed=response_msg)
+        #If there is an exception getting them message post a new message otherwise edit the message.
+        if(newmessage == True):
+            print('Posting a new message')
+            await channel.send(embed=response_msg)
+        else:
+            print('Editing the message')
+            await message.edit(embed=response_msg)
         print("top25 {0} updated".format(reportTypeMessage))
 
 # Check my stats - live, direct api data response - allows any PUBG IGN
