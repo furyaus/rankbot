@@ -280,7 +280,6 @@ async def stats(ctx, user_ign):
         player_id = player_info['data'][0]['id'].replace('account.', '')
         #Consolidated playerInfo in a def
         second_request = await playerInfo(player_id, curr_header)
-        t = second_request['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
         #Added all session infor to a new playerStats class
         playerStats = playerStatistics.statsCalc(player_id,second_request)
         response_msg.add_field(name="Rank:",value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}",inline=False)
@@ -324,7 +323,6 @@ async def link(ctx, user_ign):
             #Added all session infor to a new playerStats class
             playerStats = playerStatistics.statsCalc(player_id,second_request)
             #Def to update all user information from stats class
-            #user_list = updateUserList(user_list, user_id, playerStats)
             user_list = updateUserList(user_list, user_id, user_ign, player_id, playerStats)
             role = discord.utils.get(ctx.guild.roles, name=playerStats.pStats.new_rank)
             await user.add_roles(role)
@@ -387,7 +385,7 @@ async def mystats(ctx):
     global keys
     global header
     global no_requests
-    user_list=get_data(users_file)
+    user_list = get_data(users_file)
     data_list = get_data(data_file)
     no_requests = data_list['no_requests']
     channel = client.get_channel(stats_channel)
@@ -408,11 +406,10 @@ async def mystats(ctx):
         #Consolidated playerInfo in a def
         second_request = await playerInfo(player_id, curr_header)
         #Added all session infor to a new playerStats class
-        playerStats = playerStatistics.statsCalc(player_id,second_request)
+        playerStats = playerStatistics.statsCalc(player_id, second_request)
+        print('got player stats for id {0}'.format(player_id))
         #Def to update all user information from stats class
-        updateUserList(user_list, user_id, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general, curr_teamkiller)
-        #user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
-        #user_list = updateUserList(user_list, user_id, playerStats, curr_punisher, curr_terminator, curr_general)
+        user_list = updateUserList(user_list, user_id, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general, curr_teamkiller)
         if playerStats.pStats.new_rank != curr_rank:
             role = discord.utils.get(ctx.guild.roles, name=curr_rank)
             await user.remove_roles(role)
@@ -465,31 +462,7 @@ async def update():
         #Added all session infor to a new playerStats class
         playerStats = playerStatistics.statsCalc(player_id, second_request)
         #Def to update all user information from stats class
-        #updateUserList(user_list, player_id, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general)
-        #user_list.update({str(player_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
-        ##############################
         user_list_na = updateUserList(user_list, user, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general, curr_teamkiller)
-        #Verify this is working and 403 exists
-        #Once we get the 403 sorted check if the list is updating, if not change variables below to leverage the new user list instead
-        ##############################
-
-        #Original code added back in
-        # user_list.update( {str(user): {'IGN': user_ign,'ID': str(player_id),'Rank': playerStats.pStats.new_rank}})
-        # user_list[str(user)]['c_rank'] = playerStats.pStats.c_rank
-        # user_list[str(user)]['c_tier'] = playerStats.pStats.c_tier
-        # user_list[str(user)]['c_rank_points'] = playerStats.pStats.c_rank_points
-        # user_list[str(user)]['h_rank'] = playerStats.pStats.h_rank
-        # user_list[str(user)]['h_tier'] = playerStats.pStats.h_tier
-        # user_list[str(user)]['h_rank_points'] = playerStats.pStats.h_rank_points
-        # user_list[str(user)]['games_played'] = playerStats.pStats.games_played
-        # user_list[str(user)]['team_kills'] = playerStats.pStats.team_kills
-        # user_list[str(user)]['season_wins'] = playerStats.pStats.season_wins
-        # user_list[str(user)]['KDA'] = playerStats.pStats.KDA
-        # user_list[str(user)]['ADR'] = playerStats.pStats.ADR
-        # user_list[str(user)]['punisher'] = curr_punisher
-        # user_list[str(user)]['terminator'] = curr_terminator
-        # user_list[str(user)]['team_killer'] = curr_teamkiller
-        # user_list[str(user)]['general'] = curr_general
         if playerStats.pStats.new_rank != curr_rank:
             role = discord.utils.get(guild.roles, name=curr_rank)
             member = await guild.fetch_member(user)
@@ -592,8 +565,13 @@ async def update():
     response_msg.timestamp = datetime.datetime.utcnow()
     if(newmessage == True):
         print('Posting a new message to {0} in update function.'.format(botinfo_channel))
-        #await channel.send(embed=response_msg)
-        await channel.send('test small')
+        #Error here with the response_msg
+        response_msg = discord.Embed(colour=discord.Colour.orange())
+        response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+        response_msg.add_field(name="Resync completed: ",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
+        response_msg.timestamp = datetime.datetime.utcnow()
+        await channel.send(embed=response_msg)
+        #await channel.send('test small')
     else:
         print('Editing existing message in {0} in update function.'.format(botinfo_channel))
         await message.edit(embed=response_msg)
