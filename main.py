@@ -442,7 +442,12 @@ async def update():
     no_requests = data_list['no_requests']
     guild = client.get_guild(d_server)
     channel = client.get_channel(botinfo_channel)
-    #message = await channel.fetch_message(botinfo_msg)
+    newmessage = False
+    try:
+        message = await channel.fetch_message(botinfo_msg)
+    except:
+        newmessage = True
+        print("Couldn't find {1} message.".format(botinfo_msg))
     response_msg = discord.Embed(colour=discord.Colour.orange(),title="Sync all data for The 101 Club")
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     curr_header = header
@@ -580,8 +585,12 @@ async def update():
     print('Updated everyones stats')
     set_data(users_file, user_list)
     response_msg.timestamp = datetime.datetime.utcnow()
-    await channel.send(embed=response_msg)
-    #await message.edit(embed=response_msg)
+    if(newmessage == True):
+        print('Posting a new message to {0}'.format(botinfo_channel))
+        await channel.send(embed=response_msg)
+    else:
+        print('Editing existing message in {0}'.format(botinfo_channel))
+        await message.edit(embed=response_msg)
     data_list['no_requests'] = no_requests
     set_data(data_file, data_list)
 
