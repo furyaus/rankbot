@@ -585,7 +585,7 @@ async def update():
         await channel.send(embed=response_msg)
         #await channel.send('test small')
     else:
-        print('Editing existing message in {0} in update function.'.format(botinfo_channel))
+        print('Editing existing message in {0} in update function'.format(botinfo_channel))
         await message.edit(embed=response_msg)
     data_list['no_requests'] = no_requests
     set_data(data_file, data_list, 'update everyone stats')
