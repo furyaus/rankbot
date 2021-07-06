@@ -447,7 +447,7 @@ async def update():
         message = await channel.fetch_message(botinfo_msg)
     except:
         newmessage = True
-        print("Couldn't find {1} message.".format(botinfo_msg))
+        print("Couldn't find {0} message in {1} channel.".format(botinfo_msg, botinfo_channel))
     response_msg = discord.Embed(colour=discord.Colour.orange(),title="Sync all data for The 101 Club")
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     curr_header = header
