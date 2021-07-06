@@ -362,7 +362,7 @@ async def playerInfo(player_id,curr_header):
     return season_info
 
 def updateUserList(user_list, user_id, user_ign, player_id, playerStats, curr_punisher=0, curr_terminator=0, curr_general=0, curr_teamkiller=0):
-    user_list.update({str(user_id): {'IGN': user_ign,'ID': str(player_id),'Rank': playerStats.pStats.new_rank}})
+    user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
     user_list[str(user_id)]['c_rank'] = playerStats.pStats.c_rank
     user_list[str(user_id)]['c_tier'] = playerStats.pStats.c_tier
     user_list[str(user_id)]['c_rank_points'] = playerStats.pStats.c_rank_points
@@ -452,7 +452,7 @@ async def update():
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     curr_header = header
     for user in user_list:
-        player_id = user_list[user]['ID']
+        player_id = str(user_list[user]['ID'])
         user_ign = user_list[user]['IGN']
         curr_rank = user_list[user]['Rank']
         curr_terminator = user_list[user]['terminator']
@@ -461,7 +461,6 @@ async def update():
         curr_general = user_list[user]['general']
         #Consolidated playerInfo in a def
         second_request = await playerInfo(player_id, curr_header)
-        t = second_request['data']['attributes']['rankedGameModeStats']['squad-fpp']['currentTier']['tier']
         #Added all session infor to a new playerStats class
         playerStats = playerStatistics.statsCalc(player_id, second_request)
         #Def to update all user information from stats class
