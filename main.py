@@ -192,17 +192,17 @@ async def top25update():
     for reportType in reportTypes:
         if(reportType=='c_rank_points'):
             channel = client.get_channel(top25ranks_channel)
-            message = await channel.fetch_message(top25ranks_msg)
+            #message = await channel.fetch_message(top25ranks_msg)
             reportTypeMessage = 'rank'
             reportTypeStats = 'Rank'
         elif(reportType=='KDA'):
             channel = client.get_channel(top25kda_channel)
-            message = await channel.fetch_message(top25kda_msg)
+            #message = await channel.fetch_message(top25kda_msg)
             reportTypeMessage = 'KDA'
             reportTypeStats = 'KDA'
         elif(reportType=='ADR'):
             channel = client.get_channel(top25adr_channel)
-            message = await channel.fetch_message(top25adr_channel)
+            #message = await channel.fetch_message(top25adr_channel)
             reportTypeMessage = 'ADR'
             reportTypeStats = 'ADR'
         else:
@@ -423,7 +423,7 @@ async def update():
     no_requests = data_list['no_requests']
     guild = client.get_guild(d_server)
     channel = client.get_channel(botinfo_channel)
-    message = await channel.fetch_message(botinfo_msg)
+    #message = await channel.fetch_message(botinfo_msg)
     response_msg = discord.Embed(colour=discord.Colour.orange(),title="Sync all data for The 101 Club")
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     curr_header = header
