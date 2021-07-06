@@ -34,7 +34,7 @@ prev_prev_season = "division.bro.official.pc-2018-10"
 bot_token = os.environ['discord_token']
 API_key_fingers = os.environ['API_key_fingers']
 d_server = int(os.environ['discord_server'])
-debugmode = int(os.environ['debug'])
+debugmode = int(os.environ['debug']) #New debug mode added, if this is 1 it'll message to the channels for the looped status updates
 announce_channel = int(os.environ['announce_channel'])
 stats_channel = int(os.environ['stats_channel'])
 general_channel = int(os.environ['general_channel'])
@@ -49,7 +49,7 @@ top25adr_msg = int(os.environ['top25adr_msg'])
 admin_roles = ["Moderators", "Admin", "Boss", "The General", "The Punisher", "The Terminator",]
 no_requests = 0
 curr_key = 0
-loop_timer = 0.05
+loop_timer = 0.005 #0.05 is 5 minutes #0.005 is 30 seconds
 
 # Keys in order - furyaus, ocker, p4, progdog
 keys = ["Bearer " + API_key_fingers]
@@ -198,32 +198,32 @@ async def top25update():
         
         if(reportType=='c_rank_points'):
             channel = client.get_channel(top25ranks_channel)
-            debugmessage(channel, 'starting rank channel work')
+            await debugmessage(channel, 'starting rank channel work')
             try:
                 message = await channel.fetch_message(top25ranks_msg)
             except:
                 newmessage = True
-                debugmessage(channel, "{0} exception occurred couldn't find {1} message.".format(reportType, top25ranks_msg))
+                await debugmessage(channel, "{0} exception occurred couldn't find {1} message.".format(reportType, top25ranks_msg))
             reportTypeMessage = 'rank'
             reportTypeStats = 'Rank'
         elif(reportType=='KDA'):
             channel = client.get_channel(top25kda_channel)
-            debugmessage(channel, 'starting kda channel work')
+            await debugmessage(channel, 'starting kda channel work')
             try:
                 message = await channel.fetch_message(top25kda_msg)
             except:
                 newmessage = True
-                debugmessage(channel, "{0} exception occurred couldn't find {1} message.".format(reportType, top25kda_msg))
+                await debugmessage(channel, "{0} exception occurred couldn't find {1} message.".format(reportType, top25kda_msg))
             reportTypeMessage = 'KDA'
             reportTypeStats = 'KDA'
         elif(reportType=='ADR'):
             channel = client.get_channel(top25adr_channel)
-            debugmessage(channel, 'starting adr channel work')
+            await debugmessage(channel, 'starting adr channel work')
             try:
                 message = await channel.fetch_message(top25adr_channel)
             except:
                 newmessage = True
-                debugmessage(channel, "{0} exception occurred couldn't find {1} message.".format(reportType, top25adr_channel))
+                await debugmessage(channel, "{0} exception occurred couldn't find {1} message.".format(reportType, top25adr_channel))
             reportTypeMessage = 'ADR'
             reportTypeStats = 'ADR'
         else:
@@ -406,7 +406,7 @@ async def mystats(ctx):
     response_msg = discord.Embed(colour=discord.Colour.orange(),title="Stats for " + user.name,)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
 
-    debugmessage(channel, 'got user id {0}'.format(user_id))
+    await debugmessage(channel, 'got user id {0}'.format(user_id))
 
     if str(user_id) in user_list:
         curr_rank = user_list[str(user_id)]['Rank']
@@ -421,7 +421,7 @@ async def mystats(ctx):
         second_request = await playerInfo(player_id, curr_header)
         #Added all session infor to a new playerStats class
         playerStats = playerStatistics.statsCalc(player_id, second_request)
-        debugmessage(channel, 'got player stats for id {0}'.format(player_id))
+        await debugmessage(channel, 'got player stats for id {0}'.format(player_id))
         #Def to update all user information from stats class
         user_list = updateUserList(user_list, user_id, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general, curr_teamkiller)
         if playerStats.pStats.new_rank != curr_rank:
@@ -436,12 +436,12 @@ async def mystats(ctx):
     else:
         response_msg.add_field(name="Rank:",value=f"You currently don't have a rank and your IGN isn't added to the list so use .link command to link",inline=False)
     set_data(users_file, user_list, 'update')
-    debugmessage(channel, 'setting user data for {0}'.format(player_id))
+    await debugmessage(channel, 'setting user data for {0}'.format(player_id))
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
     data_list['no_requests'] = no_requests
     set_data(data_file, data_list, 'update')
-    debugmessage(channel, 'setting data call for {0}'.format(player_id))
+    await debugmessage(channel, 'setting data call for {0}'.format(player_id))
 
 # Main program - full resync all data, ranks, roles and stats
 @tasks.loop(hours=1.0)
@@ -613,7 +613,7 @@ async def resync(ctx):
 # main
 @client.event
 async def on_ready():
-    await update.start()
+    update.start()
     top25update.start()
 
 # Run the bot
