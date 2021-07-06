@@ -62,7 +62,7 @@ def get_data(file):
 # Close user list and store in JSON file
 def set_data(file, data, comment):
     with open(users_file, 'w') as file:
-        print('update to {0}'.format(file))
+        print('update to {0} because {1}'.format(file.name,comment))
         json.dump(data, file, indent=2)
 
 # Catch unknown commands
