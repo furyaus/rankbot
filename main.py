@@ -42,6 +42,7 @@ debugmode = int(os.environ['debug']) #New debug mode added, if this is 1 it'll m
 announce_channel = int(os.environ['announce_channel'])
 stats_channel = int(os.environ['stats_channel'])
 general_channel = int(os.environ['general_channel'])
+error_channel = int(os.environ['error_channel'])
 botinfo_channel = int(os.environ['botinfo_channel'])
 botinfo_msg = int(os.environ['botinfo_msg'])
 top25ranks_channel = int(os.environ['top25ranks_channel'])
@@ -78,6 +79,16 @@ async def on_command_error(ctx, error):
     response_msg.add_field(name="Error:",value=f"An error occured: {str(error)}",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
+
+# Let admin know about errors
+@client.event
+async def on_error(error):
+    channel = client.get_channel(error_channel)
+    response_msg = discord.Embed(colour=discord.Colour.orange())
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg.add_field(name="Error:",value=f"An error occured: {str(error)}",inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow()
+    await channel.send(embed=response_msg)
 
 # Help
 @client.command()
@@ -477,6 +488,7 @@ async def update():
         user_list = updateUserList(user_list, user, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general)
         if playerStats.pStats.new_rank != curr_rank:
             role = discord.utils.get(guild.roles, name=curr_rank)
+            print('Updating: '+user)
             member = await guild.fetch_member(user)
             await member.remove_roles(role)
             role = discord.utils.get(guild.roles, name=playerStats.pStats.new_rank)
