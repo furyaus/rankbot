@@ -219,10 +219,10 @@ async def top25update():
             channel = client.get_channel(top25adr_channel)
             await debugmessage(channel, 'starting adr channel work')
             try:
-                message = await channel.fetch_message(top25adr_channel)
+                message = await channel.fetch_message(top25adr_msg)
             except:
                 newmessage = True
-                await debugmessage(channel, "{0} exception occurred couldn't find {1} message.".format(reportType, top25adr_channel))
+                await debugmessage(channel, "{0} exception occurred couldn't find {1} message.".format(reportType, top25adr_msg))
             reportTypeMessage = 'ADR'
             reportTypeStats = 'ADR'
         else:
