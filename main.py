@@ -277,7 +277,7 @@ async def stats(ctx, user_ign):
         response_msg.add_field(name="Error: ",value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
     else:
         player_info = json.loads(initial_r.text)
-        player_id = player_info['data'][0]['id'].replace('account.', '')
+        player_id = str(player_info['data'][0]['id'].replace('account.', ''))
         #Consolidated playerInfo in a def
         second_request = await playerInfo(player_id, curr_header)
         #Added all session infor to a new playerStats class
@@ -317,7 +317,7 @@ async def link(ctx, user_ign):
             response_msg.add_field(name="Issue: ",value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
         else:
             player_info = json.loads(initial_r.text)
-            player_id = player_info['data'][0]['id'].replace('account.', '')
+            player_id = str(player_info['data'][0]['id'].replace('account.', ''))
             #Consolidated playerInfo in a def
             second_request = await playerInfo(player_id, curr_header)
             #Added all session infor to a new playerStats class
@@ -402,8 +402,9 @@ async def mystats(ctx):
         curr_rank = user_list[str(user_id)]['Rank']
         curr_terminator = user_list[str(user_id)]['terminator']
         curr_punisher = user_list[str(user_id)]['punisher']
-        curr_general = user_list[str(user_id)]['general']
-        player_id = user_list[str(user_id)]['ID']
+        curr_general = user_list[str(user_id)]['general']\
+        #convert player_id to string
+        player_id = str(user_list[str(user_id)]['ID'])
         user_ign = user_list[str(user_id)]['IGN']
         curr_teamkiller = user_list[user]['team_killer']
         #Consolidated playerInfo in a def
