@@ -61,7 +61,7 @@ def get_data(file):
 
 # Close user list and store in JSON file
 def set_data(file, data, comment):
-    with open(users_file, 'w') as file:
+    with open(file, 'w') as file:
         print('update to {0} because {1}'.format(file.name,comment))
         json.dump(data, file, indent=2)
 
@@ -588,7 +588,7 @@ async def update():
     response_msg.add_field(name="Users linked: ",value="```" + str(len(user_list)) + "```",inline=False)
     response_msg.add_field(name="Finished:",value=f"All player stats, ranks, roles have been updated. The next sync will take place at "+((timestamp+ timedelta(hours=1)).strftime(r"%I:%M %p")),inline=False)
     print('Updated everyones stats')
-    set_data(users_file, user_list, 'update everony stats')
+    set_data(users_file, user_list, 'update everyone stats')
     response_msg.timestamp = datetime.datetime.utcnow()
     if(newmessage == True):
         print('Posting a new message to {0} in update function.'.format(botinfo_channel))
