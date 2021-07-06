@@ -60,8 +60,9 @@ def get_data(file):
         return json.loads(file.read())
 
 # Close user list and store in JSON file
-def set_data(file, data):
+def set_data(file, data, comment):
     with open(users_file, 'w') as file:
+        print('update to {0}'.format(file))
         json.dump(data, file, indent=2)
 
 # Catch unknown commands
@@ -174,14 +175,14 @@ async def remove(ctx, member: discord.Member):
     response_msg.add_field(name="Removed: ",value="```" + str(member.name) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
-    set_data(users_file, user_list)
+    set_data(users_file, user_list, 'remove users')
 
 # Remove user from JSON when they leave server
 @client.event
 async def on_member_remove(member):
     user_list=get_data(users_file)
     del user_list[str(member.id)]
-    set_data(users_file, user_list)
+    set_data(users_file, user_list, 'on member remove')
 
 
 @tasks.loop(hours=loop_timer)
@@ -288,7 +289,7 @@ async def stats(ctx, user_ign):
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
     data_list['no_requests'] = no_requests
-    set_data(data_file, data_list)
+    set_data(data_file, data_list, 'stats')
 
 # Link Discord user id with PUBG IGN and create user
 @client.command(pass_context=True)
@@ -329,7 +330,7 @@ async def link(ctx, user_ign):
             await user.add_roles(role)
             response_msg.add_field(name="Rank:",value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}",inline=False)
             response_msg.add_field(name="Done: ",value="Discord linked with PUBG IGN and stats saved to file.",inline=False)
-    set_data(users_file, user_list)
+    set_data(users_file, user_list, 'link')
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
@@ -423,11 +424,11 @@ async def mystats(ctx):
         response_msg.add_field(name="Done: ",value=f"Updated stats and saved to file.", inline=False)
     else:
         response_msg.add_field(name="Rank:",value=f"You currently don't have a rank and your IGN isn't added to the list so use .link command to link",inline=False)
-    set_data(users_file, user_list)
+    set_data(users_file, user_list, 'update')
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
     data_list['no_requests'] = no_requests
-    set_data(data_file, data_list)
+    set_data(data_file, data_list, 'update')
 
 # Main program - full resync all data, ranks, roles and stats
 @tasks.loop(hours=1.0)
@@ -587,16 +588,17 @@ async def update():
     response_msg.add_field(name="Users linked: ",value="```" + str(len(user_list)) + "```",inline=False)
     response_msg.add_field(name="Finished:",value=f"All player stats, ranks, roles have been updated. The next sync will take place at "+((timestamp+ timedelta(hours=1)).strftime(r"%I:%M %p")),inline=False)
     print('Updated everyones stats')
-    set_data(users_file, user_list)
+    set_data(users_file, user_list, 'update everony stats')
     response_msg.timestamp = datetime.datetime.utcnow()
     if(newmessage == True):
-        print('Posting a new message to {0}'.format(botinfo_channel))
-        await channel.send(embed=response_msg)
+        print('Posting a new message to {0} in update function.'.format(botinfo_channel))
+        #await channel.send(embed=response_msg)
+        await channel.send('test small')
     else:
-        print('Editing existing message in {0}'.format(botinfo_channel))
+        print('Editing existing message in {0} in update function.'.format(botinfo_channel))
         await message.edit(embed=response_msg)
     data_list['no_requests'] = no_requests
-    set_data(data_file, data_list)
+    set_data(data_file, data_list, 'update everyone stats')
 
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
