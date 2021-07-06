@@ -419,7 +419,7 @@ async def mystats(ctx):
             await user.remove_roles(role)
             role = discord.utils.get(user.guild.roles, name=playerStats.pStats.new_rank)
             await user.add_roles(role)
-        response_msg.add_field(name="Rank:", value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {h_tier}: {playerStats.pStats.h_rank_points}", inline=False)
+        response_msg.add_field(name="Rank:", value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}", inline=False)
         response_msg.add_field(name="KDA:",value=f"Kills and assists per death: {playerStats.pStats.KDA}", inline=False)
         response_msg.add_field(name="ADR:",value=f"Average damage per game: {playerStats.pStats.ADR}", inline=False)
         response_msg.add_field(name="Done: ",value=f"Updated stats and saved to file.", inline=False)
