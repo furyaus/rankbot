@@ -193,9 +193,8 @@ async def top25update():
     reportTypeMessage = ''
     reportTypes = ['ADR', 'KDA', 'c_rank_points']
     message = ''
-    newmessage = False
     for reportType in reportTypes:
-        
+        newmessage = False
         if(reportType=='c_rank_points'):
             channel = client.get_channel(top25ranks_channel)
             await debugmessage(channel, 'starting rank channel work')
