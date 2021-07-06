@@ -395,6 +395,9 @@ async def mystats(ctx):
     user_id = user.id
     response_msg = discord.Embed(colour=discord.Colour.orange(),title="Stats for " + user.name,)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+
+    await channel.send('got user id {0}'.format(user_id))
+
     if str(user_id) in user_list:
         curr_rank = user_list[str(user_id)]['Rank']
         curr_terminator = user_list[str(user_id)]['terminator']
@@ -407,7 +410,7 @@ async def mystats(ctx):
         second_request = await playerInfo(player_id, curr_header)
         #Added all session infor to a new playerStats class
         playerStats = playerStatistics.statsCalc(player_id, second_request)
-        print('got player stats for id {0}'.format(player_id))
+        await channel.send('got player stats for id {0}'.format(player_id))
         #Def to update all user information from stats class
         user_list = updateUserList(user_list, user_id, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general, curr_teamkiller)
         if playerStats.pStats.new_rank != curr_rank:
@@ -422,10 +425,12 @@ async def mystats(ctx):
     else:
         response_msg.add_field(name="Rank:",value=f"You currently don't have a rank and your IGN isn't added to the list so use .link command to link",inline=False)
     set_data(users_file, user_list, 'update')
+    await channel.send('setting user data for {0}'.format(player_id))
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
     data_list['no_requests'] = no_requests
     set_data(data_file, data_list, 'update')
+    await channel.send('setting data call for {0}'.format(player_id))
 
 # Main program - full resync all data, ranks, roles and stats
 @tasks.loop(hours=1.0)
