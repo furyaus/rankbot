@@ -402,7 +402,7 @@ async def mystats(ctx):
         curr_rank = user_list[str(user_id)]['Rank']
         curr_terminator = user_list[str(user_id)]['terminator']
         curr_punisher = user_list[str(user_id)]['punisher']
-        curr_general = user_list[str(user_id)]['general']\
+        curr_general = user_list[str(user_id)]['general']
         #convert player_id to string
         player_id = str(user_list[str(user_id)]['ID'])
         user_ign = user_list[str(user_id)]['IGN']
