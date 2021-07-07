@@ -56,7 +56,7 @@ no_requests = 0
 curr_key = 0
 loop_timer = 0.05 #0.05 is 5 minutes #0.005 is 30 seconds
 
-# Keys in order - furyaus, ocker, p4, progdog
+# Keys in order - furyaus, ocker, p4, progdog, fingers
 keys = ["Bearer " + API_key_fury, "Bearer " + API_key_ocker, "Bearer " + API_key_p4, "Bearer " + API_key_progdog, "Bearer " + API_key_fingers]
 header = {"Authorization": "Bearer " + API_key_fury,"Accept": "application/vnd.api+json"}
 
@@ -588,16 +588,10 @@ async def update():
     set_data(users_file, user_list, 'update everyone stats')
     response_msg.timestamp = datetime.datetime.utcnow()
     if(newmessage == True):
-        print('Posting a new message to {0} in update function.'.format(botinfo_channel))
-        #Error here with the response_msg
-        response_msg = discord.Embed(colour=discord.Colour.orange())
-        response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-        response_msg.add_field(name="Resync completed: ",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
-        response_msg.timestamp = datetime.datetime.utcnow()
+        print('Posting a new message in bot-info')
         await channel.send(embed=response_msg)
-        #await channel.send('test small')
     else:
-        print('Editing existing message in {0} in update function'.format(botinfo_channel))
+        print('Editing the message in bot-info')
         await message.edit(embed=response_msg)
     data_list['no_requests'] = no_requests
     set_data(data_file, data_list, 'update everyone stats')
