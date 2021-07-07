@@ -41,7 +41,9 @@ API_key_fingers = os.environ['API_key_fingers']
 d_server = int(os.environ['discord_server'])
 debugmode = int(os.environ['debug']) #New debug mode added, if this is 1 it'll message to the channels for the looped status updates
 announce_channel = int(os.environ['announce_channel'])
+botstats_channel = int(os.environ['botstats_channel'])
 stats_channel = int(os.environ['stats_channel'])
+stats_msg = int(os.environ['stats_msg'])
 general_channel = int(os.environ['general_channel'])
 error_channel = int(os.environ['error_channel'])
 botinfo_channel = int(os.environ['botinfo_channel'])
@@ -284,6 +286,27 @@ async def unban(ctx, member:commands.MemberConverter):
     await channel.send(embed=response_msg)
     await ctx.send(embed=response_msg)
 
+@tasks.loop(hours=loop_timer)
+async def serverstats():
+    guild = client.get_guild(d_server)
+    channel = client.get_channel(stats_channel)
+    newmessage = False
+    try:
+        message = await channel.fetch_message(stats_msg)
+    except:
+        newmessage = True
+        print("Couldn't find {0} message in {1} channel.".format(botinfo_msg, botinfo_channel))
+    response_msg = discord.Embed(colour=discord.Colour.orange())
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg.add_field(name="Users:", value=guild.member_count, inline=False)
+    response_msg.add_field(name="Channels:", value=len(guild.channels), inline=False)
+    if(newmessage == True):
+        print('Posting a new message in bot-info')
+        await channel.send(embed=response_msg)
+    else:
+        print('Editing the message in bot-info')
+        await message.edit(embed=response_msg)
+
 # Top 25 Updates
 @tasks.loop(hours=loop_timer)
 async def top25update():
@@ -497,7 +520,7 @@ async def mystats(ctx):
     user_list = get_data(users_file)
     data_list = get_data(data_file)
     no_requests = data_list['no_requests']
-    channel = client.get_channel(stats_channel)
+    channel = client.get_channel(botstats_channel)
     curr_header = header
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     user = ctx.message.author
@@ -705,6 +728,7 @@ async def resync(ctx):
 async def on_ready():
     update.start()
     top25update.start()
+    serverstats.start()
 
 # Run the bot
 client.run(bot_token)
