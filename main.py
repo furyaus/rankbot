@@ -222,7 +222,7 @@ async def on_member_remove(member):
 async def on_member_join(member):
     guild = client.get_guild(d_server)
     channel = client.get_channel(botlog_channel)
-    role = discord.utils.get(guild.roles, name='💯 101 Club 💯')
+    role = discord.utils.get(guild.roles, name='101 Club')
     await member.add_roles(role)
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
@@ -322,10 +322,15 @@ async def serverstats():
 async def userinfo(ctx, member: discord.Member):
     created_at = member.created_at.strftime("%b %d, %Y")
     joined_at = member.joined_at.strftime("%b %d, %Y")
+    roles = ''
+    for role in member.roles:
+       if str(role) != '@everyone':
+          roles = roles+"\n"+str(role)
     response_msg = discord.Embed(colour=discord.Colour.orange(),title="User info for "+member.name,)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     response_msg.add_field(name="Created", value=f"{member.name} was created on "+created_at, inline=False)
     response_msg.add_field(name="Joined", value=f"{member.name} joined 101 Club on "+joined_at, inline=False)
+    response_msg.add_field(name="Roles", value=f"{member.name} has the following roles: "+roles, inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
