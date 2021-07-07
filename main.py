@@ -734,6 +734,7 @@ async def update():
     data_list['no_requests'] = no_requests
     set_data(data_file, data_list, 'update everyone stats')
 
+# Resync all
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
 async def resync(ctx):
