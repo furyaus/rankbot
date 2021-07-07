@@ -118,6 +118,7 @@ async def adminhelp(ctx):
     help_msg.add_field(name=".say",value="Allows admin to message any channel. Can take channel name or channel ID. Look out for icons when using channel name. 1024 character limit. ```.say channel_name message```",inline=False)
     help_msg.add_field(name=".announce",value="Allows admin to send a announcement to the announcement channel only. 1024 character limit. ```.announce message```",inline=False)
     help_msg.add_field(name=".norequests",value="Returns the total number of requests made to the PUG API. ```.norequests```",inline=False)
+    help_msg.add_field(name=".userinfo",value="Caculates the creation date and join date of user for 101 Club. ```.userinfo GAMMB1T```",inline=False)
     help_msg.add_field(name=".ban",value="Bans a user and logs why into the bot-log channel. ```.ban 0cker Because he sucks```",inline=False)
     help_msg.add_field(name=".unban",value="Unbans a user and direct messages them to rejoin via invite. ```.unban 0cker```",inline=False)
     help_msg.add_field(name=".remove",value="Will allow admin to remove link between Discord user id and PUBG IGN. User can then complete a link again. ```.remove @P4```",inline=False)
@@ -315,6 +316,18 @@ async def serverstats():
     else:
         print('Editing the message in stats')
         await message.edit(embed=response_msg)
+
+# User discord stats
+@client.command()
+async def userinfo(ctx, member: discord.Member):
+    created_at = member.created_at.strftime("%b %d, %Y")
+    joined_at = member.joined_at.strftime("%b %d, %Y")
+    response_msg = discord.Embed(colour=discord.Colour.orange(),title="User info for "+member.name,)
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg.add_field(name="Created", value=f"{member.name} was created on "+created_at, inline=False)
+    response_msg.add_field(name="Joined", value=f"{member.name} joined 101 Club on "+joined_at, inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow()
+    await ctx.send(embed=response_msg)
 
 # Top 25 Updates
 @tasks.loop(hours=loop_timer)
