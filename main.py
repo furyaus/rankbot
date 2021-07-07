@@ -19,6 +19,7 @@ from datetime import timedelta
 from pytz import timezone
 import asyncio
 import stats as playerStatistics
+import traceback
 
 # Setup bot and command
 clientintents = discord.Intents.all()
@@ -45,6 +46,7 @@ general_channel = int(os.environ['general_channel'])
 error_channel = int(os.environ['error_channel'])
 botinfo_channel = int(os.environ['botinfo_channel'])
 botinfo_msg = int(os.environ['botinfo_msg'])
+botlog_channel = int(os.environ['botlog_channel'])
 top25ranks_channel = int(os.environ['top25ranks_channel'])
 top25ranks_msg = int(os.environ['top25ranks_msg'])
 top25kda_channel = int(os.environ['top25kda_channel'])
@@ -82,11 +84,12 @@ async def on_command_error(ctx, error):
 
 # Let admin know about errors
 @client.event
-async def on_error(error):
+async def on_error(event, *args, **kwargs):
     channel = client.get_channel(error_channel)
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    response_msg.add_field(name="Error:",value=f"An error occured: {str(error)}",inline=False)
+    response_msg.add_field(name='Event', value=event)
+    response_msg.description = '```py\n%s\n```' % traceback.format_exc()
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
@@ -183,18 +186,63 @@ async def remove(ctx, member: discord.Member):
     user_list=get_data(users_file)
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    del user_list[str(member.id)]
+    try: 
+        del user_list[str(member.id)]
+        set_data(users_file, user_list, 'remove users')
+    except:
+        pass
     response_msg.add_field(name="Removed: ",value="```" + str(member.name) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
-    set_data(users_file, user_list, 'remove users')
 
-# Remove user from JSON when they leave server
+# Remove user from JSON when they leave server and report
 @client.event
 async def on_member_remove(member):
     user_list=get_data(users_file)
-    del user_list[str(member.id)]
-    set_data(users_file, user_list, 'on member remove')
+    channel = client.get_channel(botlog_channel)
+    try: 
+        del user_list[str(member.id)]
+        set_data(users_file, user_list, 'on member remove')
+    except:
+        pass
+    response_msg = discord.Embed(colour=discord.Colour.orange())
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg.add_field(name="Left server: ", value=f"{member.name}", inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow()
+    await channel.send(embed=response_msg)
+
+# On member join add role and report
+@client.event
+async def on_member_join(member):
+    channel = client.get_channel(botlog_channel)
+    role = discord.utils.get(guild.roles, name='💯 101 Club 💯')
+    await member.add_roles(role)
+    response_msg = discord.Embed(colour=discord.Colour.orange())
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg.add_field(name="Server join", value=f"{member.name}", inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow()
+    await channel.send(embed=response_msg)
+
+# Streaming Role
+async def on_member_update(self, before, after):
+    guild = client.get_guild(d_server)
+    activity_type = None
+    role = discord.utils.get(guild.roles, name='Streaming')
+    try:
+        activity_type = after.activity.type
+    except:
+        pass
+    if not (activity_type is discord.ActivityType.streaming):
+        # User is doing something other than streaming
+        if role in after.roles:
+            print(f"{after.display_name} has stopped streaming")
+            await after.remove_roles(role)
+    else:
+        if role not in after.roles:
+            # If they don't have the role, give it to them
+            # If they have it, we already know they're streaming so we don't need to do anything
+            print(f"{after.display_name} has started streaming")
+            await after.add_roles(role)
 
 # Top 25 Updates
 @tasks.loop(hours=loop_timer)
