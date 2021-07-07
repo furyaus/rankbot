@@ -200,20 +200,22 @@ async def remove(ctx, member: discord.Member):
 async def on_member_remove(member):
     user_list=get_data(users_file)
     channel = client.get_channel(botlog_channel)
+    response_msg = discord.Embed(colour=discord.Colour.orange())
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     try: 
         del user_list[str(member.id)]
         set_data(users_file, user_list, 'on member remove')
+        response_msg.add_field(name="Left server: ", value=f"{member.name} was removed from user list in rank data.", inline=False)
     except:
+        response_msg.add_field(name="Left server: ", value=f"{member.name} was not in user list for rank data.", inline=False)
         pass
-    response_msg = discord.Embed(colour=discord.Colour.orange())
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    response_msg.add_field(name="Left server: ", value=f"{member.name}", inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
 # On member join add role and report
 @client.event
 async def on_member_join(member):
+    guild = client.get_guild(d_server)
     channel = client.get_channel(botlog_channel)
     role = discord.utils.get(guild.roles, name='💯 101 Club 💯')
     await member.add_roles(role)
