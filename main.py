@@ -118,6 +118,8 @@ async def adminhelp(ctx):
     help_msg.add_field(name=".say",value="Allows admin to message any channel. Can take channel name or channel ID. Look out for icons when using channel name. 1024 character limit. ```.say channel_name message```",inline=False)
     help_msg.add_field(name=".announce",value="Allows admin to send a announcement to the announcement channel only. 1024 character limit. ```.announce message```",inline=False)
     help_msg.add_field(name=".norequests",value="Returns the total number of requests made to the PUG API. ```.norequests```",inline=False)
+    help_msg.add_field(name=".ban",value="Bans a user and logs why into the bot-log channel. ```.ban 0cker Because he sucks```",inline=False)
+    help_msg.add_field(name=".unban",value="Unbans a user and direct messages them to rejoin via invite. ```.unban 0cker```",inline=False)
     help_msg.add_field(name=".remove",value="Will allow admin to remove link between Discord user id and PUBG IGN. User can then complete a link again. ```.remove @P4```",inline=False)
     help_msg.add_field(name=".resync",value="This will force a full resync for all stored players with PUBG API. 50 users per minute, wait till complete. ```.resync```",inline=False)
     help_msg.timestamp = datetime.datetime.utcnow()
@@ -278,7 +280,7 @@ async def unban(ctx, member:commands.MemberConverter):
     banned_users = await ctx.guild.bans()
     if member.id in banned_users:
         await ctx.guild.unban(member.id)
-        message2 = f"You have been unbanned from {ctx.guild.name}"
+        message2 = f"You have been unbanned from {ctx.guild.name}. Please rejoin - [https://discord.gg/the101club](https://discord.gg/the101club)"
         response_msg.add_field(name="Member unbanned: ", value=member.name, inline=False)
         await member.send(message2)
     else:
@@ -295,16 +297,17 @@ async def serverstats():
         message = await channel.fetch_message(stats_msg)
     except:
         newmessage = True
-        print("Couldn't find {0} message in {1} channel.".format(botinfo_msg, botinfo_channel))
+        print("Couldn't find {0} message in {1} channel.".format(stats_msg, stats_channel))
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     response_msg.add_field(name="Users:", value=guild.member_count, inline=False)
     response_msg.add_field(name="Channels:", value=len(guild.channels), inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow()
     if(newmessage == True):
-        print('Posting a new message in bot-info')
+        print('Posting a new message in stats')
         await channel.send(embed=response_msg)
     else:
-        print('Editing the message in bot-info')
+        print('Editing the message in stats')
         await message.edit(embed=response_msg)
 
 # Top 25 Updates
@@ -373,7 +376,7 @@ async def top25update():
             print('Posting a new message')
             await channel.send(embed=response_msg)
         else:
-            print('Editing the message')
+            print('Editing the message in top25 '+reportType)
             await message.edit(embed=response_msg)
         print("top25 {0} updated".format(reportTypeMessage))
 
