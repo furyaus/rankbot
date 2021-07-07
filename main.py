@@ -80,7 +80,7 @@ def set_data(file, data, comment):
 async def on_command_error(ctx, error):
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    response_msg.add_field(name="Error:",value=f"An error occured: {str(error)}",inline=False)
+    response_msg.add_field(name="Error",value=f"An error occured: {str(error)}",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
@@ -137,7 +137,7 @@ async def inspire(ctx):
         request = requests.get("https://zenquotes.io/api/random")
         json_data = json.loads(request.text)
         quote = json_data[0]['q'] + " -" + json_data[0]['a']
-    response_msg.add_field(name="Quote:", value=quote, inline=False)
+    response_msg.add_field(name="Quote", value=quote, inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
@@ -147,7 +147,7 @@ async def inspire(ctx):
 async def say(self, channel: discord.TextChannel=None, *, message):
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    response_msg.add_field(name="Rank Bot says:", value=message, inline=False)
+    response_msg.add_field(name="Rank Bot says", value=message, inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
@@ -158,7 +158,7 @@ async def announce(ctx, *, text):
     channel = client.get_channel(announce_channel)
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    response_msg.add_field(name="Announcement:", value=f"{text}", inline=False)
+    response_msg.add_field(name="Announcement", value=f"{text}", inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
@@ -169,7 +169,7 @@ async def linked(ctx):
     user_list=get_data(users_file)
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    response_msg.add_field(name="Users linked: ",value="```" + str(len(user_list)) + "```",inline=False)
+    response_msg.add_field(name="Users linked",value="```" + str(len(user_list)) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
@@ -179,7 +179,7 @@ async def linked(ctx):
 async def norequests(ctx):
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    response_msg.add_field(name="PUG API Requests: ",value="```" + str(no_requests) + "```",inline=False)
+    response_msg.add_field(name="PUG API Requests",value="```" + str(no_requests) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
@@ -195,7 +195,7 @@ async def remove(ctx, member: discord.Member):
         set_data(users_file, user_list,'remove users')
     except:
         pass
-    response_msg.add_field(name="Removed: ",value="```" + str(member.name) + "```",inline=False)
+    response_msg.add_field(name="Removed",value="```" + str(member.name) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
@@ -209,9 +209,9 @@ async def on_member_remove(member):
     try: 
         del user_list[str(member.id)]
         set_data(users_file, user_list, 'on member remove')
-        response_msg.add_field(name="Left server: ", value=f"{member.name} was removed from user list in rank data.", inline=False)
+        response_msg.add_field(name="Left server", value=f"{member.name} was removed from user list in rank data.", inline=False)
     except:
-        response_msg.add_field(name="Left server: ", value=f"{member.name} was not in user list for rank data.", inline=False)
+        response_msg.add_field(name="Left server", value=f"{member.name} was not in user list for rank data.", inline=False)
         pass
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
@@ -225,7 +225,7 @@ async def on_member_join(member):
     await member.add_roles(role)
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    response_msg.add_field(name="Server join: ", value=f"{member.name}", inline=False)
+    response_msg.add_field(name="Server join", value=f"{member.name}", inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
@@ -264,8 +264,8 @@ async def ban(ctx, member:discord.User=None, *, reason=None):
     await member.send(message)
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    response_msg.add_field(name="Member banned: ", value=f"{member.name}", inline=False)
-    response_msg.add_field(name="Reason: ", value=reason, inline=False)
+    response_msg.add_field(name="Member banned", value=f"{member.name}", inline=False)
+    response_msg.add_field(name="Reason", value=reason, inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
     await ctx.send(embed=response_msg)
@@ -281,17 +281,21 @@ async def unban(ctx, member:commands.MemberConverter):
     if member.id in banned_users:
         await ctx.guild.unban(member.id)
         message2 = f"You have been unbanned from {ctx.guild.name}. Please rejoin - [https://discord.gg/the101club](https://discord.gg/the101club)"
-        response_msg.add_field(name="Member unbanned: ", value=member.name, inline=False)
+        response_msg.add_field(name="Member unbanned", value=member.name, inline=False)
         await member.send(message2)
     else:
-        response_msg.add_field(name="Not found: ", value="Name is not currently in ban list.", inline=False)
+        response_msg.add_field(name="Not found", value="Name is not currently in ban list.", inline=False)
     await channel.send(embed=response_msg)
     await ctx.send(embed=response_msg)
 
+# Server stats
 @tasks.loop(hours=loop_timer)
 async def serverstats():
     guild = client.get_guild(d_server)
     channel = client.get_channel(stats_channel)
+    user_list=get_data(users_file)
+    data_list = get_data(data_file)
+    no_requests = data_list['no_requests']
     newmessage = False
     try:
         message = await channel.fetch_message(stats_msg)
@@ -300,8 +304,10 @@ async def serverstats():
         print("Couldn't find {0} message in {1} channel.".format(stats_msg, stats_channel))
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    response_msg.add_field(name="Users:", value=guild.member_count, inline=False)
-    response_msg.add_field(name="Channels:", value=len(guild.channels), inline=False)
+    response_msg.add_field(name="Users",value="Number of 101 Club members: ```" + str(guild.member_count)+ "```",inline=False)
+    response_msg.add_field(name="Channels",value="Number of channels in the 101 Club: ```" + str(len(guild.channels)) + "```",inline=False)
+    response_msg.add_field(name="Sync completed",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
+    response_msg.add_field(name="Tracked ranked players",value="```" + str(len(user_list)) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     if(newmessage == True):
         print('Posting a new message in stats')
@@ -403,7 +409,7 @@ async def stats(ctx, user_ign):
     #Consolidated IGN parts into single def
     initial_r = await playerIgn(curr_header, user_ign)
     if initial_r.status_code != 200:
-        response_msg.add_field(name="Error: ",value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
+        response_msg.add_field(name="Error",value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
     else:
         player_info = json.loads(initial_r.text)
         player_id = str(player_info['data'][0]['id'].replace('account.', ''))
@@ -411,9 +417,9 @@ async def stats(ctx, user_ign):
         second_request = await playerInfo(player_id, curr_header)
         #Added all session infor to a new playerStats class
         playerStats = playerStatistics.statsCalc(player_id,second_request)
-        response_msg.add_field(name="Rank:",value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}",inline=False)
-        response_msg.add_field(name="KDA:",value=f"Kills and assists per death: {playerStats.pStats.KDA}",inline=False)
-        response_msg.add_field(name="ADR:",value=f"Average damage per game: {playerStats.pStats.ADR}",inline=False)
+        response_msg.add_field(name="Rank",value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}",inline=False)
+        response_msg.add_field(name="KDA",value=f"Kills and assists per death: {playerStats.pStats.KDA}",inline=False)
+        response_msg.add_field(name="ADR",value=f"Average damage per game: {playerStats.pStats.ADR}",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
     data_list['no_requests'] = no_requests
@@ -437,12 +443,12 @@ async def link(ctx, user_ign):
     user = ctx.message.author
     user_id = user.id
     if str(user_id) in user_list:
-        response_msg.add_field(name="Issue: ",value="Your IGN has already been added to the list, just use .mystats to update your rank",inline=False)
+        response_msg.add_field(name="Issue",value="Your IGN has already been added to the list, just use .mystats to update your rank",inline=False)
     else:
         #Consolidated IGN parts into single def
         initial_r = await playerIgn(curr_header, user_ign)
         if initial_r.status_code != 200:
-            response_msg.add_field(name="Issue: ",value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
+            response_msg.add_field(name="Issue",value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
         else:
             player_info = json.loads(initial_r.text)
             player_id = str(player_info['data'][0]['id'].replace('account.', ''))
@@ -454,8 +460,8 @@ async def link(ctx, user_ign):
             user_list = updateUserList(user_list, user_id, user_ign, player_id, playerStats)
             role = discord.utils.get(ctx.guild.roles, name=playerStats.pStats.new_rank)
             await user.add_roles(role)
-            response_msg.add_field(name="Rank:",value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}",inline=False)
-            response_msg.add_field(name="Done: ",value="Discord linked with PUBG IGN and stats saved to file.",inline=False)
+            response_msg.add_field(name="Rank",value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}",inline=False)
+            response_msg.add_field(name="Done",value="Discord linked with PUBG IGN and stats saved to file.",inline=False)
     set_data(users_file, user_list, 'link')
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
@@ -551,12 +557,12 @@ async def mystats(ctx):
             await user.remove_roles(role)
             role = discord.utils.get(user.guild.roles, name=playerStats.pStats.new_rank)
             await user.add_roles(role)
-        response_msg.add_field(name="Rank:", value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}", inline=False)
-        response_msg.add_field(name="KDA:",value=f"Kills and assists per death: {playerStats.pStats.KDA}", inline=False)
-        response_msg.add_field(name="ADR:",value=f"Average damage per game: {playerStats.pStats.ADR}", inline=False)
-        response_msg.add_field(name="Done: ",value=f"Updated stats and saved to file.", inline=False)
+        response_msg.add_field(name="Rank", value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}", inline=False)
+        response_msg.add_field(name="KDA",value=f"Kills and assists per death: {playerStats.pStats.KDA}", inline=False)
+        response_msg.add_field(name="ADR",value=f"Average damage per game: {playerStats.pStats.ADR}", inline=False)
+        response_msg.add_field(name="Done",value=f"Updated stats and saved to file.", inline=False)
     else:
-        response_msg.add_field(name="Rank:",value=f"You currently don't have a rank and your IGN isn't added to the list so use .link command to link",inline=False)
+        response_msg.add_field(name="Rank",value=f"You currently don't have a rank and your IGN isn't added to the list so use .link command to link",inline=False)
     set_data(users_file, user_list, 'update')
     await debugmessage(channel, 'setting user data for {0}'.format(player_id))
     response_msg.timestamp = datetime.datetime.utcnow()
@@ -695,9 +701,9 @@ async def update():
         await member.add_roles(role)
         response_msg.add_field(name="The Punisher",value=f"Previous Punisher (highest ADR) has been replaced. Congrats! ```{member.name}```",inline=False)
 
-    response_msg.add_field(name="Sync completed: ",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
-    response_msg.add_field(name="Users linked: ",value="```" + str(len(user_list)) + "```",inline=False)
-    response_msg.add_field(name="Finished:",value=f"All player stats, ranks, roles have been updated. The next sync will take place at "+((timestamp+ timedelta(hours=1)).strftime(r"%I:%M %p")),inline=False)
+    response_msg.add_field(name="Sync completed",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
+    response_msg.add_field(name="Users linked",value="```" + str(len(user_list)) + "```",inline=False)
+    response_msg.add_field(name="Finished",value=f"All player stats, ranks, roles have been updated. The next sync will take place at "+((timestamp+ timedelta(hours=1)).strftime(r"%I:%M %p")),inline=False)
     print('Updated everyones stats')
     set_data(users_file, user_list, 'update everyone stats')
     response_msg.timestamp = datetime.datetime.utcnow()
@@ -715,14 +721,14 @@ async def update():
 async def resync(ctx):
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    response_msg.add_field(name="Resync started: ",value="This could take a long time based on the number of users and the PUBG API, please wait for the comfirmation message before more commands. 50 users per minute is our limit.",inline=False)
+    response_msg.add_field(name="Resync started",value="This could take a long time based on the number of users and the PUBG API, please wait for the comfirmation message before more commands. 50 users per minute is our limit.",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
     await update()
     await top25update()
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    response_msg.add_field(name="Resync completed: ",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
+    response_msg.add_field(name="Resync completed",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
