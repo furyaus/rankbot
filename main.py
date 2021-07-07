@@ -140,7 +140,7 @@ async def inspire(ctx):
 # Say
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
-async def say(self, channel: discord.TextChannel = None, *, message):
+async def say(self, channel: discord.TextChannel=None, *, message):
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     response_msg.add_field(name="Rank Bot says:", value=message, inline=False)
@@ -188,7 +188,7 @@ async def remove(ctx, member: discord.Member):
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     try: 
         del user_list[str(member.id)]
-        set_data(users_file, user_list, 'remove users')
+        set_data(users_file, user_list,'remove users')
     except:
         pass
     response_msg.add_field(name="Removed: ",value="```" + str(member.name) + "```",inline=False)
@@ -221,7 +221,7 @@ async def on_member_join(member):
     await member.add_roles(role)
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    response_msg.add_field(name="Server join", value=f"{member.name}", inline=False)
+    response_msg.add_field(name="Server join: ", value=f"{member.name}", inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
@@ -245,6 +245,44 @@ async def on_member_update(self, before, after):
             # If they have it, we already know they're streaming so we don't need to do anything
             print(f"{after.display_name} has started streaming")
             await after.add_roles(role)
+
+# Ban function
+@client.command()
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
+async def ban(ctx, member:discord.User=None, *, reason=None):
+    channel = client.get_channel(botlog_channel)
+    if member == None or member == ctx.message.author:
+        await ctx.channel.send("You cannot ban yourself")
+        return
+    if reason == None:
+        reason = "For being a jerk!"
+    message = f"You have been banned from {ctx.guild.name} for {reason}"
+    await member.send(message)
+    response_msg = discord.Embed(colour=discord.Colour.orange())
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg.add_field(name="Member banned: ", value=f"{member.name}", inline=False)
+    response_msg.add_field(name="Reason: ", value=reason, inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow()
+    await channel.send(embed=response_msg)
+    await ctx.send(embed=response_msg)
+
+# Unban function
+@client.command()
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
+async def unban(ctx, member:commands.MemberConverter):
+    channel = client.get_channel(botlog_channel)
+    response_msg = discord.Embed(colour=discord.Colour.orange())
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    banned_users = await ctx.guild.bans()
+    if member.id in banned_users:
+        await ctx.guild.unban(member.id)
+        message2 = f"You have been unbanned from {ctx.guild.name}"
+        response_msg.add_field(name="Member unbanned: ", value=member.name, inline=False)
+        await member.send(message2)
+    else:
+        response_msg.add_field(name="Not found: ", value="Name is not currently in ban list.", inline=False)
+    await channel.send(embed=response_msg)
+    await ctx.send(embed=response_msg)
 
 # Top 25 Updates
 @tasks.loop(hours=loop_timer)
