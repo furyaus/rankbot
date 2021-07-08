@@ -235,19 +235,17 @@ async def on_member_update(self, before, after):
     guild = client.get_guild(d_server)
     activity_type = None
     role = discord.utils.get(guild.roles, name='Streaming')
+    print(f'Saw a member update: {guild}:{role}:{activity_type}\n {self}:{before}:{after}')
     try:
         activity_type = after.activity.type
     except:
         pass
     if not (activity_type is discord.ActivityType.streaming):
-        # User is doing something other than streaming
         if role in after.roles:
             print(f"{after.display_name} has stopped streaming")
             await after.remove_roles(role)
     else:
         if role not in after.roles:
-            # If they don't have the role, give it to them
-            # If they have it, we already know they're streaming so we don't need to do anything
             print(f"{after.display_name} has started streaming")
             await after.add_roles(role)
 
