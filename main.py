@@ -49,6 +49,7 @@ top25kda_channel = int(os.environ['top25kda_channel'])
 top25kda_msg = int(os.environ['top25kda_msg'])
 top25adr_channel = int(os.environ['top25adr_channel'])
 top25adr_msg = int(os.environ['top25adr_msg'])
+streaming_role = int(os.environ['streaming_role'])
 admin_roles = ["Moderators", "Admin", "Boss", "The General", "The Punisher", "The Terminator",]
 no_requests = 0
 curr_key = 0
@@ -227,21 +228,16 @@ async def on_member_join(member):
 # Streaming Role
 @client.event
 async def on_member_update(before, after):
-    guild = client.get_guild(d_server)
-    activity_type = None
-    role = discord.utils.get(guild.roles, name='Streaming')
-    try:
-        activity_type = after.activity.type
-    except:
-        pass
-    if not (activity_type is discord.ActivityType.streaming):
-        if role in after.roles:
-            print(f"{after.display_name} has stopped streaming")
-            await after.remove_roles(role)
+    role = after.guild.get_role(streaming_role)
+    if after.activity or before.activity is discord.Streaming:
+      if not role in after.activity:
+        print(f"{after.display_name} has started streaming")
+        await after.add_roles(role)
     else:
-        if role not in after.roles:
-            print(f"{after.display_name} has started streaming")
-            await after.add_roles(role)
+      if role in after.roles:
+        print(f"{after.display_name} has stopped streaming")
+        await after.remove_roles(role)
+
 
 # Ban function
 @client.command()
