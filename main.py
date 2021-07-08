@@ -90,8 +90,8 @@ async def on_error(event, *args, **kwargs):
     channel = client.get_channel(error_channel)
     response_msg = discord.Embed(colour=discord.Colour.orange())
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    response_msg.add_field(name='Event', value=event)
-    response_msg.description = '```py\n%s\n```' % traceback.format_exc()
+    response_msg.description = event
+    response_msg.add_field(name='Event', value='```py\n%s\n```' % traceback.format_exc())
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
