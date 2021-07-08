@@ -8,18 +8,12 @@
 # Original Author: Mazun19 from the PUBG community
 # Original Date: 2019
 
-import discord
+import discord, requests, json, os, datetime, asyncio, traceback
+import stats as playerStatistics
 from discord.ext import commands, tasks
 from operator import itemgetter
-import requests
-import json
-import os
-import datetime
 from datetime import timedelta
 from pytz import timezone
-import asyncio
-import stats as playerStatistics
-import traceback
 
 # Setup bot and command
 clientintents = discord.Intents.all()
@@ -231,11 +225,11 @@ async def on_member_join(member):
     await channel.send(embed=response_msg)
 
 # Streaming Role
-async def on_member_update(self, before, after):
+@client.event
+async def on_member_update(before, after):
     guild = client.get_guild(d_server)
     activity_type = None
     role = discord.utils.get(guild.roles, name='Streaming')
-    print(f'Saw a member update: {guild}:{role}:{activity_type}\n {self}:{before}:{after}')
     try:
         activity_type = after.activity.type
     except:
