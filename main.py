@@ -228,16 +228,23 @@ async def on_member_join(member):
 # Streaming Role
 @client.event
 async def on_member_update(before, after):
-    role = after.guild.get_role(streaming_role)
-    if after.activity or before.activity is discord.Streaming:
-      if not role in after.activity:
-        print(f"{after.display_name} has started streaming")
-        await after.add_roles(role)
-    else:
-      if role in after.roles:
-        print(f"{after.display_name} has stopped streaming")
-        await after.remove_roles(role)
-
+    a_type_before = None
+    a_type_after = None
+    guild = client.get_guild(d_server)
+    streaming_role = discord.utils.get(guild.roles, name='Streaming')
+    try:
+        a_type_before = before.activity.type
+        a_type_after = after.activity.type
+    except:
+        pass
+    if a_type_before is discord.ActivityType.streaming or a_type_after is discord.ActivityType.streaming:
+        if streaming_role not in after.roles:
+            print(f"{after.display_name} has started streaming")
+            await after.add_roles(streaming_role)
+    elif a_type_before is not discord.ActivityType.streaming or a_type_after is not discord.ActivityType.streaming:
+        if streaming_role in after.roles:
+            print(f"{after.display_name} has stopped streaming")
+            await after.remove_roles(streaming_role)
 
 # Ban function
 @client.command()
