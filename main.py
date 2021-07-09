@@ -231,7 +231,7 @@ async def on_member_update(before, after):
     guild = client.get_guild(d_server)
     streaming_role = discord.utils.get(guild.roles, name='Streaming')
     activities = after.activities
-    if discord.Streaming in activities:
+    if discord.ActivityType.streaming in activities:
         if streaming_role not in after.roles:
             print(f"{after.display_name} is streaming")
             await after.add_roles(streaming_role)
