@@ -28,6 +28,7 @@ client.remove_command("help")
 # Global variables
 users_file = "users.json"
 data_file = "data.json"
+fingersraw_file = "fingersdata.json"
 curr_season = "division.bro.official.pc-2018-12"
 prev_season = "division.bro.official.pc-2018-11"
 prev_prev_season = "division.bro.official.pc-2018-10"
@@ -300,6 +301,9 @@ async def stats(ctx, user_ign):
         player_id = str(player_info['data'][0]['id'].replace('account.', ''))
         #Consolidated playerInfo in a def
         second_request = await playerInfo(player_id, curr_header)
+        #dumping my full file data to explorer attributes
+        if(player_id=="329883909338824715"):
+            set_data(fingersraw_file,second_request,"Dumping fingers data to review")
         #Added all session infor to a new playerStats class
         playerStats = playerStatistics.statsCalc(player_id,second_request)
         response_msg.add_field(name="Rank:",value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}",inline=False)
