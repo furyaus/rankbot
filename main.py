@@ -55,6 +55,24 @@ loop_timer = 0.05 #0.05 is 5 minutes #0.005 is 30 seconds
 keys = ["Bearer " + API_key_fingers]
 header = {"Authorization": "Bearer " + API_key_fingers,"Accept": "application/vnd.api+json"}
 
+def helpmsg(titleText=None,descText=None):
+    help_msg = discord.Embed(colour=discord.Colour.orange())
+    if(titleText!=None):
+        help_msg.Embed(title=titleText)
+    if(descText!=None):
+        help_msg.Embed(description=descText)
+    help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    return respmsg()
+
+def respmsg(titleText=None,descText=None):
+    response_msg = discord.Embed(colour=discord.Colour.orange())
+    if(titleText!=None):
+        response_msg.Embed(title=titleText)
+    if(descText!=None):
+        response_msg.Embed(description=descText)
+    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    return respmsg()
+
 # Open user list and load into arrray
 def get_data(file):
     with open(file, "r") as file:
@@ -69,8 +87,7 @@ def set_data(file, data, comment):
 # Catch unknown commands
 @client.event
 async def on_command_error(ctx, error):
-    response_msg = discord.Embed(colour=discord.Colour.orange())
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg = respmsg()
     response_msg.add_field(name="Error:",value=f"An error occured: {str(error)}",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
@@ -78,8 +95,7 @@ async def on_command_error(ctx, error):
 # Help
 @client.command()
 async def help(ctx):
-    help_msg = discord.Embed(colour=discord.Colour.orange(),title="Help for Rank Bot",description="Rank Bot manages the roles, ranks and other stats for gamers in The 101 Club.")
-    help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    help_msg = helpmsg("Help for Rank Bot","Rank Bot manages the roles, ranks and other stats for gamers in The 101 Club.")
     help_msg.add_field(name=".link:",value="This links your discord userid with your PUBG in-game name. ```.link furyaus```",inline=False)
     help_msg.add_field(name=".stats:",value="Retireve live PUBG API data for a single user and display. No stats, ranks or roles are changed or stored. ```.stats 0cker```",inline=False)
     help_msg.add_field(name=".mystats:",value="Queries PUBG API for your latest data, updates ranks, roles and stats which are stored via a JSON file. ```.mystats```",inline=False)
@@ -91,8 +107,7 @@ async def help(ctx):
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
 async def adminhelp(ctx):
-    help_msg = discord.Embed(colour=discord.Colour.orange(),title="Admin help for Rank Bot",description="Admin users can remove users and call for global updates.")
-    help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    help_msg = helpmsg("Admin help for Rank Bot","Admin users can remove users and call for global updates.")
     help_msg.add_field(name=".linked:",value="Returns the total number of currently stored users in JSON file. ```.linked```",inline=False)
     help_msg.add_field(name=".say:",value="Allows admin to message any channel. Can take channel name or channel ID. Look out for icons when using channel name. 1024 character limit. ```.say channel_name message```",inline=False)
     help_msg.add_field(name=".announce:",value="Allows admin to send a announcement to the announcement channel only. 1024 character limit. ```.announce message```",inline=False)
@@ -105,8 +120,7 @@ async def adminhelp(ctx):
 # Support help
 @client.command()
 async def support(ctx):
-    help_msg = discord.Embed(colour=discord.Colour.orange(),title="Support for The 101 Club members",description="Rank Bot is here to support you through that 3rd, 14th place in scrims")
-    help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    help_msg = helpmsg("Support for The 101 Club members","Rank Bot is here to support you through that 3rd, 14th place in scrims")
     help_msg.add_field(name=".inspire:",value="Responses with inspiration quotes, to really get you back on track```.inspire```",inline=False)
     help_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=help_msg)
@@ -114,8 +128,7 @@ async def support(ctx):
 # Inspire your day
 @client.command()
 async def inspire(ctx):
-    response_msg = discord.Embed(colour=discord.Colour.orange())
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg = respmsg()
     request = requests.get("https://leksell.io/zen/api/quotes/random")
     json_data = json.loads(request.text)
     quote = json_data['quote'] + " -" + json_data['author']
@@ -131,8 +144,7 @@ async def inspire(ctx):
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
 async def say(self, channel: discord.TextChannel = None, *, message):
-    response_msg = discord.Embed(colour=discord.Colour.orange())
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg = respmsg()
     response_msg.add_field(name="Rank Bot says:", value=message, inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
@@ -142,8 +154,7 @@ async def say(self, channel: discord.TextChannel = None, *, message):
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
 async def announce(ctx, *, text):
     channel = client.get_channel(announce_channel)
-    response_msg = discord.Embed(colour=discord.Colour.orange())
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg = respmsg()
     response_msg.add_field(name="Announcement:", value=f"{text}", inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
@@ -153,8 +164,7 @@ async def announce(ctx, *, text):
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
 async def linked(ctx):
     user_list=get_data(users_file)
-    response_msg = discord.Embed(colour=discord.Colour.orange())
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg = respmsg()
     response_msg.add_field(name="Users linked: ",value="```" + str(len(user_list)) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
@@ -163,8 +173,7 @@ async def linked(ctx):
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
 async def norequests(ctx):
-    response_msg = discord.Embed(colour=discord.Colour.orange())
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg = respmsg()
     response_msg.add_field(name="PUG API Requests: ",value="```" + str(no_requests) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
@@ -174,8 +183,7 @@ async def norequests(ctx):
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
 async def remove(ctx, member: discord.Member):
     user_list=get_data(users_file)
-    response_msg = discord.Embed(colour=discord.Colour.orange())
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg = respmsg()
     del user_list[str(member.id)]
     response_msg.add_field(name="Removed: ",value="```" + str(member.name) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
@@ -232,8 +240,7 @@ async def top25update():
         else:
             break
         new_user_list = sorted(user_list.values(), key=itemgetter(reportType))
-        response_msg = discord.Embed(colour=discord.Colour.orange(),title="Top 25 {0} holders in the 101 Club".format(reportTypeMessage),)
-        response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+        response_msg = respmsg("Top 25 {0} holders in the 101 Club".format(reportTypeMessage))
         top_string = ''
         i = -1
         total_length = len(new_user_list)
@@ -275,8 +282,7 @@ async def stats(ctx, user_ign):
     for user in user_list:
         if (user == user_ign):
             user_ign = user_list[user]['IGN']
-    response_msg = discord.Embed(colour=discord.Colour.orange(),title="Stats for " + user_ign,)
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg = respmsg("Stats for " + user_ign)
     curr_header = header
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     #Consolidated IGN parts into single def
@@ -307,10 +313,7 @@ async def link(ctx, user_ign):
     user_list=get_data(users_file)
     data_list = get_data(data_file)
     no_requests = data_list['no_requests']
-    response_msg = discord.Embed(
-        colour=discord.Colour.orange(),
-        title="Linking " + user_ign,)
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg = respmsg("Linking " + user_ign)
     curr_header = header
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     user = ctx.message.author
@@ -404,8 +407,7 @@ async def mystats(ctx):
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     user = ctx.message.author
     user_id = user.id
-    response_msg = discord.Embed(colour=discord.Colour.orange(),title="Stats for " + user.name,)
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg = respmsg("Stats for " + user.name)
     await debugmessage(channel, 'got user id {0}'.format(user_id))
     if str(user_id) in user_list:
         curr_rank = user_list[str(user_id)]['Rank']
@@ -461,8 +463,7 @@ async def update():
     except:
         newmessage = True
         print("Couldn't find {0} message in {1} channel.".format(botinfo_msg, botinfo_channel))
-    response_msg = discord.Embed(colour=discord.Colour.orange(),title="Sync all data for The 101 Club")
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg = respmsg("Sync all data for The 101 Club")
     curr_header = header
     for user in user_list:
         player_id = str(user_list[user]['ID'])
@@ -596,8 +597,7 @@ async def update():
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
 async def resync(ctx):
-    response_msg = discord.Embed(colour=discord.Colour.orange())
-    response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+    response_msg = respmsg()
     response_msg.add_field(name="Resync started: ",value="This could take a long time based on the number of users and the PUBG API, please wait for the comfirmation message before more commands. 50 users per minute is our limit.",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
