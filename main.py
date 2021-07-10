@@ -396,7 +396,7 @@ def updateUserList(user_list, user_id, user_ign, player_id, playerStats, curr_pu
     user_list[str(user_id)]['terminator'] = curr_terminator
     user_list[str(user_id)]['general'] = curr_general
     user_list[str(user_id)]['team_kills'] = playerStats.pStats.team_kills
-    user_list[str(user_id)]['team_killer'] = curr_teamkiller
+    #user_list[str(user_id)]['team_killer'] = curr_teamkiller
     return user_list
 
 # Pull stats for current user and update database
@@ -423,7 +423,7 @@ async def mystats(ctx):
         #convert player_id to string
         player_id = str(user_list[str(user_id)]['ID'])
         user_ign = user_list[str(user_id)]['IGN']
-        curr_teamkiller = user_list[str(user_id)]['team_killer']
+        #curr_teamkiller = user_list[str(user_id)]['team_killer']
         #Consolidated playerInfo in a def
         second_request = await playerInfo(player_id, curr_header)
         #Added all session infor to a new playerStats class
@@ -477,7 +477,7 @@ async def update():
         curr_rank = user_list[user]['Rank']
         curr_terminator = user_list[user]['terminator']
         curr_punisher = user_list[user]['punisher']
-        curr_teamkiller = user_list[user]['team_killer']
+        #curr_teamkiller = user_list[user]['team_killer']
         curr_general = user_list[user]['general']
         #Consolidated playerInfo in a def
         request = await playerInfo(player_id, curr_header)
