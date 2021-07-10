@@ -491,7 +491,7 @@ async def update():
         user_list_na = updateUserList(user_list, user, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general)
         if playerStats.pStats.new_rank != curr_rank:
             role = discord.utils.get(guild.roles, name=curr_rank)
-            member = await guild.fetch_member(user_ign)
+            member = await guild.fetch_member(user)
             await member.remove_roles(role)
             role = discord.utils.get(guild.roles, name=playerStats.pStats.new_rank)
             await member.add_roles(role)
