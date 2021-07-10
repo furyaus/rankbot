@@ -242,7 +242,7 @@ async def discordRemoveRole(targetRole, user, ctx=None):
         guild = client.get_guild(d_server)
         role = discord.utils.get(guild.roles, name=targetRole)
     else:
-        role = discord.utils.get(ctx.guild.roles, name=targetRole)
+        role = discord.utils.get(guild.roles, name=targetRole)
     await user.remove_roles(role)
 
 async def discordAddRole(targetRole, user, ctx=None):
@@ -250,7 +250,7 @@ async def discordAddRole(targetRole, user, ctx=None):
         guild = client.get_guild(d_server)
         role = discord.utils.get(guild.roles, name=targetRole)
     else:
-        role = discord.utils.get(ctx.guild.roles, name=targetRole)
+        role = discord.utils.get(guild.roles, name=targetRole)
     await user.add_roles(role)
 
 async def discordRemoveAndAddRole(removeRole,targetRole,user, ctx=None):
