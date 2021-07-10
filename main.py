@@ -56,20 +56,12 @@ keys = ["Bearer " + API_key_fingers]
 header = {"Authorization": "Bearer " + API_key_fingers,"Accept": "application/vnd.api+json"}
 
 def helpmsg(titleText=None,descText=None):
-    help_msg = discord.Embed(colour=discord.Colour.orange())
-    if(titleText!=None):
-        help_msg.Embed(title=titleText)
-    if(descText!=None):
-        help_msg.Embed(description=descText)
+    help_msg = discord.Embed(colour=discord.Colour.orange(),title=titleText,description=descText)
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     return respmsg()
 
 def respmsg(titleText=None,descText=None):
-    response_msg = discord.Embed(colour=discord.Colour.orange())
-    if(titleText!=None):
-        response_msg.Embed(title=titleText)
-    if(descText!=None):
-        response_msg.Embed(description=descText)
+    response_msg = discord.Embed(colour=discord.Colour.orange(),title=titleText,description=descText)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     return respmsg()
 
