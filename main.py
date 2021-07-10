@@ -65,7 +65,7 @@ def helpmsg(titleText=None,descText=None):
     if(titleText!=None and descText!=None):
         help_msg = discord.Embed(colour=discord.Colour.orange(),title=titleText,description=descText)
     help_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    return respmsg()
+    return help_msg
 
 def respmsg(titleText=None,descText=None):
     if(titleText==None and descText==None):
@@ -77,7 +77,7 @@ def respmsg(titleText=None,descText=None):
     if(titleText!=None and descText!=None):
         response_msg = discord.Embed(colour=discord.Colour.orange(),title=titleText,description=descText)
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-    return respmsg()
+    return response_msg
 
 # Open user list and load into arrray
 def get_data(file):
