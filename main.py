@@ -263,7 +263,7 @@ async def discordReplaceRole(targetRole, olduser, newuser, ctx=None):
         guild = client.get_guild(d_server)
         role = discord.utils.get(guild.roles, name=targetRole)
     else:
-        role = discord.utils.get(ctx.guild.roles, name=targetRole)
+        role = discord.utils.get(guild.roles, name=targetRole)
     await discordRemoveRole(role,olduser,ctx)
     await discordAddRole(role,newuser,ctx)
 
