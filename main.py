@@ -430,7 +430,7 @@ async def mystats(ctx):
         playerStats = playerStatistics.statsCalc(player_id, second_request)
         await debugmessage(channel, 'got player stats for id {0}'.format(player_id))
         #Def to update all user information from stats class
-        user_list = updateUserList(user_list, user_id, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general, curr_teamkiller)
+        user_list = updateUserList(user_list, user_id, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general)
         if playerStats.pStats.new_rank != curr_rank:
             role = discord.utils.get(ctx.guild.roles, name=curr_rank)
             await user.remove_roles(role)
@@ -484,7 +484,7 @@ async def update():
         #Added all session infor to a new playerStats class
         playerStats = playerStatistics.statsCalc(player_id, request)
         #Def to update all user information from stats class
-        user_list_na = updateUserList(user_list, user, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general, curr_teamkiller)
+        user_list_na = updateUserList(user_list, user, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general)
         if playerStats.pStats.new_rank != curr_rank:
             role = discord.utils.get(guild.roles, name=curr_rank)
             member = await guild.fetch_member(user_ign)
