@@ -431,9 +431,12 @@ async def top25update():
         j = 1 
         while i > -(total_length+1):
             ign = new_user_list[i]['IGN']
-            player_stats = new_user_list[i][reportType]
             players = new_user_list[i][reportTypeStats] 
-            curr_line = "%i : %s, %s, %.0f\n" % (abs(j), ign,players,player_stats)
+            if (reportType=='c_rank_points'):
+                player_stats = new_user_list[i][reportType]
+            else:
+                player_stats = new_user_list[i]['Rank']
+            curr_line =  "{0} : {1}, {2}, {3}\n".format(abs(j), ign,players,player_stats)
             top_string += curr_line
             j += 1
             if j == 26:
@@ -478,8 +481,6 @@ async def stats(ctx, user_ign):
         player_id = str(player_info['data'][0]['id'].replace('account.', ''))
         #Consolidated playerInfo in a def
         second_request = await playerInfo(player_id, curr_header)
-        if(player_id=="329883909338824715"):
-            set_data(fingersraw_file,second_request,"Dumping fingers data to review")
         #Added all session infor to a new playerStats class
         playerStats = playerStatistics.statsCalc(player_id,second_request)
         response_msg.add_field(name="Rank",value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}",inline=False)
