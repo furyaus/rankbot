@@ -219,7 +219,9 @@ async def on_member_remove(member):
 @client.event
 async def on_member_join(member):
     channel = client.get_channel(botlog_channel)
-    await discordAddRole('101 Club',member)
+    after_id = member.id
+    member = await grabTargetUser(after_id)
+    await discordAddRole('101 Club', member)
     response_msg = respmsg()
     response_msg.add_field(name="Server join", value=f"{member.name}", inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
