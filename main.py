@@ -436,9 +436,10 @@ async def top25update():
             players = new_user_list[i][reportTypeStats] 
             if (reportType=='c_rank_points'):
                 player_stats = new_user_list[i][reportType]
+                curr_line =  "{0} : {1}, {2}, {3}\n".format(abs(j), ign,players,player_stats)
             else:
                 player_stats = new_user_list[i]['Rank']
-            curr_line =  "{0} : {1}, {2}, {3}\n".format(abs(j), ign,players,player_stats)
+                curr_line =  "{0} : {1}, {2}, {3}\n".format(abs(j), ign,player_stats,players)
             top_string += curr_line
             j += 1
             if j == 26:
