@@ -248,7 +248,7 @@ async def discordRemoveRole(targetRole, user, ctx=None):
     try:
       await user.remove_roles(role)
     except:
-      print('Erorr attemtping to remove role for {0}'.format(user))
+      print('Erorr attemtping to remove role: {1} for {0}'.format(user,targetRole))
     
 
 async def discordAddRole(targetRole, user, ctx=None):
@@ -260,7 +260,7 @@ async def discordAddRole(targetRole, user, ctx=None):
     try:
       await user.add_roles(role)
     except:
-      print('Erorr attemtping to add role for {0}'.format(user))
+      print('Erorr attemtping to add role: {1} for {0}'.format(user,targetRole))
 
 async def discordRemoveAndAddRole(removeRole,targetRole,user, ctx=None):
     await discordRemoveRole(removeRole,user,ctx)
