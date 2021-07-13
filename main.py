@@ -712,7 +712,7 @@ async def update():
     if current_general == 'None':
         member = await grabTargetUser(max_points_user)
         if member != None:
-            await discordAddRole('The General',member,guild)
+            await discordAddRole('The General',member)
             response_msg.add_field(name="The General",value=f"A new The General role (highest rank) has been assigned. Congrats! ```{member.name}```",inline=False)
     elif current_general == max_points_user:
         member = await grabTargetUser(current_general)
@@ -723,7 +723,7 @@ async def update():
         user_list[current_general]['general'] = 0
         newmember = await grabTargetUser(max_points_user)
         if oldmember != None and newmember != None:
-            await discordReplaceRole('The General',oldmember,newmember,guild)
+            await discordReplaceRole('The General',oldmember,newmember)
             response_msg.add_field(name="The General",value=f"Previous General (highest rank) has been replaced. Congrats! ```{newmember.name}```",inline=False)
 
     max_kda = 0
@@ -769,7 +769,7 @@ async def update():
     #Punished work
     if current_punisher == 'None':
         member = await grabTargetUser(max_adr_user)
-        await discordAddRole("The Punisher",member,guild)
+        await discordAddRole("The Punisher",member)
         if member != None:
             response_msg.add_field(name="The Punisher",value=f"A new The Punisher role (highest ADR) has been assigned. Congrats! ```{member.name}```",inline=False)
     elif current_punisher == max_adr_user:
@@ -781,7 +781,7 @@ async def update():
         user_list[current_punisher]['punisher'] = 0
         newmember = await grabTargetUser(max_adr_user)
         if oldmember != None and newmember != None:
-            await discordReplaceRole("The Terminator",oldmember,newmember,guild)
+            await discordReplaceRole("The Terminator",oldmember,newmember)
             response_msg.add_field(name="The Punisher",value=f"Previous Punisher (highest ADR) has been replaced. Congrats! ```{member.name}```",inline=False)
 
     response_msg.add_field(name="Sync completed",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
