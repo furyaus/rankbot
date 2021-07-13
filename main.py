@@ -615,15 +615,15 @@ async def mystats(ctx):
         response_msg.add_field(name="KDA",value=f"Kills and assists per death: {playerStats.pStats.KDA}", inline=False)
         response_msg.add_field(name="ADR",value=f"Average damage per game: {playerStats.pStats.ADR}", inline=False)
         response_msg.add_field(name="Done",value=f"Updated stats and saved to file.", inline=False)
+        await debugmessage(channel, 'setting user data for {0}'.format(player_id))
+        await debugmessage(channel, 'setting data call for {0}'.format(player_id))
     else:
         response_msg.add_field(name="Rank",value=f"You currently don't have a rank and your IGN isn't added to the list so use .link command to link",inline=False)
     set_data(users_file, user_list, 'update')
-    await debugmessage(channel, 'setting user data for {0}'.format(player_id))
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
     data_list['no_requests'] = no_requests
     set_data(data_file, data_list, 'update')
-    await debugmessage(channel, 'setting data call for {0}'.format(player_id))
 
 # Main program - full resync all data, ranks, roles and stats
 @tasks.loop(hours=1.0)
