@@ -235,7 +235,7 @@ async def grabTargetUser(user):
         print('Fetching member info for {0}'.format(user))
         member = await guild.fetch_member(user)
     except:
-        print('Error occured getting member info for {0}'.format(user))
+        await reporterror('Error occured getting member info for {0}'.format(user))
     return member
 
 # Standard role add a remove function
@@ -248,7 +248,7 @@ async def discordRemoveRole(targetRole, user, ctx=None):
     try:
       await user.remove_roles(role)
     except:
-      print('Erorr attemtping to remove role: {1} for {0}'.format(user,targetRole))
+      await reporterror('Erorr attemtping to remove role: {1} for {0}'.format(user,targetRole))
     
 
 async def discordAddRole(targetRole, user, ctx=None):
@@ -260,7 +260,7 @@ async def discordAddRole(targetRole, user, ctx=None):
     try:
       await user.add_roles(role)
     except:
-      print('Erorr attemtping to add role: {1} for {0}'.format(user,targetRole))
+      await reporterror('Erorr attemtping to add role: {1} for {0}'.format(user,targetRole))
 
 async def discordRemoveAndAddRole(removeRole,targetRole,user, ctx=None):
     await discordRemoveRole(removeRole,user,ctx)
@@ -341,7 +341,7 @@ async def serverstats():
         message = await channel.fetch_message(stats_msg)
     except:
         newmessage = True
-        print("Couldn't find {0} message in {1} channel.".format(stats_msg, stats_channel))
+        await reporterror("Couldn't find {0} message in {1} channel.".format(stats_msg, stats_channel))
     response_msg = respmsg()
     response_msg.add_field(name="Users",value="Number of 101 Club members: ```" + str(guild.member_count)+ "```",inline=False)
     response_msg.add_field(name="Channels",value="Number of channels in the 101 Club: ```" + str(len(guild.channels)) + "```",inline=False)
@@ -572,6 +572,11 @@ async def playerInfo(player_id, curr_header):
 async def debugmessage(ctx,message):
     if(debugmode == 1):
         await ctx.send(message)
+
+# Set secert debug variable to 1 for extra messages
+async def reporterror(message):
+    channel = client.get_channel(error_channel)
+    await channel.send(message)
 
 # Pull stats for current user and update database
 @client.command()
