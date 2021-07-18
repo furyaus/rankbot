@@ -791,7 +791,7 @@ async def update():
         user_list[current_punisher]['punisher'] = 0
         newmember = await grabTargetUser(max_adr_user)
         if oldmember != None and newmember != None:
-            await discordReplaceRole("The Terminator",oldmember,newmember)
+            await discordReplaceRole("The Punisher",oldmember,newmember)
             response_msg.add_field(name="The Punisher",value=f"Previous Punisher (highest ADR) has been replaced. Congrats! ```{member.name}```",inline=False)
 
     response_msg.add_field(name="Sync completed",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
