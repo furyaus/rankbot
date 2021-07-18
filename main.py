@@ -215,6 +215,17 @@ async def on_member_remove(member):
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
+#Target user add exception handling
+async def grabTargetUser(user):
+    guild = client.get_guild(d_server)
+    member = None
+    try:
+        print('Fetching member info for {0}'.format(user))
+        member = await guild.fetch_member(user)
+    except:
+        await reporterror('Error occured getting member info for {0}'.format(user))
+    return member
+
 # On member join add role and report
 @client.event
 async def on_member_join(member):
@@ -226,17 +237,6 @@ async def on_member_join(member):
     response_msg.add_field(name="Server join", value=f"{member.name}", inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
-
-#Target user add exception handling
-async def grabTargetUser(user):
-    guild = client.get_guild(d_server)
-    member = None
-    try:
-        print('Fetching member info for {0}'.format(user))
-        member = await guild.fetch_member(user)
-    except:
-        await reporterror('Error occured getting member info for {0}'.format(user))
-    return member
 
 # Standard role add a remove function
 async def discordRemoveRole(targetRole, user, ctx=None):
@@ -267,13 +267,8 @@ async def discordRemoveAndAddRole(removeRole,targetRole,user, ctx=None):
     await discordAddRole(targetRole,user,ctx)
 
 async def discordReplaceRole(targetRole, olduser, newuser, ctx=None):
-    if ctx == None:
-        guild = client.get_guild(d_server)
-        role = discord.utils.get(guild.roles, name=targetRole)
-    else:
-        role = discord.utils.get(ctx.guild.roles, name=targetRole)
-    await discordRemoveRole(role,olduser,ctx)
-    await discordAddRole(role,newuser,ctx)
+    await discordRemoveRole(targetRole,olduser,ctx)
+    await discordAddRole(targetRole,newuser,ctx)
 
 # Streaming Role
 @client.event
