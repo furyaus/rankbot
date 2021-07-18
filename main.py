@@ -73,6 +73,11 @@ def respmsg(titleText=None,descText=None):
     response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
     return response_msg
 
+# Set secert debug variable to 1 for extra messages
+async def debugmessage(ctx,message):
+    if(debugmode == 1):
+        await ctx.send(message)
+
 # Open user list and load into arrray
 def get_data(file):
     with open(file, "r") as file:
@@ -99,6 +104,14 @@ async def on_error(event, *args, **kwargs):
     response_msg = respmsg()
     response_msg.description = event
     response_msg.add_field(name='Event', value='```py\n%s\n```' % traceback.format_exc())
+    response_msg.timestamp = datetime.datetime.utcnow()
+    await channel.send(embed=response_msg)
+
+# Set secert debug variable to 1 for extra messages
+async def reporterror(message):
+    channel = client.get_channel(error_channel)
+    response_msg = respmsg()
+    response_msg.add_field(name="Rank Bot error", value=message, inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
@@ -562,16 +575,6 @@ async def playerInfo(player_id, curr_header):
         no_requests += 1
     season_info = json.loads(request.text)
     return season_info
-
-# Set secert debug variable to 1 for extra messages
-async def debugmessage(ctx,message):
-    if(debugmode == 1):
-        await ctx.send(message)
-
-# Set secert debug variable to 1 for extra messages
-async def reporterror(message):
-    channel = client.get_channel(error_channel)
-    await channel.send(message)
 
 # Pull stats for current user and update database
 @client.command()
