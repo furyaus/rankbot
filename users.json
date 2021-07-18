@@ -1438,7 +1438,7 @@
     "season_wins": 27,
     "KDA": 3.27,
     "ADR": 330.0,
-    "punisher": 1,
+    "punisher": 0,
     "terminator": 0,
     "general": 0,
     "team_kills": 0
@@ -1457,7 +1457,7 @@
     "season_wins": 44,
     "KDA": 5.38,
     "ADR": 474.0,
-    "punisher": 0,
+    "punisher": 1,
     "terminator": 1,
     "general": 0,
     "team_kills": 0

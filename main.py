@@ -718,7 +718,6 @@ async def update():
             max_points = user_list[user]['c_rank_points']
             max_points_user = user
     user_list[max_points_user]['general'] = 1
-    
     if current_general == 'None':
         member = await grabTargetUser(max_points_user)
         if member != None:
@@ -747,7 +746,6 @@ async def update():
             max_kda = user_list[user]['KDA']
             max_kda_user = user
     user_list[max_kda_user]['terminator'] = 1
-    #Terminator work
     if current_terminator == 'None':
         member = await grabTargetUser(max_kda_user)
         await discordAddRole('The Terminator',member)
@@ -776,7 +774,6 @@ async def update():
             max_adr = user_list[user]['ADR']
             max_adr_user = user
     user_list[max_adr_user]['punisher'] = 1
-    #Punished work
     if current_punisher == 'None':
         member = await grabTargetUser(max_adr_user)
         await discordAddRole("The Punisher",member)
