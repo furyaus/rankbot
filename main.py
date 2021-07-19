@@ -212,22 +212,6 @@ async def remove(ctx, member: discord.Member):
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
-# Remove user from JSON when they leave server and report
-@client.event
-async def on_member_remove(member):
-    user_list=get_data(users_file)
-    channel = client.get_channel(botlog_channel)
-    response_msg = respmsg()
-    try: 
-        del user_list[str(member.id)]
-        set_data(users_file, user_list, 'on member remove')
-        response_msg.add_field(name="Left server", value=f"{member.name} was removed from user list in rank data.", inline=False)
-    except:
-        response_msg.add_field(name="Left server", value=f"{member.name} was not in user list for rank data.", inline=False)
-        pass
-    response_msg.timestamp = datetime.datetime.utcnow()
-    await channel.send(embed=response_msg)
-
 #Target user add exception handling
 async def grabTargetUser(user):
     guild = client.get_guild(d_server)
@@ -248,6 +232,38 @@ async def on_member_join(member):
     await discordAddRole('101 Club', member)
     response_msg = respmsg()
     response_msg.add_field(name="Server join", value=f"{member.name}", inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow()
+    await channel.send(embed=response_msg)
+
+# Streaming Role
+@client.event
+async def on_member_update(before, after):
+    guild = client.get_guild(d_server)
+    streaming_role = discord.utils.get(guild.roles, name='Streaming')
+    member = await grabTargetUser(before.id)
+    streaming = [i for i in after.activities if str(i.type) == "ActivityType.streaming"]
+    if streaming:
+        if streaming_role not in after.roles:
+            print(f"{after.display_name} is streaming")
+            await discordAddRole('Streaming',member)
+    else:
+        if streaming_role in after.roles:
+            print(f"{after.display_name} is not streaming")
+            await discordRemoveRole('Streaming',member)
+
+# Remove user from JSON when they leave server and report
+@client.event
+async def on_member_remove(member):
+    user_list=get_data(users_file)
+    channel = client.get_channel(botlog_channel)
+    response_msg = respmsg()
+    try: 
+        del user_list[str(member.id)]
+        set_data(users_file, user_list, 'on member remove')
+        response_msg.add_field(name="Left server", value=f"{member.name} was removed from user list in rank data.", inline=False)
+    except:
+        response_msg.add_field(name="Left server", value=f"{member.name} was not in user list for rank data.", inline=False)
+        pass
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
@@ -281,22 +297,6 @@ async def discordRemoveAndAddRole(removeRole,targetRole,user, ctx=None):
 async def discordReplaceRole(targetRole, olduser, newuser, ctx=None):
     await discordRemoveRole(targetRole,olduser,ctx)
     await discordAddRole(targetRole,newuser,ctx)
-
-# Streaming Role
-@client.event
-async def on_member_update(before, after):
-    guild = client.get_guild(d_server)
-    streaming_role = discord.utils.get(guild.roles, name='Streaming')
-    member = await grabTargetUser(before.id)
-    streaming = [i for i in after.activities if str(i.type) == "ActivityType.streaming"]
-    if streaming:
-        if streaming_role not in after.roles:
-            print(f"{after.display_name} is streaming")
-            await discordAddRole('Streaming',member)
-    else:
-        if streaming_role in after.roles:
-            print(f"{after.display_name} is not streaming")
-            await discordRemoveRole('Streaming',member)
 
 # Ban function
 @client.command()
