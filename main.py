@@ -262,7 +262,6 @@ async def discordRemoveRole(targetRole, user, ctx=None):
       await user.remove_roles(role)
     except:
       await reporterror('Erorr attemtping to remove role: {1} for {0}'.format(user,targetRole))
-    
 
 async def discordAddRole(targetRole, user, ctx=None):
     if ctx == None:
@@ -288,8 +287,7 @@ async def discordReplaceRole(targetRole, olduser, newuser, ctx=None):
 async def on_member_update(before, after):
     guild = client.get_guild(d_server)
     streaming_role = discord.utils.get(guild.roles, name='Streaming')
-    after_id = after.id
-    member = await grabTargetUser(after_id)
+    member = await grabTargetUser(before.id)
     streaming = [i for i in after.activities if str(i.type) == "ActivityType.streaming"]
     if streaming:
         if streaming_role not in after.roles:
