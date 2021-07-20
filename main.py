@@ -227,8 +227,7 @@ async def grabTargetUser(user):
 @client.event
 async def on_member_join(member):
     channel = client.get_channel(botlog_channel)
-    after_id = member.id
-    member = await grabTargetUser(after_id)
+    member = await grabTargetUser(member.id)
     await discordAddRole('101 Club', member)
     response_msg = respmsg()
     response_msg.add_field(name="Server join", value=f"{member.name}", inline=False)
@@ -524,18 +523,14 @@ async def link(ctx, user_ign):
     if str(user_id) in user_list:
         response_msg.add_field(name="Issue",value="Your IGN has already been added to the list, just use .mystats to update your rank",inline=False)
     else:
-        #Consolidated IGN parts into single def
         initial_r = await playerIgn(curr_header, user_ign)
         if initial_r.status_code != 200:
             response_msg.add_field(name="Issue",value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
         else:
             player_info = json.loads(initial_r.text)
             player_id = str(player_info['data'][0]['id'].replace('account.', ''))
-            #Consolidated playerInfo in a def
             second_request = await playerInfo(player_id, curr_header)
-            #Added all session infor to a new playerStats class
             playerStats = playerStatistics.statsCalc(player_id,second_request)
-            #Def to update all user information from stats class
             user_list = updateUserList(user_list, user_id, user_ign, player_id, playerStats)
             await discordAddRole(playerStats.pStats.new_rank,user, ctx)
             response_msg.add_field(name="Rank",value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}",inline=False)
@@ -595,15 +590,11 @@ async def mystats(ctx):
         curr_terminator = user_list[str(user_id)]['terminator']
         curr_punisher = user_list[str(user_id)]['punisher']
         curr_general = user_list[str(user_id)]['general']
-        #convert player_id to string
         player_id = str(user_list[str(user_id)]['ID'])
         user_ign = user_list[str(user_id)]['IGN']
-        #Consolidated playerInfo in a def
         second_request = await playerInfo(player_id, curr_header)
-        #Added all session infor to a new playerStats class
         playerStats = playerStatistics.statsCalc(player_id, second_request)
         await debugmessage(channel, 'got player stats for id {0}'.format(player_id))
-        #Def to update all user information from stats class
         user_list = updateUserList(user_list, user_id, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general)
         if playerStats.pStats.new_rank != curr_rank:
             await discordRemoveAndAddRole(curr_rank, playerStats.pStats.new_rank, user, ctx)
@@ -632,7 +623,6 @@ async def update():
     user_list=get_data(users_file)
     data_list = get_data(data_file)
     no_requests = data_list['no_requests']
-    guild = client.get_guild(d_server)
     channel = client.get_channel(botinfo_channel)
     newmessage = False
     try:
@@ -649,11 +639,8 @@ async def update():
         curr_terminator = user_list[user]['terminator']
         curr_punisher = user_list[user]['punisher']
         curr_general = user_list[user]['general']
-        #Consolidated playerInfo in a def
         request = await playerInfo(player_id, curr_header)
-        #Added all session infor to a new playerStats class
         playerStats = playerStatistics.statsCalc(player_id, request)
-        #Def to update all user information from stats class
         user_list_na = updateUserList(user_list, user, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general)
         if playerStats.pStats.new_rank != curr_rank:
             member = await grabTargetUser(user)
@@ -722,7 +709,7 @@ async def update():
             await discordAddRole('The General',member)
             response_msg.add_field(name="The General",value=f"A new The General role (highest rank) has been assigned. Congrats! ```{member.name}```",inline=False)
     elif current_general == max_points_user:
-        member = await grabTargetUser(current_general)
+        member = await grabTargetUser(max_points_user)
         if member != None:
             response_msg.add_field(name="The General",value=f"The General is the same as before. ```{member.name}```",inline=False)
     else:
