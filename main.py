@@ -239,6 +239,7 @@ async def adminhelp(ctx):
     response_msg.add_field(name=".unban",value="Unbans a user and direct messages them to rejoin via invite. ```.unban 0cker```",inline=False)
     response_msg.add_field(name=".remove",value="Will allow admin to remove link between Discord user id and PUBG IGN. User can then complete a link again. ```.remove @P4```",inline=False)
     response_msg.add_field(name=".resync",value="This will force a full resync for all stored players with PUBG API. 50 users per minute, wait till complete. ```.resync```",inline=False)
+    response_msg.add_field(name=".lobby",value="This will display a message in announcement chan with lobby password counting down until start ```.lobby 60 yeet```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
@@ -257,33 +258,34 @@ async def inspire(ctx):
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
+# Lobby up
 @client.command()
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
-async def lobbyup(ctx, *, text):
+async def lobby(ctx, timesecs, password):
     channel = client.get_channel(announce_channel)
+    run = 0
     try:
-      timer = int(text)
+      timer = int(timesecs)
     except ValueError:
-      timer = 10
+      timer = 120
     if timer < 10:
       timer = 10
     while timer != 0:
       response_msg = botHelper.respmsg()
-      response_msg.add_field(name="Lobby Up", value="The lobby starting: {0}".format(timer), inline=False)
+      response_msg.add_field(name="Lobby up", value="The lobby starting in {0} seconds".format(timer), inline=False)
+      response_msg.add_field(name="Lobby password", value="The lobby password: {0}".format(password), inline=False)
       response_msg.timestamp = datetime.datetime.utcnow()
-      await channel.send(embed=response_msg)
-      time.sleep(10)
-      timer = timer - 10
-    
-
-@client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
-async def lobbypassword(ctx, *, text):
-    channel = client.get_channel(announce_channel)
+      if run == 0:
+          msg = await channel.send(embed=response_msg)
+          run = 1
+      else:
+          await msg.edit(embed=response_msg)
+      await asyncio.sleep(1)
+      timer = timer - 1
     response_msg = botHelper.respmsg()
-    response_msg.add_field(name="Lobby Up", value="The lobby is up PW: {0}".format(password), inline=False)
+    response_msg.add_field(name="Lobby starting", value="The lobby starting now!", inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
-    await channel.send(embed=response_msg)
+    await msg.edit(embed=response_msg)
 
 # Say
 @client.command()
