@@ -263,7 +263,6 @@ async def inspire(ctx):
 @commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
 async def lobby(ctx, timesecs, password):
     channel = client.get_channel(announce_channel)
-    run = 0
     try:
       timer = int(timesecs)
     except ValueError:
