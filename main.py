@@ -280,7 +280,7 @@ async def lobby(ctx, timesecs, password):
       else:
           await msg.edit(embed=response_msg)
       await asyncio.sleep(1)
-      timer = timer - 1
+      timer -= 1
     response_msg = botHelper.respmsg()
     response_msg.add_field(name="Lobby starting", value="The lobby starting now!", inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
