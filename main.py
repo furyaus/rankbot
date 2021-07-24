@@ -14,7 +14,6 @@ from discord.ext import commands, tasks
 from operator import itemgetter
 from datetime import timedelta
 from pytz import timezone
-import time
 
 # Setup bot and command
 clientintents = discord.Intents.all()
@@ -37,7 +36,7 @@ API_key_p4 = os.environ['API_key_p4']
 API_key_progdog = os.environ['API_key_progdog']
 API_key_fingers = os.environ['API_key_fingers']
 d_server = int(os.environ['discord_server'])
-debugmode = int(os.environ['debug']) #New debug mode added, if this is 1 it'll message to the channels for the looped status updates
+debugmode = int(os.environ['debug'])  #New debug mode added, if this is 1 it'll message to the channels for the looped status updates
 announce_channel = int(os.environ['announce_channel'])
 botstats_channel = int(os.environ['botstats_channel'])
 stats_channel = int(os.environ['stats_channel'])
@@ -54,146 +53,148 @@ top25kda_msg = int(os.environ['top25kda_msg'])
 top25adr_channel = int(os.environ['top25adr_channel'])
 top25adr_msg = int(os.environ['top25adr_msg'])
 streaming_role = int(os.environ['streaming_role'])
-admin_roles = ["Moderators", "Admin", "Boss", "The General", "The Punisher", "The Terminator",]
+admin_roles = ["Moderators","Admin","Boss","The General","The Punisher","The Terminator"]
 no_requests = 0
 curr_key = 0
-loop_timer = 0.05 #0.05 is 5 minutes #0.005 is 30 seconds
+loop_timer = 0.05  #0.05 is 5 minutes #0.005 is 30 seconds
 
 # Keys in order - furyaus, ocker, p4, progdog, fingers
-keys = ["Bearer " + API_key_fury, "Bearer " + API_key_ocker, "Bearer " + API_key_p4, "Bearer " + API_key_progdog, "Bearer " + API_key_fingers]
+keys = ["Bearer " + API_key_fury, "Bearer " + API_key_ocker,"Bearer " + API_key_p4, "Bearer " + API_key_progdog,"Bearer " + API_key_fingers]
 header = {"Authorization": "Bearer " + API_key_fury,"Accept": "application/vnd.api+json"}
 
+# Standard bot reponse message embed format
 class botHelper():
-  # Standard bot reponse message embed format
-  def respmsg(titleText=None,descText=None):
-      if(titleText==None and descText==None):
-          response_msg = discord.Embed(colour=discord.Colour.orange())
-      if(titleText!=None and descText==None):
-          response_msg = discord.Embed(colour=discord.Colour.orange(),title=titleText)
-      if(titleText==None and descText!=None):
-          response_msg = discord.Embed(colour=discord.Colour.orange(),description=descText)
-      if(titleText!=None and descText!=None):
-          response_msg = discord.Embed(colour=discord.Colour.orange(),title=titleText,description=descText)
-      response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
-      return response_msg
+    def respmsg(titleText=None, descText=None):
+        if (titleText == None and descText == None):
+            response_msg = discord.Embed(colour=discord.Colour.orange())
+        if (titleText != None and descText == None):
+            response_msg = discord.Embed(colour=discord.Colour.orange(),title=titleText)
+        if (titleText == None and descText != None):
+            response_msg = discord.Embed(colour=discord.Colour.orange(),description=descText)
+        if (titleText != None and descText != None):
+            response_msg = discord.Embed(colour=discord.Colour.orange(),title=titleText,description=descText)
+        response_msg.set_thumbnail(url="https://i.ibb.co/BNrSMdN/101-logo.png")
+        return response_msg
 
-  # Set secert debug variable to 1 for extra messages
-  async def debugmessage(ctx,message):
-      if(debugmode == 1):
-          await ctx.send(message)
+    # Set secert debug variable to 1 for extra messages
+    async def debugmessage(ctx, message):
+        if (debugmode == 1):
+            await ctx.send(message)
 
-  # Open user list and load into arrray
-  def get_data(file):
-      with open(file, "r") as file:
-          return json.loads(file.read())
+    # Open user list and load into arrray
+    def get_data(file):
+        with open(file, "r") as file:
+            return json.loads(file.read())
 
-  # Close user list and store in JSON file
-  def set_data(file, data, comment):
-      with open(file, 'w') as file:
-          print('update to {0} because {1}'.format(file.name,comment))
-          json.dump(data, file, indent=2)
+    # Close user list and store in JSON file
+    def set_data(file, data, comment):
+        with open(file, 'w') as file:
+            print('update to {0} because {1}'.format(file.name, comment))
+            json.dump(data, file, indent=2)
 
-  # Confirm legitmate PUBG IGN
-  async def playerIgn(curr_header, user_ign):
-      global no_requests
-      url = "https://api.pubg.com/shards/steam/players?filter[playerNames]=" + user_ign
-      request = requests.get(url, headers=curr_header)
-      no_requests += 1
-      if request.status_code == 429:
-          print('Too many API requests, sleep 60secs')
-          await asyncio.sleep(60)
-          curr_header['Authorization'] = keys[no_requests % (len(keys))]
-          request = requests.get(url, headers=curr_header)
-          no_requests += 1
-      return request
+    # Confirm legitmate PUBG IGN
+    async def playerIgn(curr_header, user_ign):
+        global no_requests
+        url = "https://api.pubg.com/shards/steam/players?filter[playerNames]=" + user_ign
+        request = requests.get(url, headers=curr_header)
+        no_requests += 1
+        if request.status_code == 429:
+            print('Too many API requests, sleep 60secs')
+            await asyncio.sleep(60)
+            curr_header['Authorization'] = keys[no_requests % (len(keys))]
+            request = requests.get(url, headers=curr_header)
+            no_requests += 1
+        return request
 
-  # Collect player ranked season data  
-  async def playerInfo(player_id, curr_header):
-      global no_requests
-      season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
-      curr_header['Authorization'] = keys[no_requests % (len(keys))]
-      request = requests.get(season_url, headers=curr_header)
-      no_requests += 1
-      if request.status_code == 429:
-          print('Too many API requests, sleep 60secs')
-          await asyncio.sleep(60)
-          curr_header['Authorization'] = keys[no_requests % (len(keys))]
-          request = requests.get(season_url, headers=curr_header)
-          no_requests += 1
-      season_info = json.loads(request.text)
-      return season_info
+    # Collect player ranked season data
+    async def playerInfo(player_id, curr_header):
+        global no_requests
+        season_url = "https://api.pubg.com/shards/steam/players/" + "account." + player_id + "/seasons/" + curr_season + "/ranked"
+        curr_header['Authorization'] = keys[no_requests % (len(keys))]
+        request = requests.get(season_url, headers=curr_header)
+        no_requests += 1
+        if request.status_code == 429:
+            print('Too many API requests, sleep 60secs')
+            await asyncio.sleep(60)
+            curr_header['Authorization'] = keys[no_requests % (len(keys))]
+            request = requests.get(season_url, headers=curr_header)
+            no_requests += 1
+        season_info = json.loads(request.text)
+        return season_info
 
-  # Set secert debug variable to 1 for extra messages
-  async def reporterror(message):
-      channel = client.get_channel(error_channel)
-      response_msg = botHelper.respmsg()
-      response_msg.add_field(name="Rank Bot error", value=message, inline=False)
-      response_msg.timestamp = datetime.datetime.utcnow()
-      await channel.send(embed=response_msg)
+    # Set secert debug variable to 1 for extra messages
+    async def reporterror(message):
+        channel = client.get_channel(error_channel)
+        response_msg = botHelper.respmsg()
+        response_msg.add_field(name="Rank Bot error",value=message,inline=False)
+        response_msg.timestamp = datetime.datetime.utcnow()
+        await channel.send(embed=response_msg)
 
-  #Target user add exception handling
-  async def grabTargetUser(user):
-      guild = client.get_guild(d_server)
-      member = None
-      try:
-          print('Fetching member info for {0}'.format(user))
-          member = await guild.fetch_member(user)
-      except:
-          await botHelper.reporterror('Error occured getting member info for {0}'.format(user))
-      return member
+    #Target user add exception handling
+    async def grabTargetUser(user):
+        guild = client.get_guild(d_server)
+        member = None
+        try:
+            print('Fetching member info for {0}'.format(user))
+            member = await guild.fetch_member(user)
+        except:
+            await botHelper.reporterror(
+                'Error occured getting member info for {0}'.format(user))
+        return member
 
-  # Standard role add a remove function
-  async def discordRemoveRole(targetRole, user, ctx=None):
-      if ctx == None:
-          guild = client.get_guild(d_server)
-          role = discord.utils.get(guild.roles, name=targetRole)
-      else:
-          role = discord.utils.get(ctx.guild.roles, name=targetRole)
-      try:
-        await user.remove_roles(role)
-      except:
-        await botHelper.reporterror('Erorr attemtping to remove role: {1} for {0}'.format(user,targetRole))
+    # Standard role add a remove function
+    async def discordRemoveRole(targetRole, user, ctx=None):
+        if ctx == None:
+            guild = client.get_guild(d_server)
+            role = discord.utils.get(guild.roles, name=targetRole)
+        else:
+            role = discord.utils.get(ctx.guild.roles, name=targetRole)
+        try:
+            await user.remove_roles(role)
+        except:
+            await botHelper.reporterror(
+                'Erorr attemtping to remove role: {1} for {0}'.format(user, targetRole))
 
-  #Add discord role
-  async def discordAddRole(targetRole, user, ctx=None):
-      if ctx == None:
-          guild = client.get_guild(d_server)
-          role = discord.utils.get(guild.roles, name=targetRole)
-      else:
-          role = discord.utils.get(ctx.guild.roles, name=targetRole)
-      try:
-        await user.add_roles(role)
-      except:
-        await botHelper.reporterror('Erorr attemtping to add role: {1} for {0}'.format(user,targetRole))
+    #Add discord role
+    async def discordAddRole(targetRole, user, ctx=None):
+        if ctx == None:
+            guild = client.get_guild(d_server)
+            role = discord.utils.get(guild.roles, name=targetRole)
+        else:
+            role = discord.utils.get(ctx.guild.roles, name=targetRole)
+        try:
+            await user.add_roles(role)
+        except:
+            await botHelper.reporterror('Erorr attemtping to add role: {1} for {0}'.format(user, targetRole))
 
-  #Remove and add discord role
-  async def discordRemoveAndAddRole(removeRole,targetRole,user, ctx=None):
-      await botHelper.discordRemoveRole(removeRole,user,ctx)
-      await botHelper.discordAddRole(targetRole,user,ctx)
+    #Remove and add discord role
+    async def discordRemoveAndAddRole(removeRole, targetRole, user, ctx=None):
+        await botHelper.discordRemoveRole(removeRole, user, ctx)
+        await botHelper.discordAddRole(targetRole, user, ctx)
 
-  #Replace role
-  async def discordReplaceRole(targetRole, olduser, newuser, ctx=None):
-      await botHelper.discordRemoveRole(targetRole,olduser,ctx)
-      await botHelper.discordAddRole(targetRole,newuser,ctx)
+    #Replace role
+    async def discordReplaceRole(targetRole, olduser, newuser, ctx=None):
+        await botHelper.discordRemoveRole(targetRole, olduser, ctx)
+        await botHelper.discordAddRole(targetRole, newuser, ctx)
 
-  # User def
-  def updateUserList(user_list, user_id, user_ign, player_id, playerStats, curr_punisher=0, curr_terminator=0, curr_general=0):
-      user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
-      user_list[str(user_id)]['c_rank'] = playerStats.pStats.c_rank
-      user_list[str(user_id)]['c_tier'] = playerStats.pStats.c_tier
-      user_list[str(user_id)]['c_rank_points'] = playerStats.pStats.c_rank_points
-      user_list[str(user_id)]['h_rank'] = playerStats.pStats.h_rank
-      user_list[str(user_id)]['h_tier'] = playerStats.pStats.h_tier
-      user_list[str(user_id)]['h_rank_points'] = playerStats.pStats.h_rank_points
-      user_list[str(user_id)]['games_played'] = playerStats.pStats.games_played
-      user_list[str(user_id)]['season_wins'] = playerStats.pStats.season_wins
-      user_list[str(user_id)]['KDA'] = playerStats.pStats.KDA
-      user_list[str(user_id)]['ADR'] = playerStats.pStats.ADR
-      user_list[str(user_id)]['punisher'] = curr_punisher
-      user_list[str(user_id)]['terminator'] = curr_terminator
-      user_list[str(user_id)]['general'] = curr_general
-      user_list[str(user_id)]['team_kills'] = playerStats.pStats.team_kills
-      return user_list
+    # User def
+    def updateUserList(user_list,user_id,user_ign,player_id,playerStats,curr_punisher=0,curr_terminator=0,curr_general=0):
+        user_list.update({str(user_id): {'IGN': user_ign,'ID': player_id,'Rank': playerStats.pStats.new_rank}})
+        user_list[str(user_id)]['c_rank'] = playerStats.pStats.c_rank
+        user_list[str(user_id)]['c_tier'] = playerStats.pStats.c_tier
+        user_list[str(user_id)]['c_rank_points'] = playerStats.pStats.c_rank_points
+        user_list[str(user_id)]['h_rank'] = playerStats.pStats.h_rank
+        user_list[str(user_id)]['h_tier'] = playerStats.pStats.h_tier
+        user_list[str(user_id)]['h_rank_points'] = playerStats.pStats.h_rank_points
+        user_list[str(user_id)]['games_played'] = playerStats.pStats.games_played
+        user_list[str(user_id)]['season_wins'] = playerStats.pStats.season_wins
+        user_list[str(user_id)]['KDA'] = playerStats.pStats.KDA
+        user_list[str(user_id)]['ADR'] = playerStats.pStats.ADR
+        user_list[str(user_id)]['punisher'] = curr_punisher
+        user_list[str(user_id)]['terminator'] = curr_terminator
+        user_list[str(user_id)]['general'] = curr_general
+        user_list[str(user_id)]['team_kills'] = playerStats.pStats.team_kills
+        return user_list
 
 # Catch unknown commands
 @client.event
@@ -209,7 +210,7 @@ async def on_error(event, *args, **kwargs):
     channel = client.get_channel(error_channel)
     response_msg = botHelper.respmsg()
     response_msg.description = event
-    response_msg.add_field(name='Event', value='```py\n%s\n```' % traceback.format_exc())
+    response_msg.add_field(name='Event',value='```py\n%s\n```' % traceback.format_exc())
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
@@ -227,7 +228,7 @@ async def help(ctx):
 
 # Admin help
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
 async def adminhelp(ctx):
     response_msg = botHelper.respmsg("Admin help for Rank Bot","Admin users can remove users and call for global updates.")
     response_msg.add_field(name=".linked",value="Returns the total number of currently stored users in JSON file. ```.linked```",inline=False)
@@ -260,36 +261,41 @@ async def inspire(ctx):
 
 # Lobby up
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
 async def lobby(ctx, timesecs, password):
     channel = client.get_channel(announce_channel)
+    run = 0
     try:
-      timer = int(timesecs)
+        timer = int(timesecs)
     except ValueError:
-      timer = 120
+        timer = 120
     if timer < 10:
-      timer = 10
+        timer = 10
     while timer != 0:
-      response_msg = botHelper.respmsg()
-      response_msg.add_field(name="Lobby up", value="The lobby starting in {0} seconds".format(timer), inline=False)
-      response_msg.add_field(name="Lobby password", value="The lobby password: {0}".format(password), inline=False)
-      response_msg.timestamp = datetime.datetime.utcnow()
-      if run == 0:
-          msg = await channel.send(embed=response_msg)
-          run = 1
-      else:
-          await msg.edit(embed=response_msg)
-      await asyncio.sleep(1)
-      timer -= 1
+        response_msg = botHelper.respmsg()
+        response_msg.add_field(
+            name="Lobby up",
+            value="The lobby starting in {0} seconds".format(timer),inline=False)
+        response_msg.add_field(
+            name="Lobby password",
+            value="The lobby password: {0}".format(password),inline=False)
+        response_msg.timestamp = datetime.datetime.utcnow()
+        if run == 0:
+            msg = await channel.send(embed=response_msg)
+            run = 1
+        else:
+            await msg.edit(embed=response_msg)
+        await asyncio.sleep(1)
+        timer -= 1
     response_msg = botHelper.respmsg()
-    response_msg.add_field(name="Lobby starting", value="The lobby starting now!", inline=False)
+    response_msg.add_field(name="Lobby starting",value="The lobby starting now!",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await msg.edit(embed=response_msg)
 
 # Say
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
-async def say(self, channel: discord.TextChannel=None, *, message):
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
+async def say(self, channel: discord.TextChannel = None, *, message):
     response_msg = botHelper.respmsg()
     response_msg.add_field(name="Rank Bot says", value=message, inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
@@ -297,7 +303,7 @@ async def say(self, channel: discord.TextChannel=None, *, message):
 
 # announce
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
 async def announce(ctx, *, text):
     channel = client.get_channel(announce_channel)
     response_msg = botHelper.respmsg()
@@ -307,9 +313,9 @@ async def announce(ctx, *, text):
 
 # Report how many users in JSON file
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
 async def linked(ctx):
-    user_list=botHelper.get_data(users_file)
+    user_list = botHelper.get_data(users_file)
     response_msg = botHelper.respmsg()
     response_msg.add_field(name="Users linked",value="```" + str(len(user_list)) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
@@ -317,7 +323,7 @@ async def linked(ctx):
 
 # Report number of PUBG API requests
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
 async def norequests(ctx):
     response_msg = botHelper.respmsg()
     response_msg.add_field(name="PUG API Requests",value="```" + str(no_requests) + "```",inline=False)
@@ -326,13 +332,13 @@ async def norequests(ctx):
 
 # Remove user from JSON file
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
 async def remove(ctx, member: discord.Member):
-    user_list=botHelper.get_data(users_file)
+    user_list = botHelper.get_data(users_file)
     response_msg = botHelper.respmsg()
-    try: 
+    try:
         del user_list[str(member.id)]
-        botHelper.set_data(users_file, user_list,'remove users')
+        botHelper.set_data(users_file, user_list, 'remove users')
     except:
         pass
     response_msg.add_field(name="Removed",value="```" + str(member.name) + "```",inline=False)
@@ -346,7 +352,7 @@ async def on_member_join(member):
     member = await botHelper.grabTargetUser(member.id)
     await botHelper.discordAddRole('101 Club', member)
     response_msg = botHelper.respmsg()
-    response_msg.add_field(name="Server join", value=f"{member.name}", inline=False)
+    response_msg.add_field(name="Server join",value=f"{member.name}",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
@@ -360,32 +366,32 @@ async def on_member_update(before, after):
     if streaming:
         if streaming_role not in after.roles:
             print(f"{after.display_name} is streaming")
-            await botHelper.discordAddRole('Streaming',member)
+            await botHelper.discordAddRole('Streaming', member)
     else:
         if streaming_role in after.roles:
             print(f"{after.display_name} is not streaming")
-            await botHelper.discordRemoveRole('Streaming',member)
+            await botHelper.discordRemoveRole('Streaming', member)
 
 # Remove user from JSON when they leave server and report
 @client.event
 async def on_member_remove(member):
-    user_list=botHelper.get_data(users_file)
+    user_list = botHelper.get_data(users_file)
     channel = client.get_channel(botlog_channel)
     response_msg = botHelper.respmsg()
-    try: 
+    try:
         del user_list[str(member.id)]
         botHelper.set_data(users_file, user_list, 'on member remove')
-        response_msg.add_field(name="Left server", value=f"{member.name} was removed from user list in rank data.", inline=False)
+        response_msg.add_field(name="Left server",value=f"{member.name} was removed from user list in rank data.",inline=False)
     except:
-        response_msg.add_field(name="Left server", value=f"{member.name} was not in user list for rank data.", inline=False)
+        response_msg.add_field(name="Left server",value=f"{member.name} was not in user list for rank data.",inline=False)
         pass
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
 # Ban function
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
-async def ban(ctx, member:discord.User=None, *, reason=None):
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
+async def ban(ctx, member: discord.User = None, *, reason=None):
     channel = client.get_channel(botlog_channel)
     if member == None or member == ctx.message.author:
         await ctx.channel.send("You cannot ban yourself")
@@ -395,7 +401,7 @@ async def ban(ctx, member:discord.User=None, *, reason=None):
     message = f"You have been banned from {ctx.guild.name} for {reason}"
     await member.send(message)
     response_msg = botHelper.respmsg()
-    response_msg.add_field(name="Member banned", value=f"{member.name}", inline=False)
+    response_msg.add_field(name="Member banned",value=f"{member.name}",inline=False)
     response_msg.add_field(name="Reason", value=reason, inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
@@ -403,18 +409,19 @@ async def ban(ctx, member:discord.User=None, *, reason=None):
 
 # Unban function
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
-async def unban(ctx, member:commands.MemberConverter):
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],
+                       admin_roles[3], admin_roles[4], admin_roles[5])
+async def unban(ctx, member: commands.MemberConverter):
     channel = client.get_channel(botlog_channel)
     response_msg = botHelper.respmsg()
     banned_users = await ctx.guild.bans()
     if member.id in banned_users:
         await ctx.guild.unban(member.id)
         message2 = f"You have been unbanned from {ctx.guild.name}. Please rejoin - [https://discord.gg/the101club](https://discord.gg/the101club)"
-        response_msg.add_field(name="Member unbanned", value=member.name, inline=False)
+        response_msg.add_field(name="Member unbanned",value=member.name,inline=False)
         await member.send(message2)
     else:
-        response_msg.add_field(name="Not found", value="Name is not currently in ban list.", inline=False)
+        response_msg.add_field(name="Not found",value="Name is not currently in ban list.",inline=False)
     await channel.send(embed=response_msg)
     await ctx.send(embed=response_msg)
 
@@ -423,7 +430,7 @@ async def unban(ctx, member:commands.MemberConverter):
 async def serverstats():
     guild = client.get_guild(d_server)
     channel = client.get_channel(stats_channel)
-    user_list=botHelper.get_data(users_file)
+    user_list = botHelper.get_data(users_file)
     data_list = botHelper.get_data(data_file)
     no_requests = data_list['no_requests']
     newmessage = False
@@ -433,12 +440,12 @@ async def serverstats():
         newmessage = True
         await botHelper.reporterror("Couldn't find {0} message in {1} channel.".format(stats_msg, stats_channel))
     response_msg = botHelper.respmsg()
-    response_msg.add_field(name="Users",value="Number of 101 Club members: ```" + str(guild.member_count)+ "```",inline=False)
-    response_msg.add_field(name="Channels",value="Number of channels in the 101 Club: ```" + str(len(guild.channels)) + "```",inline=False)
-    response_msg.add_field(name="Sync completed",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
+    response_msg.add_field(name="Users",value="Number of 101 Club members: ```" +str(guild.member_count) + "```",inline=False)
+    response_msg.add_field(name="Channels",value="Number of channels in the 101 Club: ```" +str(len(guild.channels)) + "```",inline=False)
+    response_msg.add_field(name="Sync completed",value="PUGB API requests completed: ```" +str(no_requests) + "```",inline=False)
     response_msg.add_field(name="Tracked ranked players",value="```" + str(len(user_list)) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
-    if(newmessage == True):
+    if (newmessage == True):
         print('Posting a new message in stats')
         await channel.send(embed=response_msg)
     else:
@@ -452,54 +459,53 @@ async def userinfo(ctx, member: discord.Member):
     joined_at = member.joined_at.strftime("%b %d, %Y")
     roles = ''
     for role in member.roles:
-       if str(role) != '@everyone':
-          roles = roles+"\n"+str(role)
-    response_msg = botHelper.respmsg("User info for "+member.name)
-    response_msg.add_field(name="Created", value=f"{member.name} was created on "+created_at, inline=False)
-    response_msg.add_field(name="Joined", value=f"{member.name} joined 101 Club on "+joined_at, inline=False)
-    response_msg.add_field(name="Roles", value=f"{member.name} has the following roles: "+roles, inline=False)
+        if str(role) != '@everyone':
+            roles = roles + "\n" + str(role)
+    response_msg = botHelper.respmsg("User info for " + member.name)
+    response_msg.add_field(name="Created",value=f"{member.name} was created on " + created_at,inline=False)
+    response_msg.add_field(name="Joined",value=f"{member.name} joined 101 Club on " +joined_at,inline=False)
+    response_msg.add_field(name="Roles",value=f"{member.name} has the following roles: " +roles,inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
-
 
 # Top 25 Updates
 @tasks.loop(hours=loop_timer)
 async def top25update():
     print('Starting top 25 update')
-    user_list=botHelper.get_data(users_file)
+    user_list = botHelper.get_data(users_file)
     reportTypeMessage = ''
     reportTypes = ['ADR', 'KDA', 'c_rank_points']
     message = ''
     for reportType in reportTypes:
         newmessage = False
-        if(reportType=='c_rank_points'):
+        if (reportType == 'c_rank_points'):
             channel = client.get_channel(top25ranks_channel)
             await botHelper.debugmessage(channel, 'starting rank channel work')
             try:
                 message = await channel.fetch_message(top25ranks_msg)
             except:
                 newmessage = True
-                await botHelper.debugmessage(channel, "{0} exception occurred couldn't find {1} message.".format(reportType, top25ranks_msg))
+                await botHelper.debugmessage(channel,"{0} exception occurred couldn't find {1} message.".format(reportType, top25ranks_msg))
             reportTypeMessage = 'rank'
             reportTypeStats = 'Rank'
-        elif(reportType=='KDA'):
+        elif (reportType == 'KDA'):
             channel = client.get_channel(top25kda_channel)
             await botHelper.debugmessage(channel, 'starting kda channel work')
             try:
                 message = await channel.fetch_message(top25kda_msg)
             except:
                 newmessage = True
-                await botHelper.debugmessage(channel, "{0} exception occurred couldn't find {1} message.".format(reportType, top25kda_msg))
+                await botHelper.debugmessage(channel,"{0} exception occurred couldn't find {1} message.".format(reportType, top25kda_msg))
             reportTypeMessage = 'KDA'
             reportTypeStats = 'KDA'
-        elif(reportType=='ADR'):
+        elif (reportType == 'ADR'):
             channel = client.get_channel(top25adr_channel)
             await botHelper.debugmessage(channel, 'starting adr channel work')
             try:
                 message = await channel.fetch_message(top25adr_msg)
             except:
                 newmessage = True
-                await botHelper.debugmessage(channel, "{0} exception occurred couldn't find {1} message.".format(reportType, top25adr_msg))
+                await botHelper.debugmessage(channel,"{0} exception occurred couldn't find {1} message.".format(reportType, top25adr_msg))
             reportTypeMessage = 'ADR'
             reportTypeStats = 'ADR'
         else:
@@ -509,29 +515,28 @@ async def top25update():
         top_string = ''
         i = -1
         total_length = len(new_user_list)
-        j = 1 
-        while i > -(total_length+1):
+        j = 1
+        while i > -(total_length + 1):
             ign = new_user_list[i]['IGN']
-            players = new_user_list[i][reportTypeStats] 
-            if (reportType=='c_rank_points'):
+            players = new_user_list[i][reportTypeStats]
+            if (reportType == 'c_rank_points'):
                 player_stats = new_user_list[i][reportType]
-                curr_line =  "{0} : {1}, {2}, {3}\n".format(abs(j), ign,players,player_stats)
+                curr_line = "{0} : {1}, {2}, {3}\n".format(abs(j), ign, players, player_stats)
             else:
                 player_stats = new_user_list[i]['Rank']
-                curr_line =  "{0} : {1}, {2}, {3}\n".format(abs(j), ign,player_stats,players)
+                curr_line = "{0} : {1}, {2}, {3}\n".format(abs(j), ign, player_stats, players)
             top_string += curr_line
             j += 1
             if j == 26:
                 break
             i -= 1
-        response_msg.add_field(name="Top {0} holders:".format(reportTypeMessage), value="```"+top_string+"```",inline=False)
+        response_msg.add_field(name="Top {0} holders:".format(reportTypeMessage),value="```" + top_string + "```",inline=False)
         response_msg.timestamp = datetime.datetime.utcnow()
-        #If there is an exception getting them message post a new message otherwise edit the message.
-        if(newmessage == True):
+        if (newmessage == True):
             print('Posting a new message')
             await channel.send(embed=response_msg)
         else:
-            print('Editing the message in top25 '+reportType)
+            print('Editing the message in top25 ' + reportType)
             await message.edit(embed=response_msg)
         print("top25 {0} updated".format(reportTypeMessage))
 
@@ -543,7 +548,7 @@ async def stats(ctx, user_ign):
     global no_requests
     data_list = botHelper.get_data(data_file)
     no_requests = data_list['no_requests']
-    user_list=botHelper.get_data(users_file)
+    user_list = botHelper.get_data(users_file)
     user_ign = user_ign.replace("<", "")
     user_ign = user_ign.replace(">", "")
     user_ign = user_ign.replace("@", "")
@@ -554,17 +559,14 @@ async def stats(ctx, user_ign):
     response_msg = botHelper.respmsg("Stats for " + user_ign)
     curr_header = header
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
-    #Consolidated IGN parts into single def
     initial_r = await botHelper.playerIgn(curr_header, user_ign)
     if initial_r.status_code != 200:
         response_msg.add_field(name="Error",value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
     else:
         player_info = json.loads(initial_r.text)
         player_id = str(player_info['data'][0]['id'].replace('account.', ''))
-        #Consolidated playerInfo in a def
         second_request = await botHelper.playerInfo(player_id, curr_header)
-        #Added all session infor to a new playerStats class
-        playerStats = playerStatistics.statsCalc(player_id,second_request)
+        playerStats = playerStatistics.statsCalc(player_id, second_request)
         response_msg.add_field(name="Rank",value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}",inline=False)
         response_msg.add_field(name="KDA",value=f"Kills and assists per death: {playerStats.pStats.KDA}",inline=False)
         response_msg.add_field(name="ADR",value=f"Average damage per game: {playerStats.pStats.ADR}",inline=False)
@@ -579,7 +581,7 @@ async def link(ctx, user_ign):
     global keys
     global header
     global no_requests
-    user_list=botHelper.get_data(users_file)
+    user_list = botHelper.get_data(users_file)
     data_list = botHelper.get_data(data_file)
     no_requests = data_list['no_requests']
     response_msg = botHelper.respmsg("Linking " + user_ign)
@@ -597,9 +599,9 @@ async def link(ctx, user_ign):
             player_info = json.loads(initial_r.text)
             player_id = str(player_info['data'][0]['id'].replace('account.', ''))
             second_request = await botHelper.playerInfo(player_id, curr_header)
-            playerStats = playerStatistics.statsCalc(player_id,second_request)
-            user_list = botHelper.updateUserList(user_list, user_id, user_ign, player_id, playerStats)
-            await botHelper.discordAddRole(playerStats.pStats.new_rank,user, ctx)
+            playerStats = playerStatistics.statsCalc(player_id, second_request)
+            user_list = botHelper.updateUserList(user_list, user_id, user_ign,player_id, playerStats)
+            await botHelper.discordAddRole(playerStats.pStats.new_rank, user,ctx)
             response_msg.add_field(name="Rank",value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}",inline=False)
             response_msg.add_field(name="Done",value="Discord linked with PUBG IGN and stats saved to file.",inline=False)
     botHelper.set_data(users_file, user_list, 'link')
@@ -632,13 +634,13 @@ async def mystats(ctx):
         second_request = await botHelper.playerInfo(player_id, curr_header)
         playerStats = playerStatistics.statsCalc(player_id, second_request)
         await botHelper.debugmessage(channel, 'got player stats for id {0}'.format(player_id))
-        user_list = botHelper.updateUserList(user_list, user_id, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general)
+        user_list = botHelper.updateUserList(user_list, user_id, user_ign,player_id, playerStats,curr_punisher, curr_terminator,curr_general)
         if playerStats.pStats.new_rank != curr_rank:
             await botHelper.discordRemoveAndAddRole(curr_rank, playerStats.pStats.new_rank, user, ctx)
-        response_msg.add_field(name="Rank", value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}", inline=False)
-        response_msg.add_field(name="KDA",value=f"Kills and assists per death: {playerStats.pStats.KDA}", inline=False)
-        response_msg.add_field(name="ADR",value=f"Average damage per game: {playerStats.pStats.ADR}", inline=False)
-        response_msg.add_field(name="Done",value=f"Updated stats and saved to file.", inline=False)
+        response_msg.add_field(name="Rank",value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}",inline=False)
+        response_msg.add_field(name="KDA",value=f"Kills and assists per death: {playerStats.pStats.KDA}",inline=False)
+        response_msg.add_field(name="ADR",value=f"Average damage per game: {playerStats.pStats.ADR}",inline=False)
+        response_msg.add_field(name="Done",value=f"Updated stats and saved to file.",inline=False)
         botHelper.set_data(users_file, user_list, 'update')
         await botHelper.debugmessage(channel, 'setting user data for {0}'.format(player_id))
         data_list['no_requests'] = no_requests
@@ -657,7 +659,7 @@ async def update():
     global no_requests
     aest = timezone('Australia/Melbourne')
     timestamp = datetime.datetime.now(aest)
-    user_list=botHelper.get_data(users_file)
+    user_list = botHelper.get_data(users_file)
     data_list = botHelper.get_data(data_file)
     no_requests = data_list['no_requests']
     channel = client.get_channel(botinfo_channel)
@@ -678,14 +680,13 @@ async def update():
         curr_general = user_list[user]['general']
         request = await botHelper.playerInfo(player_id, curr_header)
         playerStats = playerStatistics.statsCalc(player_id, request)
-        user_list_na = botHelper.updateUserList(user_list, user, user_ign, player_id, playerStats, curr_punisher, curr_terminator, curr_general)
+        user_list_na = botHelper.updateUserList(user_list, user, user_ign,player_id, playerStats,curr_punisher, curr_terminator,curr_general)
         if playerStats.pStats.new_rank != curr_rank:
             member = await botHelper.grabTargetUser(user)
-            if(member != None):
-                await botHelper.discordRemoveAndAddRole(curr_rank,playerStats.pStats.new_rank,member)
-    
-    user_list = user_list_na
+            if (member != None):
+                await botHelper.discordRemoveAndAddRole(curr_rank, playerStats.pStats.new_rank, member)
 
+    user_list = user_list_na
     #############################################################
     # Bittne off more then I can chew here, I want to revist this role part and make it easier use less code for each
     # Ahh I feel like that every time I work on any project, that is currently working but at the same time
@@ -713,7 +714,7 @@ async def update():
     #         user_list[max_points_user]['general'] = 1
     #         targetstat = 'general'
     #         targetwords = 'General'
-        
+
     #     if current_general == 'None':
     #         member = await guild.fetch_member(max_points_user)
     #         await discordAddRole(title,member,guild)
@@ -728,7 +729,7 @@ async def update():
     #         await discordReplaceRole(title,oldmember,newmember,guild)
     #         response_msg.add_field(name=title,value=f"Previous {0} (highest rank) has been replaced. Congrats! {1}".format(targetwords,newmember.name),inline=False)
     #Added updated list back to original
-    
+
     max_points = 0
     max_points_user = ''
     current_general = 'None'
@@ -743,7 +744,7 @@ async def update():
     if current_general == 'None':
         member = await botHelper.grabTargetUser(max_points_user)
         if member != None:
-            await botHelper.discordAddRole('The General',member)
+            await botHelper.discordAddRole('The General', member)
             response_msg.add_field(name="The General",value=f"A new The General role (highest rank) has been assigned. Congrats! ```{member.name}```",inline=False)
     elif current_general == max_points_user:
         member = await botHelper.grabTargetUser(max_points_user)
@@ -754,7 +755,7 @@ async def update():
         user_list[current_general]['general'] = 0
         newmember = await botHelper.grabTargetUser(max_points_user)
         if oldmember != None and newmember != None:
-            await botHelper.discordReplaceRole('The General',oldmember,newmember)
+            await botHelper.discordReplaceRole('The General', oldmember,newmember)
             response_msg.add_field(name="The General",value=f"Previous General (highest rank) has been replaced. Congrats! ```{newmember.name}```",inline=False)
 
     max_kda = 0
@@ -782,7 +783,7 @@ async def update():
         user_list[current_terminator]['terminator'] = 0
         newmember = await botHelper.grabTargetUser(max_kda_user)
         if oldmember != None and newmember != None:
-            await botHelper.discordReplaceRole("The Terminator",oldmember,newmember)
+            await botHelper.discordReplaceRole("The Terminator", oldmember,newmember)
             response_msg.add_field(name="The Terminator",value=f"Previous Terminator (highest KDA) has been replaced. Congrats! ```{member.name}```",inline=False)
 
     max_adr = 0
@@ -798,7 +799,7 @@ async def update():
     user_list[max_adr_user]['punisher'] = 1
     if current_punisher == 'None':
         member = await botHelper.grabTargetUser(max_adr_user)
-        await botHelper.discordAddRole("The Punisher",member)
+        await botHelper.discordAddRole("The Punisher", member)
         if member != None:
             response_msg.add_field(name="The Punisher",value=f"A new The Punisher role (highest ADR) has been assigned. Congrats! ```{member.name}```",inline=False)
     elif current_punisher == max_adr_user:
@@ -810,16 +811,15 @@ async def update():
         user_list[current_punisher]['punisher'] = 0
         newmember = await botHelper.grabTargetUser(max_adr_user)
         if oldmember != None and newmember != None:
-            await botHelper.discordReplaceRole("The Punisher",oldmember,newmember)
+            await botHelper.discordReplaceRole("The Punisher", oldmember,newmember)
             response_msg.add_field(name="The Punisher",value=f"Previous Punisher (highest ADR) has been replaced. Congrats! ```{member.name}```",inline=False)
-
-    response_msg.add_field(name="Sync completed",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
+    response_msg.add_field(name="Sync completed",value="PUGB API requests completed: ```" +str(no_requests) + "```",inline=False)
     response_msg.add_field(name="Users linked",value="```" + str(len(user_list)) + "```",inline=False)
-    response_msg.add_field(name="Finished",value=f"All player stats, ranks, roles have been updated. The next sync will take place at "+((timestamp+ timedelta(hours=1)).strftime(r"%I:%M %p")),inline=False)
+    response_msg.add_field(name="Finished",value=f"All player stats, ranks, roles have been updated. The next sync will take place at "+ ((timestamp + timedelta(hours=1)).strftime(r"%I:%M %p")),inline=False)
     print('Updated everyones stats')
     botHelper.set_data(users_file, user_list, 'update everyone stats')
     response_msg.timestamp = datetime.datetime.utcnow()
-    if(newmessage == True):
+    if (newmessage == True):
         print('Posting a new message in bot-info')
         await channel.send(embed=response_msg)
     else:
@@ -830,7 +830,7 @@ async def update():
 
 # Resync all
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2], admin_roles[3], admin_roles[4], admin_roles[5])
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
 async def resync(ctx):
     response_msg = botHelper.respmsg()
     response_msg.add_field(name="Resync started",value="This could take a long time based on the number of users and the PUBG API, please wait for the comfirmation message before more commands. 50 users per minute is our limit.",inline=False)
@@ -839,7 +839,7 @@ async def resync(ctx):
     await update()
     await top25update()
     response_msg = botHelper.respmsg()
-    response_msg.add_field(name="Resync completed",value="PUGB API requests completed: ```" + str(no_requests) + "```",inline=False)
+    response_msg.add_field(name="Resync completed",value="PUGB API requests completed: ```" +str(no_requests) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
@@ -852,4 +852,3 @@ async def on_ready():
 
 # Run the bot
 client.run(bot_token)
-
