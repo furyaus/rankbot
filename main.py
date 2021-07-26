@@ -130,18 +130,6 @@ class botHelper():
         response_msg.timestamp = datetime.datetime.utcnow()
         await channel.send(embed=response_msg)
 
-    #Target user add exception handling
-    async def grabTargetUser(user):
-        guild = client.get_guild(d_server)
-        member = None
-        try:
-            print('Fetching member info for {0}'.format(user))
-            member = await guild.fetch_member(user)
-        except:
-            await botHelper.reporterror(
-                'Error occured getting member info for {0}'.format(user))
-        return member
-
     # Standard role add a remove function
     async def discordRemoveRole(targetRole, user, ctx=None):
         if ctx == None:
@@ -213,6 +201,21 @@ class botHelper():
             await botHelper.debugmessage(channel,"{0} exception occurred couldn't find {1} message after 5 retries. {2}".format(reportType, messageid,e))
         i=i+1
       return message,newmessage
+
+    #Target user add exception handling
+    async def grabTargetUser(user):
+        guild = client.get_guild(d_server)
+        member = None
+        retryMax = 5
+        i = 0
+        while i < retryMax:
+          try:
+              member = await guild.fetch_member(user)
+          except Exception as e:
+            if i == retryMax:
+              await botHelper.reporterror('Error occured getting member info for {0} after 5 retries. {1}'.format(user,e))
+          i=i+1
+        return member
 
 # Catch unknown commands
 @client.event
