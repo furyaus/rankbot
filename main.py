@@ -196,6 +196,12 @@ class botHelper():
         user_list[str(user_id)]['team_kills'] = playerStats.pStats.team_kills
         return user_list
 
+    def target_message(channelid, messageid):
+      try:
+
+      except Exception as e:
+
+
 # Catch unknown commands
 @client.event
 async def on_command_error(ctx, error):
