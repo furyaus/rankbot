@@ -197,7 +197,7 @@ class botHelper():
         return user_list
 
     #Retry built into the fetch message function
-    def target_message(channelid, messageid, reportType):
+    async def target_message(channelid, messageid, reportType):
       channel = client.get_channel(channelid)
       #Default Values
       message = None
