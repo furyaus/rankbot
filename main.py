@@ -196,11 +196,23 @@ class botHelper():
         user_list[str(user_id)]['team_kills'] = playerStats.pStats.team_kills
         return user_list
 
-    def target_message(channelid, messageid):
-      try:
-
-      except Exception as e:
-
+    #Retry built into the fetch message function
+    def target_message(channelid, messageid, reportType):
+      channel = client.get_channel(channelid)
+      #Default Values
+      message = None
+      newmessage = False
+      retryMax = 5
+      i = 0
+      while i < retryMax:
+        try:
+          message = await channel.fetch_message(messageid)
+        except Exception as e:
+          if i == retryMax:
+            await botHelper.debugmessage(channel,"{0} exception occurred couldn't find {1} message after 5 retries. {2}".format(reportType, messageid,e))
+          newmessage = True
+        i=i+1
+      return message,newmessage
 
 # Catch unknown commands
 @client.event
@@ -439,12 +451,9 @@ async def serverstats():
     user_list = botHelper.get_data(users_file)
     data_list = botHelper.get_data(data_file)
     no_requests = data_list['no_requests']
-    newmessage = False
-    try:
-        message = await channel.fetch_message(stats_msg)
-    except:
-        newmessage = True
-        await botHelper.reporterror("Couldn't find {0} message in {1} channel.".format(stats_msg, stats_channel))
+    messageResults = botHelper.target_message(stats_channel,stats_msg,'Stats Message')
+    newmessage = messageResults[1]
+    message = messageResults[0]
     response_msg = botHelper.respmsg()
     response_msg.add_field(name="Users",value="Number of 101 Club members: ```" +str(guild.member_count) + "```",inline=False)
     response_msg.add_field(name="Channels",value="Number of channels in the 101 Club: ```" +str(len(guild.channels)) + "```",inline=False)
@@ -487,31 +496,25 @@ async def top25update():
         if (reportType == 'c_rank_points'):
             channel = client.get_channel(top25ranks_channel)
             await botHelper.debugmessage(channel, 'starting rank channel work')
-            try:
-                message = await channel.fetch_message(top25ranks_msg)
-            except:
-                newmessage = True
-                await botHelper.debugmessage(channel,"{0} exception occurred couldn't find {1} message.".format(reportType, top25ranks_msg))
+            messageResults = botHelper.target_message(top25ranks_channel,top25ranks_msg,reportType)
+            newmessage = messageResults[1]
+            message = messageResults[0]
             reportTypeMessage = 'rank'
             reportTypeStats = 'Rank'
         elif (reportType == 'KDA'):
             channel = client.get_channel(top25kda_channel)
             await botHelper.debugmessage(channel, 'starting kda channel work')
-            try:
-                message = await channel.fetch_message(top25kda_msg)
-            except:
-                newmessage = True
-                await botHelper.debugmessage(channel,"{0} exception occurred couldn't find {1} message.".format(reportType, top25kda_msg))
+            messageResults = botHelper.target_message(top25kda_channel,top25kda_msg,reportType)
+            newmessage = messageResults[1]
+            message = messageResults[0]
             reportTypeMessage = 'KDA'
             reportTypeStats = 'KDA'
         elif (reportType == 'ADR'):
             channel = client.get_channel(top25adr_channel)
             await botHelper.debugmessage(channel, 'starting adr channel work')
-            try:
-                message = await channel.fetch_message(top25adr_msg)
-            except:
-                newmessage = True
-                await botHelper.debugmessage(channel,"{0} exception occurred couldn't find {1} message.".format(reportType, top25adr_msg))
+            messageResults = botHelper.target_message(top25adr_channel,top25adr_msg,reportType)
+            newmessage = messageResults[1]
+            message = messageResults[0]
             reportTypeMessage = 'ADR'
             reportTypeStats = 'ADR'
         else:
@@ -669,12 +672,9 @@ async def update():
     data_list = botHelper.get_data(data_file)
     no_requests = data_list['no_requests']
     channel = client.get_channel(botinfo_channel)
-    newmessage = False
-    try:
-        message = await channel.fetch_message(botinfo_msg)
-    except:
-        newmessage = True
-        print("Couldn't find {0} message in {1} channel.".format(botinfo_msg, botinfo_channel))
+    messageResults = botHelper.target_message(botinfo_channel,botinfo_msg,'Bot Info')
+    newmessage = messageResults[1]
+    message = messageResults[0]
     response_msg = botHelper.respmsg("Sync all data for The 101 Club")
     curr_header = header
     for user in user_list:
