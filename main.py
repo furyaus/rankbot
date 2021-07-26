@@ -201,16 +201,16 @@ class botHelper():
       channel = client.get_channel(channelid)
       #Default Values
       message = None
-      newmessage = False
+      newmessage = True
       retryMax = 5
       i = 0
       while i < retryMax:
         try:
           message = await channel.fetch_message(messageid)
+          newmessage = False
         except Exception as e:
           if i == retryMax:
             await botHelper.debugmessage(channel,"{0} exception occurred couldn't find {1} message after 5 retries. {2}".format(reportType, messageid,e))
-          newmessage = True
         i=i+1
       return message,newmessage
 
@@ -451,7 +451,7 @@ async def serverstats():
     user_list = botHelper.get_data(users_file)
     data_list = botHelper.get_data(data_file)
     no_requests = data_list['no_requests']
-    messageResults = botHelper.target_message(stats_channel,stats_msg,'Stats Message')
+    messageResults = await botHelper.target_message(stats_channel,stats_msg,'Stats Message')
     newmessage = messageResults[1]
     message = messageResults[0]
     response_msg = botHelper.respmsg()
@@ -496,7 +496,7 @@ async def top25update():
         if (reportType == 'c_rank_points'):
             channel = client.get_channel(top25ranks_channel)
             await botHelper.debugmessage(channel, 'starting rank channel work')
-            messageResults = botHelper.target_message(top25ranks_channel,top25ranks_msg,reportType)
+            messageResults = await botHelper.target_message(top25ranks_channel,top25ranks_msg,reportType)
             newmessage = messageResults[1]
             message = messageResults[0]
             reportTypeMessage = 'rank'
@@ -504,7 +504,7 @@ async def top25update():
         elif (reportType == 'KDA'):
             channel = client.get_channel(top25kda_channel)
             await botHelper.debugmessage(channel, 'starting kda channel work')
-            messageResults = botHelper.target_message(top25kda_channel,top25kda_msg,reportType)
+            messageResults = await botHelper.target_message(top25kda_channel,top25kda_msg,reportType)
             newmessage = messageResults[1]
             message = messageResults[0]
             reportTypeMessage = 'KDA'
@@ -512,7 +512,7 @@ async def top25update():
         elif (reportType == 'ADR'):
             channel = client.get_channel(top25adr_channel)
             await botHelper.debugmessage(channel, 'starting adr channel work')
-            messageResults = botHelper.target_message(top25adr_channel,top25adr_msg,reportType)
+            messageResults = await botHelper.target_message(top25adr_channel,top25adr_msg,reportType)
             newmessage = messageResults[1]
             message = messageResults[0]
             reportTypeMessage = 'ADR'
@@ -672,7 +672,7 @@ async def update():
     data_list = botHelper.get_data(data_file)
     no_requests = data_list['no_requests']
     channel = client.get_channel(botinfo_channel)
-    messageResults = botHelper.target_message(botinfo_channel,botinfo_msg,'Bot Info')
+    messageResults = await botHelper.target_message(botinfo_channel,botinfo_msg,'Bot Info')
     newmessage = messageResults[1]
     message = messageResults[0]
     response_msg = botHelper.respmsg("Sync all data for The 101 Club")
