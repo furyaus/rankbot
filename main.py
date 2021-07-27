@@ -192,7 +192,7 @@ class botHelper():
       newmessage = True
       retryMax = 5
       i = 0
-      while i < retryMax:
+      while i <= retryMax:
         try:
           message = await channel.fetch_message(messageid)
           newmessage = False
@@ -208,13 +208,17 @@ class botHelper():
         member = None
         retryMax = 5
         i = 0
-        while i < retryMax:
+        while i <= retryMax:
           try:
-              member = await guild.fetch_member(user)
+            member = await guild.fetch_member(user)
+            #print("{0} found after {1} retires".format(member.id,i))
+            return member
           except Exception as e:
             if i == retryMax:
               await botHelper.reporterror('Error occured getting member info for {0} after 5 retries. {1}'.format(user,e))
           i=i+1
+        if member == None:
+          print("{0} not found after {1} retires".format(member.id,i))
         return member
 
 # Catch unknown commands
@@ -430,8 +434,7 @@ async def ban(ctx, member: discord.User = None, *, reason=None):
 
 # Unban function
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],
-                       admin_roles[3], admin_roles[4], admin_roles[5])
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
 async def unban(ctx, member: commands.MemberConverter):
     channel = client.get_channel(botlog_channel)
     response_msg = botHelper.respmsg()
