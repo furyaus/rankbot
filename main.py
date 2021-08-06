@@ -57,6 +57,7 @@ admin_roles = ["Moderators","Admin","Boss","The General","The Punisher","The Ter
 no_requests = 0
 curr_key = 0
 loop_timer = 0.05  #0.05 is 5 minutes #0.005 is 30 seconds
+rankroles = ["Unranked","Bronze 5","Bronze 4","Bronze 3","Bronze 2","Bronze 1","Silver 5","Silver 4","Silver 3","Silver 2","Silver 1","Gold 5","Gold 4","Gold 3","Gold 2","Gold 1","Platinum 5","Platinum 4","Platinum 3","Platinum 2","Platinum 1","Diamond 5","Diamond 4","Diamond 3","Diamond 2","Diamond 1","Master 1"]
 
 # Keys in order - furyaus, ocker, p4, progdog, fingers
 keys = ["Bearer " + API_key_fury, "Bearer " + API_key_ocker,"Bearer " + API_key_p4, "Bearer " + API_key_progdog,"Bearer " + API_key_fingers]
@@ -263,6 +264,7 @@ async def adminhelp(ctx):
     response_msg.add_field(name=".userinfo",value="Caculates the creation date and join date of user for 101 Club. ```.userinfo GAMMB1T```",inline=False)
     response_msg.add_field(name=".ban",value="Bans a user and logs why into the bot-log channel. ```.ban 0cker Because he sucks```",inline=False)
     response_msg.add_field(name=".unban",value="Unbans a user and direct messages them to rejoin via invite. ```.unban 0cker```",inline=False)
+    response_msg.add_field(name=".syncroles",value="Goes through every user, removes roles and adds current rank role```.syncroles```",inline=False)
     response_msg.add_field(name=".remove",value="Will allow admin to remove link between Discord user id and PUBG IGN. User can then complete a link again. ```.remove @P4```",inline=False)
     response_msg.add_field(name=".resync",value="This will force a full resync for all stored players with PUBG API. 50 users per minute, wait till complete. ```.resync```",inline=False)
     response_msg.add_field(name=".lobby",value="This will display a message in announcement chan with lobby password counting down until start ```.lobby 60 yeet```",inline=False)
@@ -352,6 +354,26 @@ async def linked(ctx):
 async def norequests(ctx):
     response_msg = botHelper.respmsg()
     response_msg.add_field(name="PUG API Requests",value="```" + str(no_requests) + "```",inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow()
+    await ctx.send(embed=response_msg)
+
+# Sync Discord Roles
+@client.command()
+@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
+async def syncroles(ctx):
+    user_list = botHelper.get_data(users_file)
+    response_msg = botHelper.respmsg()
+    response_msg.add_field(name="Resync Roles: ",value="```" + str(len(user_list))  + " users```",inline=False)
+    response_msg.add_field(name="Time to complete: ",value="```" + str((len(user_list)*60))  + " Minutes```",inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow()
+    await ctx.send(embed=response_msg)
+    for user in user_list:
+        member = await botHelper.grabTargetUser(user)
+        print(member.display_name)
+        for oldranks in rankroles:
+            await botHelper.discordRemoveRole(oldranks, member)
+        await botHelper.discordAddRole(user_list[user]['Rank'], member)
+    response_msg.add_field(name="Resync Roles",value="```Completed```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
