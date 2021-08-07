@@ -447,6 +447,7 @@ async def ban(ctx, member: discord.User = None, *, reason=None):
         reason = "For being a jerk!"
     message = f"You have been banned from {ctx.guild.name} for {reason}"
     await member.send(message)
+    await ctx.guild.ban(member, reason=reason)
     response_msg = botHelper.respmsg()
     response_msg.add_field(name="Member banned",value=f"{member.name}",inline=False)
     response_msg.add_field(name="Reason", value=reason, inline=False)
