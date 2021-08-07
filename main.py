@@ -364,7 +364,7 @@ async def syncroles(ctx):
     user_list = botHelper.get_data(users_file)
     response_msg = botHelper.respmsg()
     response_msg.add_field(name="Resync Roles: ",value="```" + str(len(user_list))  + " users```",inline=False)
-    response_msg.add_field(name="Time to complete: ",value="```" + str((len(user_list)*60))  + " Minutes```",inline=False)
+    response_msg.add_field(name="Time to complete: ",value="```" + str((len(user_list)*30/60))  + " Minutes```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
     for user in user_list:
