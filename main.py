@@ -53,7 +53,7 @@ top25kda_msg = int(os.environ['top25kda_msg'])
 top25adr_channel = int(os.environ['top25adr_channel'])
 top25adr_msg = int(os.environ['top25adr_msg'])
 streaming_role = int(os.environ['streaming_role'])
-admin_roles = ["Moderators","Admin","Boss","The General","The Punisher","The Terminator"]
+admin_roles = ["Moderators","Admin","Boss"]
 no_requests = 0
 curr_key = 0
 loop_timer = 0.05  #0.05 is 5 minutes #0.005 is 30 seconds
@@ -254,7 +254,7 @@ async def help(ctx):
 
 # Admin help
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
+@commands.has_any_role(admin_roles[0],admin_roles[1],admin_roles[2])
 async def adminhelp(ctx):
     response_msg = botHelper.respmsg("Admin help for Rank Bot","Admin users can remove users and call for global updates.")
     response_msg.add_field(name=".linked",value="Returns the total number of currently stored users in JSON file. ```.linked```",inline=False)
@@ -288,7 +288,7 @@ async def inspire(ctx):
 
 # Lobby up
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
+@commands.has_any_role(admin_roles[0],admin_roles[1],admin_roles[2])
 async def lobby(ctx, timesecs, password):
     channel = client.get_channel(announce_channel)
     run = 0
@@ -321,7 +321,7 @@ async def lobby(ctx, timesecs, password):
 
 # Say
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
+@commands.has_any_role(admin_roles[0],admin_roles[1],admin_roles[2])
 async def say(self, channel: discord.TextChannel = None, *, message):
     response_msg = botHelper.respmsg()
     response_msg.add_field(name="Rank Bot says", value=message, inline=False)
@@ -330,7 +330,7 @@ async def say(self, channel: discord.TextChannel = None, *, message):
 
 # announce
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
+@commands.has_any_role(admin_roles[0],admin_roles[1],admin_roles[2])
 async def announce(ctx, *, text):
     channel = client.get_channel(announce_channel)
     response_msg = botHelper.respmsg()
@@ -340,7 +340,7 @@ async def announce(ctx, *, text):
 
 # Report how many users in JSON file
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
+@commands.has_any_role(admin_roles[0],admin_roles[1],admin_roles[2])
 async def linked(ctx):
     user_list = botHelper.get_data(users_file)
     response_msg = botHelper.respmsg()
@@ -350,7 +350,7 @@ async def linked(ctx):
 
 # Report number of PUBG API requests
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
+@commands.has_any_role(admin_roles[0],admin_roles[1],admin_roles[2])
 async def norequests(ctx):
     response_msg = botHelper.respmsg()
     response_msg.add_field(name="PUG API Requests",value="```" + str(no_requests) + "```",inline=False)
@@ -359,7 +359,7 @@ async def norequests(ctx):
 
 # Sync Discord Roles
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
+@commands.has_any_role(admin_roles[0],admin_roles[1],admin_roles[2])
 async def syncroles(ctx):
     user_list = botHelper.get_data(users_file)
     response_msg = botHelper.respmsg()
@@ -379,7 +379,7 @@ async def syncroles(ctx):
 
 # Remove user from JSON file
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
+@commands.has_any_role(admin_roles[0],admin_roles[1],admin_roles[2])
 async def remove(ctx, member: discord.Member):
     user_list = botHelper.get_data(users_file)
     response_msg = botHelper.respmsg()
@@ -437,7 +437,7 @@ async def on_member_remove(member):
 
 # Ban function
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
+@commands.has_any_role(admin_roles[0],admin_roles[1],admin_roles[2])
 async def ban(ctx, member: discord.User = None, *, reason=None):
     channel = client.get_channel(botlog_channel)
     if member == None or member == ctx.message.author:
@@ -456,7 +456,7 @@ async def ban(ctx, member: discord.User = None, *, reason=None):
 
 # Unban function
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
+@commands.has_any_role(admin_roles[0],admin_roles[1],admin_roles[2])
 async def unban(ctx, member: commands.MemberConverter):
     channel = client.get_channel(botlog_channel)
     response_msg = botHelper.respmsg()
@@ -864,7 +864,7 @@ async def update():
 
 # Resync all
 @client.command()
-@commands.has_any_role(admin_roles[0], admin_roles[1], admin_roles[2],admin_roles[3], admin_roles[4], admin_roles[5])
+@commands.has_any_role(admin_roles[0],admin_roles[1],admin_roles[2])
 async def resync(ctx):
     response_msg = botHelper.respmsg()
     response_msg.add_field(name="Resync started",value="This could take a long time based on the number of users and the PUBG API, please wait for the comfirmation message before more commands. 50 users per minute is our limit.",inline=False)
