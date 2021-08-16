@@ -388,21 +388,22 @@ async def remove(ctx, member: discord.Member):
         botHelper.set_data(users_file, user_list, 'remove users')
     except:
         pass
-    response_msg.add_field(name="Removed",value="```" + str(member.name) + "```",inline=False)
+    response_msg.add_field(name="Removed",value="```" + str(member.display_name) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
 # Remove user from JSON file
 @client.command()
 async def unlink(ctx):
+    user = ctx.message.author
     user_list = botHelper.get_data(users_file)
     response_msg = botHelper.respmsg()
     try:
-        del user_list[str(ctx.message.author.id)]
+        del user_list[str(user.id)]
         botHelper.set_data(users_file, user_list, 'remove users')
     except:
         pass
-    response_msg.add_field(name="Removed",value="```" + str(ctx.message.author.name) + "```",inline=False)
+    response_msg.add_field(name="Removed",value="```" + str(user.display_name) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
