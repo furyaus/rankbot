@@ -398,11 +398,11 @@ async def unlink(ctx):
     user_list = botHelper.get_data(users_file)
     response_msg = botHelper.respmsg()
     try:
-        del user_list[str(ctx.id)]
+        del user_list[str(ctx.message.author.id)]
         botHelper.set_data(users_file, user_list, 'remove users')
     except:
         pass
-    response_msg.add_field(name="Removed",value="```" + str(ctx.name) + "```",inline=False)
+    response_msg.add_field(name="Removed",value="```" + str(ctx.message.author.name) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
