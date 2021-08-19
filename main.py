@@ -26,8 +26,6 @@ password_set = 0
 password = ''
 fingersraw_file = "fingersdata.json"
 curr_season = "division.bro.official.pc-2018-13"
-prev_season = "division.bro.official.pc-2018-12"
-prev_prev_season = "division.bro.official.pc-2018-11"
 bot_token = os.environ['discord_token']
 API_key_fury = os.environ['API_key_fury']
 API_key_ocker = os.environ['API_key_ocker']
@@ -414,7 +412,7 @@ async def on_member_join(member):
     member = await botHelper.grabTargetUser(member.id)
     await botHelper.discordAddRole('101 Club', member)
     response_msg = botHelper.respmsg()
-    response_msg.add_field(name="Server join",value=f"{member.name}",inline=False)
+    response_msg.add_field(name="Server join",value=f"{member.display_name}",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
 
@@ -443,9 +441,9 @@ async def on_member_remove(member):
     try:
         del user_list[str(member.id)]
         botHelper.set_data(users_file, user_list, 'on member remove')
-        response_msg.add_field(name="Left server",value=f"{member.name} was removed from user list in rank data.",inline=False)
+        response_msg.add_field(name="Left server",value=f"{member.display_name} was removed from user list in rank data.",inline=False)
     except:
-        response_msg.add_field(name="Left server",value=f"{member.name} was not in user list for rank data.",inline=False)
+        response_msg.add_field(name="Left server",value=f"{member.display_name} was not in user list for rank data.",inline=False)
         pass
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
@@ -464,7 +462,7 @@ async def ban(ctx, member: discord.User = None, *, reason=None):
     await member.send(message)
     await ctx.guild.ban(member, reason=reason)
     response_msg = botHelper.respmsg()
-    response_msg.add_field(name="Member banned",value=f"{member.name}",inline=False)
+    response_msg.add_field(name="Member banned",value=f"{member.display_name}",inline=False)
     response_msg.add_field(name="Reason", value=reason, inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
@@ -480,7 +478,7 @@ async def unban(ctx, member: commands.MemberConverter):
     if member.id in banned_users:
         await ctx.guild.unban(member.id)
         message2 = f"You have been unbanned from {ctx.guild.name}. Please rejoin - [https://discord.gg/the101club](https://discord.gg/the101club)"
-        response_msg.add_field(name="Member unbanned",value=member.name,inline=False)
+        response_msg.add_field(name="Member unbanned",value=member.display_name,inline=False)
         await member.send(message2)
     else:
         response_msg.add_field(name="Not found",value="Name is not currently in ban list.",inline=False)
@@ -520,10 +518,10 @@ async def userinfo(ctx, member: discord.Member):
     for role in member.roles:
         if str(role) != '@everyone':
             roles = roles + "\n" + str(role)
-    response_msg = botHelper.respmsg("User info for " + member.name)
-    response_msg.add_field(name="Created",value=f"{member.name} was created on " + created_at,inline=False)
-    response_msg.add_field(name="Joined",value=f"{member.name} joined 101 Club on " +joined_at,inline=False)
-    response_msg.add_field(name="Roles",value=f"{member.name} has the following roles: " +roles,inline=False)
+    response_msg = botHelper.respmsg("User info for " + member.display_name)
+    response_msg.add_field(name="Created",value=f"{member.display_name} was created on " + created_at,inline=False)
+    response_msg.add_field(name="Joined",value=f"{member.display_name} joined 101 Club on " +joined_at,inline=False)
+    response_msg.add_field(name="Roles",value=f"{member.display_name} has the following roles: " +roles,inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
@@ -593,41 +591,6 @@ async def top25update():
             await message.edit(embed=response_msg)
         print("top25 {0} updated".format(reportTypeMessage))
 
-# Check my stats - live, direct api data response - allows any PUBG IGN
-@client.command(aliases=['rank'])
-async def stats(ctx, user_ign):
-    global keys
-    global header
-    global no_requests
-    data_list = botHelper.get_data(data_file)
-    no_requests = data_list['no_requests']
-    user_list = botHelper.get_data(users_file)
-    user_ign = user_ign.replace("<", "")
-    user_ign = user_ign.replace(">", "")
-    user_ign = user_ign.replace("@", "")
-    user_ign = user_ign.replace("!", "")
-    for user in user_list:
-        if (user == user_ign):
-            user_ign = user_list[user]['IGN']
-    response_msg = botHelper.respmsg("Stats for " + user_ign)
-    curr_header = header
-    curr_header['Authorization'] = keys[no_requests % (len(keys))]
-    initial_r = await botHelper.playerIgn(curr_header, user_ign)
-    if initial_r.status_code != 200:
-        response_msg.add_field(name="Error",value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
-    else:
-        player_info = json.loads(initial_r.text)
-        player_id = str(player_info['data'][0]['id'].replace('account.', ''))
-        second_request = await botHelper.playerInfo(player_id, curr_header)
-        playerStats = playerStatistics.statsCalc(player_id, second_request)
-        response_msg.add_field(name="Rank",value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}",inline=False)
-        response_msg.add_field(name="KDA",value=f"Kills and assists per death: {playerStats.pStats.KDA}",inline=False)
-        response_msg.add_field(name="ADR",value=f"Average damage per game: {playerStats.pStats.ADR}",inline=False)
-    response_msg.timestamp = datetime.datetime.utcnow()
-    await ctx.send(embed=response_msg)
-    data_list['no_requests'] = no_requests
-    botHelper.set_data(data_file, data_list, 'stats')
-
 # Link Discord user id with PUBG IGN and create user
 @client.command()
 async def link(ctx, user_ign):
@@ -661,6 +624,43 @@ async def link(ctx, user_ign):
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
+# Check my stats - live, direct api data response - allows any PUBG IGN
+@client.command(aliases=['rank'])
+async def stats(ctx, user_ign):
+    global keys
+    global header
+    global no_requests
+    data_list = botHelper.get_data(data_file)
+    no_requests = data_list['no_requests']
+    user_list = botHelper.get_data(users_file)
+    user_ign = user_ign.replace("<", "")
+    user_ign = user_ign.replace(">", "")
+    user_ign = user_ign.replace("@", "")
+    user_ign = user_ign.replace("!", "")
+    for user in user_list:
+        if (user == user_ign):
+            user_ign = user_list[user]['IGN']
+    response_msg = botHelper.respmsg("Stats for " + user_ign)
+    curr_header = header
+    curr_header['Authorization'] = keys[no_requests % (len(keys))]
+    initial_r = await botHelper.playerIgn(curr_header, user_ign)
+    if initial_r.status_code != 200:
+        response_msg.add_field(name="Error",value="Incorrect PUBG IGN (case sensitive) or PUBG API is down.",inline=False)
+    else:
+        player_info = json.loads(initial_r.text)
+        player_id = str(player_info['data'][0]['id'].replace('account.', ''))
+        second_request = await botHelper.playerInfo(player_id, curr_header)
+        playerStats = playerStatistics.statsCalc(player_id, second_request)
+        response_msg.add_field(name="PUBG IGN:",value=f"```{user_ign}```",inline=False)
+        response_msg.add_field(name="Rank:",value=f"```Current: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}```",inline=False)
+        response_msg.add_field(name="KDA:",value=f"```{playerStats.pStats.KDA}```",inline=False)
+        response_msg.add_field(name="ADR:",value=f"```{playerStats.pStats.ADR}```",inline=False)
+        response_msg.add_field(name="Live stats:",value=f"Not saved to file.",inline=False)
+    response_msg.timestamp = datetime.datetime.utcnow()
+    await ctx.send(embed=response_msg)
+    data_list['no_requests'] = no_requests
+    botHelper.set_data(data_file, data_list, 'stats')
+
 # Pull stats for current user and update database
 @client.command()
 async def mystats(ctx):
@@ -675,7 +675,7 @@ async def mystats(ctx):
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     user = ctx.message.author
     user_id = user.id
-    response_msg = botHelper.respmsg("Stats for " + user.name)
+    response_msg = botHelper.respmsg("Stats for " + user.display_name)
     await botHelper.debugmessage(channel, 'got user id {0}'.format(user_id))
     if str(user_id) in user_list:
         curr_rank = user_list[str(user_id)]['Rank']
@@ -690,10 +690,11 @@ async def mystats(ctx):
         user_list = botHelper.updateUserList(user_list, user_id, user_ign,player_id, playerStats,curr_punisher, curr_terminator,curr_general)
         if playerStats.pStats.new_rank != curr_rank:
             await botHelper.discordRemoveAndAddRole(curr_rank, playerStats.pStats.new_rank, user, ctx)
-        response_msg.add_field(name="Rank",value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}",inline=False)
-        response_msg.add_field(name="KDA",value=f"Kills and assists per death: {playerStats.pStats.KDA}",inline=False)
-        response_msg.add_field(name="ADR",value=f"Average damage per game: {playerStats.pStats.ADR}",inline=False)
-        response_msg.add_field(name="Done",value=f"Updated stats and saved to file.",inline=False)
+        response_msg.add_field(name="PUBG IGN:",value=f"```{user_ign}```",inline=False)
+        response_msg.add_field(name="Rank:",value=f"```Current: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}```",inline=False)
+        response_msg.add_field(name="KDA:",value=f"```{playerStats.pStats.KDA}```",inline=False)
+        response_msg.add_field(name="ADR:",value=f"```{playerStats.pStats.ADR}```",inline=False)
+        response_msg.add_field(name="Saved:",value=f"Updated stats and saved to file.",inline=False)
         botHelper.set_data(users_file, user_list, 'update')
         await botHelper.debugmessage(channel, 'setting user data for {0}'.format(player_id))
         data_list['no_requests'] = no_requests
@@ -768,16 +769,16 @@ async def update():
     #     if current_general == 'None':
     #         member = await guild.fetch_member(max_points_user)
     #         await discordAddRole(title,member,guild)
-    #         response_msg.add_field(name=title,value=f"A new {0} role (highest rank) has been assigned. Congrats! {1}".format(title,member.name),inline=False)
+    #         response_msg.add_field(name=title,value=f"A new {0} role (highest rank) has been assigned. Congrats! {1}".format(title,member.display_name),inline=False)
     #     elif current_general == max_points_user:
     #         member = await guild.fetch_member(current_general)
-    #         response_msg.add_field(name=title,value=f"{0} is the same as before. {1}".format(title,member.name),inline=False)
+    #         response_msg.add_field(name=title,value=f"{0} is the same as before. {1}".format(title,member.display_name),inline=False)
     #     else:
     #         oldmember = await guild.fetch_member(current_general)
     #         user_list[current_general]['general'] = 0
     #         newmember = await guild.fetch_member(max_points_user)
     #         await discordReplaceRole(title,oldmember,newmember,guild)
-    #         response_msg.add_field(name=title,value=f"Previous {0} (highest rank) has been replaced. Congrats! {1}".format(targetwords,newmember.name),inline=False)
+    #         response_msg.add_field(name=title,value=f"Previous {0} (highest rank) has been replaced. Congrats! {1}".format(targetwords,newmember.display_name),inline=False)
     #Added updated list back to original
 
     max_points = 0
@@ -795,18 +796,18 @@ async def update():
         member = await botHelper.grabTargetUser(max_points_user)
         if member != None:
             await botHelper.discordAddRole('The General', member)
-            response_msg.add_field(name="The General",value=f"A new The General role (highest rank) has been assigned. Congrats! ```{member.name}```",inline=False)
+            response_msg.add_field(name="The General",value=f"A new The General role (highest rank) has been assigned. Congrats! ```{member.display_name}```",inline=False)
     elif current_general == max_points_user:
         member = await botHelper.grabTargetUser(max_points_user)
         if member != None:
-            response_msg.add_field(name="The General",value=f"The General is the same as before. ```{member.name}```",inline=False)
+            response_msg.add_field(name="The General",value=f"The General is the same as before. ```{member.display_name}```",inline=False)
     else:
         oldmember = await botHelper.grabTargetUser(current_general)
         user_list[current_general]['general'] = 0
         newmember = await botHelper.grabTargetUser(max_points_user)
         if oldmember != None and newmember != None:
             await botHelper.discordReplaceRole('The General', oldmember,newmember)
-            response_msg.add_field(name="The General",value=f"Previous General (highest rank) has been replaced. Congrats! ```{newmember.name}```",inline=False)
+            response_msg.add_field(name="The General",value=f"Previous General (highest rank) has been replaced. Congrats! ```{newmember.display_name}```",inline=False)
 
     max_kda = 0
     max_kda_user = ''
@@ -823,18 +824,18 @@ async def update():
         member = await botHelper.grabTargetUser(max_kda_user)
         await botHelper.botHelper.discordAddRole('The Terminator',member)
         if member != None:
-            response_msg.add_field(name="The Terminator",value=f"A new The Terminator role (highest KDA) has been assigned. Congrats! ```{member.name}```",inline=False)
+            response_msg.add_field(name="The Terminator",value=f"A new The Terminator role (highest KDA) has been assigned. Congrats! ```{member.display_name}```",inline=False)
     elif current_terminator == max_kda_user:
         member = await botHelper.grabTargetUser(max_kda_user)
         if member != None:
-            response_msg.add_field(name="The Terminator",value=f"The Terminator is the same as before. ```{member.name}```",inline=False)
+            response_msg.add_field(name="The Terminator",value=f"The Terminator is the same as before. ```{member.display_name}```",inline=False)
     else:
         oldmember = await botHelper.grabTargetUser(current_terminator)
         user_list[current_terminator]['terminator'] = 0
         newmember = await botHelper.grabTargetUser(max_kda_user)
         if oldmember != None and newmember != None:
             await botHelper.discordReplaceRole("The Terminator", oldmember,newmember)
-            response_msg.add_field(name="The Terminator",value=f"Previous Terminator (highest KDA) has been replaced. Congrats! ```{member.name}```",inline=False)
+            response_msg.add_field(name="The Terminator",value=f"Previous Terminator (highest KDA) has been replaced. Congrats! ```{member.display_name}```",inline=False)
 
     max_adr = 0
     max_adr_user = ''
@@ -851,18 +852,18 @@ async def update():
         member = await botHelper.grabTargetUser(max_adr_user)
         await botHelper.discordAddRole("The Punisher", member)
         if member != None:
-            response_msg.add_field(name="The Punisher",value=f"A new The Punisher role (highest ADR) has been assigned. Congrats! ```{member.name}```",inline=False)
+            response_msg.add_field(name="The Punisher",value=f"A new The Punisher role (highest ADR) has been assigned. Congrats! ```{member.display_name}```",inline=False)
     elif current_punisher == max_adr_user:
         member = await botHelper.grabTargetUser(max_adr_user)
         if member != None:
-            response_msg.add_field(name="The Punisher",value=f"The Punisher is the same as before. ```{member.name}```",inline=False)
+            response_msg.add_field(name="The Punisher",value=f"The Punisher is the same as before. ```{member.display_name}```",inline=False)
     else:
         oldmember = await botHelper.grabTargetUser(current_punisher)
         user_list[current_punisher]['punisher'] = 0
         newmember = await botHelper.grabTargetUser(max_adr_user)
         if oldmember != None and newmember != None:
             await botHelper.discordReplaceRole("The Punisher", oldmember,newmember)
-            response_msg.add_field(name="The Punisher",value=f"Previous Punisher (highest ADR) has been replaced. Congrats! ```{member.name}```",inline=False)
+            response_msg.add_field(name="The Punisher",value=f"Previous Punisher (highest ADR) has been replaced. Congrats! ```{member.display_name}```",inline=False)
     response_msg.add_field(name="Sync completed",value="PUGB API requests completed: ```" +str(no_requests) + "```",inline=False)
     response_msg.add_field(name="Users linked",value="```" + str(len(user_list)) + "```",inline=False)
     response_msg.add_field(name="Finished",value=f"All player stats, ranks, roles have been updated. The next sync will take place at "+ ((timestamp + timedelta(hours=1)).strftime(r"%I:%M %p")),inline=False)
