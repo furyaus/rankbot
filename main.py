@@ -640,7 +640,7 @@ async def stats(ctx, user_ign):
     for user in user_list:
         if (user == user_ign):
             user_ign = user_list[user]['IGN']
-    response_msg = botHelper.respmsg("Stats for " + user_ign)
+    response_msg = botHelper.respmsg("Stats for PUBG IGN: " + user_ign)
     curr_header = header
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     initial_r = await botHelper.playerIgn(curr_header, user_ign)
@@ -675,7 +675,7 @@ async def mystats(ctx):
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     user = ctx.message.author
     user_id = user.id
-    response_msg = botHelper.respmsg("Stats for " + user.display_name)
+    response_msg = botHelper.respmsg("Stats for member: " + user.display_name)
     await botHelper.debugmessage(channel, 'got user id {0}'.format(user_id))
     if str(user_id) in user_list:
         curr_rank = user_list[str(user_id)]['Rank']
