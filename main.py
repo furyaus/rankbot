@@ -401,7 +401,7 @@ async def unlink(ctx):
         botHelper.set_data(users_file, user_list, 'remove users')
     except:
         pass
-    response_msg.add_field(name="Removed",value="```" + str(user.display_name) + "```",inline=False)
+    response_msg.add_field(name="Unlinked",value="```" + str(user.display_name) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
