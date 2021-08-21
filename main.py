@@ -618,7 +618,7 @@ async def link(ctx, user_ign):
             playerStats = playerStatistics.statsCalc(player_id, second_request)
             user_list = botHelper.updateUserList(user_list, user_id, user_ign,player_id, playerStats)
             await botHelper.discordAddRole(playerStats.pStats.new_rank, user,ctx)
-            response_msg.add_field(name="Rank:",value=f"```Current: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}```",inline=False)
+            response_msg.add_field(name="Stats:",value=f"```Current: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}\nKDA: {playerStats.pStats.KDA}\n ADR: {playerStats.pStats.ADR}```",inline=False)
             response_msg.add_field(name="Saved:",value=f"Updated stats and saved to file.",inline=False)
     botHelper.set_data(users_file, user_list, 'link')
     response_msg.timestamp = datetime.datetime.utcnow()
@@ -652,16 +652,14 @@ async def stats(ctx, user_ign):
         second_request = await botHelper.playerInfo(player_id, curr_header)
         playerStats = playerStatistics.statsCalc(player_id, second_request)
         response_msg.add_field(name="PUBG IGN:",value=f"```{user_ign}```",inline=False)
-        response_msg.add_field(name="Rank:",value=f"```Current: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}```",inline=False)
-        response_msg.add_field(name="KDA:",value=f"```{playerStats.pStats.KDA}```",inline=False)
-        response_msg.add_field(name="ADR:",value=f"```{playerStats.pStats.ADR}```",inline=False)
+        response_msg.add_field(name="Stats:",value=f"```Current: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}\nKDA: {playerStats.pStats.KDA}\n ADR: {playerStats.pStats.ADR}```",inline=False)
         response_msg.add_field(name="Live stats:",value=f"Not saved to file.",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
     data_list['no_requests'] = no_requests
     botHelper.set_data(data_file, data_list, 'stats')
 
-# Pull stats for current user and update database
+# Pull stats for current user and update database1
 @client.command()
 async def mystats(ctx):
     global keys
@@ -691,9 +689,7 @@ async def mystats(ctx):
         if playerStats.pStats.new_rank != curr_rank:
             await botHelper.discordRemoveAndAddRole(curr_rank, playerStats.pStats.new_rank, user, ctx)
         response_msg.add_field(name="PUBG IGN:",value=f"```{user_ign}```",inline=False)
-        response_msg.add_field(name="Rank:",value=f"```Current: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}```",inline=False)
-        response_msg.add_field(name="KDA:",value=f"```{playerStats.pStats.KDA}```",inline=False)
-        response_msg.add_field(name="ADR:",value=f"```{playerStats.pStats.ADR}```",inline=False)
+        response_msg.add_field(name="Stats:",value=f"```Current: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}\nKDA: {playerStats.pStats.KDA}\n ADR: {playerStats.pStats.ADR}```",inline=False)
         response_msg.add_field(name="Saved:",value=f"Updated stats and saved to file.",inline=False)
         botHelper.set_data(users_file, user_list, 'update')
         await botHelper.debugmessage(channel, 'setting user data for {0}'.format(player_id))
