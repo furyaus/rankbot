@@ -600,7 +600,7 @@ async def link(ctx, user_ign):
     user_list = botHelper.get_data(users_file)
     data_list = botHelper.get_data(data_file)
     no_requests = data_list['no_requests']
-    response_msg = botHelper.respmsg("Linking " + user_ign)
+    response_msg = botHelper.respmsg("Linking IGN with discord user: " + user_ign)
     curr_header = header
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     user = ctx.message.author
@@ -618,8 +618,8 @@ async def link(ctx, user_ign):
             playerStats = playerStatistics.statsCalc(player_id, second_request)
             user_list = botHelper.updateUserList(user_list, user_id, user_ign,player_id, playerStats)
             await botHelper.discordAddRole(playerStats.pStats.new_rank, user,ctx)
-            response_msg.add_field(name="Rank",value=f"Current rank is: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest rank is: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}",inline=False)
-            response_msg.add_field(name="Done",value="Discord linked with PUBG IGN and stats saved to file.",inline=False)
+            response_msg.add_field(name="Rank:",value=f"```Current: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}```",inline=False)
+            response_msg.add_field(name="Saved:",value=f"Updated stats and saved to file.",inline=False)
     botHelper.set_data(users_file, user_list, 'link')
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
