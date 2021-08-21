@@ -600,7 +600,7 @@ async def link(ctx, user_ign):
     user_list = botHelper.get_data(users_file)
     data_list = botHelper.get_data(data_file)
     no_requests = data_list['no_requests']
-    response_msg = botHelper.respmsg("Linking IGN with discord user: " + user_ign)
+    response_msg = botHelper.respmsg("Linking IGN with user: " + user_ign)
     curr_header = header
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     user = ctx.message.author
