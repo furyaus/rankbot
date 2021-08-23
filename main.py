@@ -384,9 +384,10 @@ async def remove(ctx, member: discord.Member):
     try:
         del user_list[str(member.id)]
         botHelper.set_data(users_file, user_list, 'remove users')
+        response_msg.add_field(name="Removed",value="```" + str(member.display_name) + "```",inline=False)
     except:
+        response_msg.add_field(name="Failed",value="```Failed to remove```",inline=False)
         pass
-    response_msg.add_field(name="Removed",value="```" + str(member.display_name) + "```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
@@ -399,9 +400,9 @@ async def unlink(ctx):
     try:
         del user_list[str(user.id)]
         botHelper.set_data(users_file, user_list, 'remove users')
+        response_msg.add_field(name="Unlinked",value="```" + str(user.display_name) + "```",inline=False)
     except:
-        pass
-    response_msg.add_field(name="Unlinked",value="```" + str(user.display_name) + "```",inline=False)
+        response_msg.add_field(name="Failed",value="```Failed to unlink - Contact admin```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
