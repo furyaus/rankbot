@@ -601,7 +601,7 @@ async def link(ctx, user_ign):
     user_list = botHelper.get_data(users_file)
     data_list = botHelper.get_data(data_file)
     no_requests = data_list['no_requests']
-    response_msg = botHelper.respmsg("Linking IGN with user: " + user_ign)
+    response_msg = botHelper.respmsg("Linking IGN: " + user_ign)
     curr_header = header
     curr_header['Authorization'] = keys[no_requests % (len(keys))]
     user = ctx.message.author
@@ -698,7 +698,7 @@ async def mystats(ctx):
         botHelper.set_data(data_file, data_list, 'update')
         await botHelper.debugmessage(channel, 'setting data call for {0}'.format(player_id))
     else:
-        response_msg.add_field(name="Rank",value=f"You currently don't have a rank and your IGN isn't added to the list so use .link command to link",inline=False)
+        response_msg.add_field(name="Rank",value=f"Your IGN isn't added to the list so use .link IGN to link",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
