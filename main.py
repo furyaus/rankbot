@@ -410,7 +410,7 @@ async def unlink(ctx):
 async def on_member_join(member):
     channel = client.get_channel(botlog_channel)
     member = await botHelper.grabTargetUser(member.id)
-    await botHelper.discordAddRole('101 Club', member)
+    await botHelper.discordAddRole('101 PUBG Community', member)
     response_msg = botHelper.respmsg()
     response_msg.add_field(name="Server join",value=f"{member.display_name}",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
