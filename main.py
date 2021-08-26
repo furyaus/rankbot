@@ -53,6 +53,7 @@ streaming_role = int(os.environ['streaming_role'])
 admin_roles = ["Moderators","Admin","Boss"]
 no_requests = 0
 curr_key = 0
+update_running = False
 loop_timer = 0.05  #0.05 is 5 minutes #0.005 is 30 seconds
 rankroles = ["Unranked","Bronze 5","Bronze 4","Bronze 3","Bronze 2","Bronze 1","Silver 5","Silver 4","Silver 3","Silver 2","Silver 1","Gold 5","Gold 4","Gold 3","Gold 2","Gold 1","Platinum 5","Platinum 4","Platinum 3","Platinum 2","Platinum 1","Diamond 5","Diamond 4","Diamond 3","Diamond 2","Diamond 1","Master 1"]
 
@@ -379,6 +380,10 @@ async def syncroles(ctx):
 @client.command()
 @commands.has_any_role(admin_roles[0],admin_roles[1],admin_roles[2])
 async def remove(ctx, member: discord.Member):
+    global update_running
+    while update_running:
+        await asyncio.sleep(3)
+    update_running = True
     user_list = botHelper.get_data(users_file)
     response_msg = botHelper.respmsg()
     try:
@@ -390,10 +395,15 @@ async def remove(ctx, member: discord.Member):
         pass
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
+    update_running = False
 
 # Remove user from JSON file
 @client.command()
 async def unlink(ctx):
+    global update_running
+    while update_running:
+        await asyncio.sleep(3)
+    update_running = True
     user = ctx.message.author
     user_list = botHelper.get_data(users_file)
     response_msg = botHelper.respmsg()
@@ -405,6 +415,7 @@ async def unlink(ctx):
         response_msg.add_field(name="Failed",value="```Failed to unlink - Contact admin```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
+    update_running = False
 
 # On member join add role and report
 @client.event
@@ -436,6 +447,10 @@ async def on_member_update(before, after):
 # Remove user from JSON when they leave server and report
 @client.event
 async def on_member_remove(member):
+    global update_running
+    while update_running:
+        await asyncio.sleep(3)
+    update_running = True
     user_list = botHelper.get_data(users_file)
     channel = client.get_channel(botlog_channel)
     response_msg = botHelper.respmsg()
@@ -448,6 +463,7 @@ async def on_member_remove(member):
         pass
     response_msg.timestamp = datetime.datetime.utcnow()
     await channel.send(embed=response_msg)
+    update_running = False
 
 # Ban function
 @client.command()
@@ -529,6 +545,10 @@ async def userinfo(ctx, member: discord.Member):
 # Top 25 Updates
 @tasks.loop(hours=loop_timer)
 async def top25update():
+    global update_running
+    while update_running:
+        await asyncio.sleep(3)
+    update_running = True
     print('Starting top 25 update')
     user_list = botHelper.get_data(users_file)
     reportTypeMessage = ''
@@ -591,6 +611,7 @@ async def top25update():
             print('Editing the message in top25 ' + reportType)
             await message.edit(embed=response_msg)
         print("top25 {0} updated".format(reportTypeMessage))
+    update_running = False
 
 # Link Discord user id with PUBG IGN and create user
 @client.command()
@@ -598,6 +619,10 @@ async def link(ctx, user_ign):
     global keys
     global header
     global no_requests
+    global update_running
+    while update_running:
+        await asyncio.sleep(3)
+    update_running = True
     user_list = botHelper.get_data(users_file)
     data_list = botHelper.get_data(data_file)
     no_requests = data_list['no_requests']
@@ -624,6 +649,7 @@ async def link(ctx, user_ign):
     botHelper.set_data(users_file, user_list, 'link')
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
+    update_running = False
 
 # Check my stats - live, direct api data response - allows any PUBG IGN
 @client.command(aliases=['rank'])
@@ -631,6 +657,10 @@ async def stats(ctx, user_ign):
     global keys
     global header
     global no_requests
+    global update_running
+    while update_running:
+        await asyncio.sleep(3)
+    update_running = True
     data_list = botHelper.get_data(data_file)
     no_requests = data_list['no_requests']
     user_list = botHelper.get_data(users_file)
@@ -659,6 +689,7 @@ async def stats(ctx, user_ign):
     await ctx.send(embed=response_msg)
     data_list['no_requests'] = no_requests
     botHelper.set_data(data_file, data_list, 'stats')
+    update_running = False
 
 # Pull stats for current user and update database1
 @client.command()
@@ -666,6 +697,10 @@ async def mystats(ctx):
     global keys
     global header
     global no_requests
+    global update_running
+    while update_running:
+        await asyncio.sleep(3)
+    update_running = True
     user_list = botHelper.get_data(users_file)
     data_list = botHelper.get_data(data_file)
     no_requests = data_list['no_requests']
@@ -701,6 +736,7 @@ async def mystats(ctx):
         response_msg.add_field(name="Rank",value=f"Your IGN isn't added to the list so use .link IGN to link",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
+    update_running = False
 
 # Main program - full resync all data, ranks, roles and stats
 @tasks.loop(hours=1.0)
@@ -708,6 +744,10 @@ async def update():
     global keys
     global header
     global no_requests
+    global update_running
+    while update_running:
+        await asyncio.sleep(3)
+    update_running = True
     aest = timezone('Australia/Melbourne')
     timestamp = datetime.datetime.now(aest)
     user_list = botHelper.get_data(users_file)
@@ -864,8 +904,6 @@ async def update():
     response_msg.add_field(name="Sync completed",value="PUGB API requests completed: ```" +str(no_requests) + "```",inline=False)
     response_msg.add_field(name="Users linked",value="```" + str(len(user_list)) + "```",inline=False)
     response_msg.add_field(name="Finished",value=f"All player stats, ranks, roles have been updated. The next sync will take place at "+ ((timestamp + timedelta(hours=1)).strftime(r"%I:%M %p")),inline=False)
-    print('Updated everyones stats')
-    botHelper.set_data(users_file, user_list, 'update everyone stats')
     response_msg.timestamp = datetime.datetime.utcnow()
     if (newmessage == True):
         print('Posting a new message in bot-info')
@@ -874,7 +912,10 @@ async def update():
         print('Editing the message in bot-info')
         await message.edit(embed=response_msg)
     data_list['no_requests'] = no_requests
+    botHelper.set_data(users_file, user_list, 'update everyone stats')
     botHelper.set_data(data_file, data_list, 'update everyone stats')
+    print('Updated everyones stats')
+    update_running = False
 
 # Resync all
 @client.command()
