@@ -266,7 +266,7 @@ async def adminhelp(ctx):
     response_msg.add_field(name=".syncroles",value="Goes through every user, removes roles and adds current rank role```.syncroles```",inline=False)
     response_msg.add_field(name=".remove",value="Will allow admin to remove link between Discord user id and PUBG IGN. User can then complete a link again. ```.remove @P4```",inline=False)
     response_msg.add_field(name=".resync",value="This will force a full resync for all stored players with PUBG API. 50 users per minute, wait till complete. ```.resync```",inline=False)
-    response_msg.add_field(name=".lobby",value="This will display a message in announcement chan with lobby password counting down until start ```.lobby 60 yeet```",inline=False)
+    response_msg.add_field(name=".lobby",value="This will display a message in announcement chan with lobby password counting down until start ```.lobby Game2 60 yeet lobby-1-info```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
 
@@ -288,8 +288,8 @@ async def inspire(ctx):
 # Lobby up
 @client.command()
 @commands.has_any_role(admin_roles[0],admin_roles[1],admin_roles[2])
-async def lobby(ctx, timesecs, password):
-    channel = client.get_channel(announce_channel)
+async def lobby(ctx, game, timesecs, password, channel: discord.TextChannel):
+    await ctx.send(f"Lobby annoucement made to {channel.name} for game {game} in {timesecs} seconds with password: {password}")
     run = 0
     try:
         timer = int(timesecs)
@@ -299,12 +299,9 @@ async def lobby(ctx, timesecs, password):
         timer = 10
     while timer != 0:
         response_msg = botHelper.respmsg()
-        response_msg.add_field(
-            name="Lobby up",
-            value="The lobby starting in {0} seconds".format(timer),inline=False)
-        response_msg.add_field(
-            name="Lobby password",
-            value="The lobby password: {0}".format(password),inline=False)
+        response_msg.add_field(name="Lobby up",value="```The lobby starting in {0} seconds```".format(timer),inline=False)
+        response_msg.add_field(name="Game",value="```{0}```".format(game),inline=False)
+        response_msg.add_field(name="Lobby password",value="```{0}```".format(password),inline=False)
         response_msg.timestamp = datetime.datetime.utcnow()
         if run == 0:
             msg = await channel.send(embed=response_msg)
@@ -314,9 +311,13 @@ async def lobby(ctx, timesecs, password):
         await asyncio.sleep(1)
         timer -= 1
     response_msg = botHelper.respmsg()
-    response_msg.add_field(name="Lobby starting",value="The lobby starting now!",inline=False)
+    response_msg.add_field(name="Lobby starting",value="```The lobby starting now!```",inline=False)
+    response_msg.add_field(name="Game",value="```{0}```".format(game),inline=False)
+    response_msg.add_field(name="Lobby password",value="```{0}```".format(password),inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await msg.edit(embed=response_msg)
+    await asyncio.sleep(1680) # waiting 20mins to delete
+    await msg.delete()
 
 # Say
 @client.command()
