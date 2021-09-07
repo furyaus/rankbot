@@ -432,19 +432,20 @@ async def on_member_join(member):
 # Streaming Role
 @client.event
 async def on_member_update(before, after):
-    guild = client.get_guild(d_server)
-    streaming_role = discord.utils.get(guild.roles, name='Streaming')
-    member = await botHelper.grabTargetUser(before.id)
-    streaming = [i for i in after.activities if str(i.type) == "ActivityType.streaming"]
-    if streaming:
-        if streaming_role not in after.roles:
-            print(f"{after.display_name} is streaming")
-            await botHelper.discordAddRole('Streaming', member)
-    else:
-        if streaming_role in after.roles:
-            print(f"{after.display_name} is not streaming")
-            await botHelper.discordRemoveRole('Streaming', member)
-
+    if before.activities != after.activities:
+        guild = client.get_guild(d_server)
+        streaming_role = discord.utils.get(guild.roles, name='Streaming')
+        member = await botHelper.grabTargetUser(before.id)
+        streaming = [i for i in after.activities if str(i.type) == "ActivityType.streaming"]
+        if streaming:
+            if streaming_role not in after.roles:
+                print(f"{after.display_name} is streaming")
+                await botHelper.discordAddRole('Streaming', member)
+        else:
+            if streaming_role in after.roles:
+                print(f"{after.display_name} is not streaming")
+                await botHelper.discordRemoveRole('Streaming', member)
+    
 # Remove user from JSON when they leave server and report
 @client.event
 async def on_member_remove(member):
@@ -643,7 +644,7 @@ async def link(ctx, user_ign):
             player_id = str(player_info['data'][0]['id'].replace('account.', ''))
             second_request = await botHelper.playerInfo(player_id, curr_header)
             playerStats = playerStatistics.statsCalc(player_id, second_request)
-            user_list = botHelper.updateUserList(user_list, user_id, user_ign,player_id, playerStats)
+            user_list = botHelper.updateUserList(user_list, user_id, user_ign, player_id, playerStats)
             await botHelper.discordAddRole(playerStats.pStats.new_rank, user,ctx)
             response_msg.add_field(name="Stats:",value=f"```Current: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}\nKDA: {playerStats.pStats.KDA}\nADR: {playerStats.pStats.ADR}```",inline=False)
             response_msg.add_field(name="Saved:",value=f"Updated stats and saved to file.",inline=False)
@@ -722,7 +723,7 @@ async def mystats(ctx):
         second_request = await botHelper.playerInfo(player_id, curr_header)
         playerStats = playerStatistics.statsCalc(player_id, second_request)
         await botHelper.debugmessage(channel, 'got player stats for id {0}'.format(player_id))
-        user_list = botHelper.updateUserList(user_list, user_id, user_ign,player_id, playerStats,curr_punisher, curr_terminator,curr_general)
+        user_list = botHelper.updateUserList(user_list, user_id, user_ign, player_id, playerStats,curr_punisher, curr_terminator,curr_general)
         if playerStats.pStats.new_rank != curr_rank:
             await botHelper.discordRemoveAndAddRole(curr_rank, playerStats.pStats.new_rank, user, ctx)
         response_msg.add_field(name="PUBG IGN:",value=f"```{user_ign}```",inline=False)
