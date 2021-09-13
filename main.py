@@ -648,7 +648,8 @@ async def link(ctx, user_ign):
             await botHelper.discordAddRole(playerStats.pStats.new_rank, user,ctx)
             response_msg.add_field(name="Stats:",value=f"```Current: {playerStats.pStats.c_rank} {playerStats.pStats.c_tier}: {playerStats.pStats.c_rank_points}\nHighest: {playerStats.pStats.h_rank} {playerStats.pStats.h_tier}: {playerStats.pStats.h_rank_points}\nKDA: {playerStats.pStats.KDA}\nADR: {playerStats.pStats.ADR}```",inline=False)
             response_msg.add_field(name="Saved:",value=f"Updated stats and saved to file.",inline=False)
-    botHelper.set_data(users_file, user_list, 'link')
+            botHelper.set_data(users_file, user_list, 'link')
+    botHelper.set_data(data_file, data_list, 'stats')
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
     update_running = False
