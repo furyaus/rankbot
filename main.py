@@ -380,20 +380,19 @@ async def syncroles(ctx):
 # Remove user from JSON file
 @client.command()
 @commands.has_any_role(admin_roles[0],admin_roles[1],admin_roles[2])
-async def remove(ctx, member: discord.Member):
+async def remove(ctx, user: discord.Member):
     global update_running
     while update_running:
         await asyncio.sleep(3)
     update_running = True
     user_list = botHelper.get_data(users_file)
     response_msg = botHelper.respmsg()
-    try:
-        del user_list[str(member.id)]
+    removed_user = user_list.pop(str(user.id), None)
+    if removed_user:
+        response_msg.add_field(name="Unlinked",value="```" + str(user.display_name) + "```",inline=False)
         botHelper.set_data(users_file, user_list, 'remove users')
-        response_msg.add_field(name="Removed",value="```" + str(member.display_name) + "```",inline=False)
-    except:
+    else:
         response_msg.add_field(name="Failed",value="```Failed to remove```",inline=False)
-        pass
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
     update_running = False
@@ -408,11 +407,11 @@ async def unlink(ctx):
     user = ctx.message.author
     user_list = botHelper.get_data(users_file)
     response_msg = botHelper.respmsg()
-    try:
-        del user_list[str(user.id)]
-        botHelper.set_data(users_file, user_list, 'remove users')
+    removed_user = user_list.pop(str(user.id), None)
+    if removed_user:
         response_msg.add_field(name="Unlinked",value="```" + str(user.display_name) + "```",inline=False)
-    except:
+        botHelper.set_data(users_file, user_list, 'remove users')
+    else:
         response_msg.add_field(name="Failed",value="```Failed to unlink - Contact admin```",inline=False)
     response_msg.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=response_msg)
