@@ -210,14 +210,11 @@ class botHelper():
         while i <= retryMax:
           try:
             member = await guild.fetch_member(user)
-            #print("{0} found after {1} retires".format(member.id,i))
             return member
           except Exception as e:
             if i == retryMax:
               await botHelper.reporterror('Error occured getting member info for {0} after 5 retries. {1}'.format(user,e))
           i=i+1
-        if member == None:
-          print("{0} not found after {1} retires".format(member.id,i))
         return member
 
 # Catch unknown commands
@@ -380,16 +377,16 @@ async def syncroles(ctx):
 # Remove user from JSON file
 @client.command()
 @commands.has_any_role(admin_roles[0],admin_roles[1],admin_roles[2])
-async def remove(ctx, user: discord.Member):
+async def remove(ctx, userid):
     global update_running
     while update_running:
         await asyncio.sleep(3)
     update_running = True
     user_list = botHelper.get_data(users_file)
     response_msg = botHelper.respmsg()
-    removed_user = user_list.pop(str(user.id), None)
+    removed_user = user_list.pop(str(userid), None)
     if removed_user:
-        response_msg.add_field(name="Unlinked",value="```" + str(user.display_name) + "```",inline=False)
+        response_msg.add_field(name="Unlinked",value="```"+str(userid)+"```",inline=False)
         botHelper.set_data(users_file, user_list, 'remove users')
     else:
         response_msg.add_field(name="Failed",value="```Failed to remove```",inline=False)
@@ -777,48 +774,6 @@ async def update():
                 await botHelper.discordRemoveAndAddRole(curr_rank, playerStats.pStats.new_rank, member)
 
     user_list = user_list_na
-    #############################################################
-    # Bittne off more then I can chew here, I want to revist this role part and make it easier use less code for each
-    # Ahh I feel like that every time I work on any project, that is currently working but at the same time
-    # I want it to be more optimsed and better!!!
-    #############################################################
-    # unique_member_titles = ['The General','The Terminator','The Punisher']
-    #Default each title to None
-    # current_general = 'None'
-    # current_terminator = 'None'
-    # current_punisher = 'None'
-    # targetstat = ''
-    # targetwords = ''
-    # for title in unique_member_titles:
-    #     #General work
-    #     if(title=='The General'):
-    #         max_points = 0
-    #         max_points_user = ''
-    #         for user in user_list:
-    #             if user_list[user]['general'] == 1:
-    #                 current_general = user
-    #         for user in user_list:
-    #             if (user_list[user]['c_rank_points'] > max_points):
-    #                 max_points = user_list[user]['c_rank_points']
-    #                 max_points_user = user
-    #         user_list[max_points_user]['general'] = 1
-    #         targetstat = 'general'
-    #         targetwords = 'General'
-
-    #     if current_general == 'None':
-    #         member = await guild.fetch_member(max_points_user)
-    #         await discordAddRole(title,member,guild)
-    #         response_msg.add_field(name=title,value=f"A new {0} role (highest rank) has been assigned. Congrats! {1}".format(title,member.display_name),inline=False)
-    #     elif current_general == max_points_user:
-    #         member = await guild.fetch_member(current_general)
-    #         response_msg.add_field(name=title,value=f"{0} is the same as before. {1}".format(title,member.display_name),inline=False)
-    #     else:
-    #         oldmember = await guild.fetch_member(current_general)
-    #         user_list[current_general]['general'] = 0
-    #         newmember = await guild.fetch_member(max_points_user)
-    #         await discordReplaceRole(title,oldmember,newmember,guild)
-    #         response_msg.add_field(name=title,value=f"Previous {0} (highest rank) has been replaced. Congrats! {1}".format(targetwords,newmember.display_name),inline=False)
-    #Added updated list back to original
 
     max_points = 0
     max_points_user = ''
