@@ -61,6 +61,12 @@ rankroles = ["Unranked","Bronze 5","Bronze 4","Bronze 3","Bronze 2","Bronze 1","
 keys = ["Bearer " + API_key_fury, "Bearer " + API_key_ocker,"Bearer " + API_key_p4, "Bearer " + API_key_progdog,"Bearer " + API_key_fingers]
 header = {"Authorization": "Bearer " + API_key_fury,"Accept": "application/vnd.api+json"}
 
+#Save file fix
+def save(filePath="users.json", **kwargs):
+  while True:
+    with open(filePath, "w") as f:
+      f.write(json.dumps(kwargs))
+
 # Standard bot reponse message embed format
 class botHelper():
     def respmsg(titleText=None, descText=None):
@@ -88,8 +94,8 @@ class botHelper():
     # Close user list and store in JSON file
     def set_data(file, data, comment):
         with open(file, 'w') as file:
-            print('update to {0} because {1}'.format(file.name, comment))
             json.dump(data, file, indent=2)
+            print('update to {0} because {1}'.format(file.name, comment))
 
     # Confirm legitmate PUBG IGN
     async def playerIgn(curr_header, user_ign):
@@ -895,6 +901,7 @@ async def on_ready():
     update.start()
     top25update.start()
     serverstats.start()
+    await save()
 
 # Run the bot
 client.run(bot_token)
