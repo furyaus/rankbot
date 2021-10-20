@@ -898,10 +898,10 @@ async def resync(ctx):
 # main
 @client.event
 async def on_ready():
+    await save()
     update.start()
     top25update.start()
     serverstats.start()
-    await save()
 
 # Run the bot
 client.run(bot_token)
