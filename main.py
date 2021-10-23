@@ -892,13 +892,9 @@ async def resync(ctx):
 # main
 @client.event
 async def on_ready():
-    user_list = botHelper.get_data(users_file)
-    data_list = botHelper.get_data(data_file)
     update.start()
     top25update.start()
     serverstats.start()
-    await botHelper.set_data(users_file, user_list, 'started')
-    await botHelper.set_data(data_file, data_list, 'started')
 
 # Run the bot
 client.run(bot_token)
