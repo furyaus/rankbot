@@ -816,7 +816,7 @@ async def update():
     user_list[max_kda_user]['terminator'] = 1
     if current_terminator == 'None':
         member = await botHelper.grabTargetUser(max_kda_user)
-        await botHelper.botHelper.discordAddRole('The Terminator',member)
+        await botHelper.discordAddRole('The Terminator',member)
         if member != None:
             response_msg.add_field(name="The Terminator",value=f"A new The Terminator role (highest KDA) has been assigned. Congrats! ```{member.display_name}```",inline=False)
     elif current_terminator == max_kda_user:
