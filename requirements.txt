@@ -1,4 +1,5 @@
 discord
+requests
 aiohttp
 async-timeout
 attrs
@@ -8,3 +9,5 @@ multidict
 pytz
 typing-extensions
 yarl
+requests
+json
