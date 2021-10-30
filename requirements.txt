@@ -1,0 +1,12 @@
+discord
+requests
+aiohttp
+async-timeout
+attrs
+chardet
+idna
+multidict
+pytz
+typing-extensions
+yarl
+requests
