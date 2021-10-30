@@ -1,1 +1,10 @@
-discord.py
+discord
+aiohttp
+async-timeout
+attrs
+chardet
+idna
+multidict
+pytz
+typing-extensions
+yarl
