@@ -58,5 +58,3 @@ class statsCalc:
             KDA = 0
 
         return statsCalc.playerStats(c_rank, c_tier, c_rank_points, h_rank, h_tier, h_rank_points, games_played, KDA, season_wins, season_damage, new_rank, ADR,team_kills)
-
-

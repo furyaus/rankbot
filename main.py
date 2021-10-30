@@ -13,6 +13,8 @@ from discord.ext import commands, tasks
 from operator import itemgetter
 from datetime import timedelta
 from pytz import timezone
+import dropbox
+from dropbox.files import WriteMode
 
 # Setup bot and command
 clientintents = discord.Intents.all()
@@ -24,8 +26,8 @@ users_file = "users.json"
 data_file = "data.json"
 password_set = 0
 password = ''
-fingersraw_file = "fingersdata.json"
 curr_season = "division.bro.official.pc-2018-14"
+d_access_token = os.environ['d_access_token']
 bot_token = os.environ['discord_token']
 API_key_fury = os.environ['API_key_fury']
 API_key_ocker = os.environ['API_key_ocker']
@@ -57,6 +59,9 @@ update_running = False
 loop_timer = 0.05  #0.05 is 5 minutes #0.005 is 30 seconds
 rankroles = ["Unranked","Bronze 5","Bronze 4","Bronze 3","Bronze 2","Bronze 1","Silver 5","Silver 4","Silver 3","Silver 2","Silver 1","Gold 5","Gold 4","Gold 3","Gold 2","Gold 1","Platinum 5","Platinum 4","Platinum 3","Platinum 2","Platinum 1","Diamond 5","Diamond 4","Diamond 3","Diamond 2","Diamond 1","Master 1"]
 
+# using an access token
+dbx = dropbox.Dropbox(d_access_token)
+
 # Keys in order - furyaus, ocker, p4, progdog, fingers
 keys = ["Bearer " + API_key_fury, "Bearer " + API_key_ocker,"Bearer " + API_key_p4, "Bearer " + API_key_progdog,"Bearer " + API_key_fingers]
 header = {"Authorization": "Bearer " + API_key_fury,"Accept": "application/vnd.api+json"}
@@ -82,6 +87,7 @@ class botHelper():
 
     # Open user list and load into arrray
     def get_data(file):
+        restore(file)
         with open(file, "r") as file:
             return json.loads(file.read())
 
@@ -90,6 +96,7 @@ class botHelper():
         with open(file, 'w') as file:
             print('update to {0} because {1}'.format(file.name, comment))
             json.dump(data, file, indent=2)
+        backup(file.name)
 
     # Confirm legitmate PUBG IGN
     async def playerIgn(curr_header, user_ign):
@@ -216,6 +223,17 @@ class botHelper():
               await botHelper.reporterror('Error occured getting member info for {0} after 5 retries. {1}'.format(user,e))
           i=i+1
         return member
+
+# Uploads contents of LOCALFILE to Dropbox
+def backup(file):
+    print('Backup: '+file)
+    with open(file, 'rb') as f:
+        dbx.files_upload(f.read(), '/'+file, mode=WriteMode('overwrite'))
+
+# Restores content of Dropbox to local file
+def restore(file):
+    print('Restore: '+file)
+    dbx.files_download_to_file(file, '/'+file)
 
 # Catch unknown commands
 @client.event

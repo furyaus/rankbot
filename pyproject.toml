@@ -8,6 +8,8 @@ authors = ["furyaus <<>>"]
 python = "^3.8"
 discord = "^1.7.3"
 pytz = "^2021.1"
+PyGithub = "^1.55"
+dropbox = "^11.22.0"
 
 [tool.poetry.dev-dependencies]
 
