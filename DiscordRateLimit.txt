@@ -1,0 +1,9 @@
+You are being rate limited
+What happened?
+The owner of this website (discord.com) has banned you temporarily from accessing this website.
+
+
+I found a fix!
+
+It turns out that you can run kill 1 in the shell tab to destroy the current container and switch to a new one. 
+This fixed it for me.
