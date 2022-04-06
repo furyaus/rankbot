@@ -915,4 +915,7 @@ async def on_ready():
     serverstats.start()
 
 # Run the bot
-client.run(bot_token)
+try:
+    client.run(bot_token)
+except:
+    os.system("kill 1")
