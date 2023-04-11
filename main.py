@@ -203,6 +203,8 @@ class botHelper():
           message = await channel.fetch_message(messageid)
           newmessage = False
         except Exception as e:
+          print('Error finding {0} sleeping 60sec for: {1}'.format(messageid,e))
+          await asyncio.sleep(61)
           if i == retryMax:
             await botHelper.debugmessage(channel,"{0} exception occurred couldn't find {1} message after 5 retries. {2}".format(reportType, messageid,e))
         i=i+1
@@ -219,6 +221,8 @@ class botHelper():
             member = await guild.fetch_member(user)
             return member
           except Exception as e:
+            print('Error finding {0} sleeping 60sec for: {1}'.format(user,e))
+            await asyncio.sleep(61)
             if i == retryMax:
               await botHelper.reporterror('Error occured getting member info for {0} after 5 retries. {1}'.format(user,e))
           i=i+1
