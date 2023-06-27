@@ -26,7 +26,7 @@ users_file = "users.json"
 data_file = "data.json"
 password_set = 0
 password = ''
-curr_season = "division.bro.official.pc-2018-23"
+curr_season = "division.bro.official.pc-2018-24"
 d_access_token = os.environ['d_access_token']
 bot_token = os.environ['discord_token']
 API_key_fury = os.environ['API_key_fury']
@@ -533,6 +533,7 @@ async def serverstats():
     messageResults = await botHelper.target_message(stats_channel,stats_msg,'Stats Message')
     newmessage = messageResults[1]
     message = messageResults[0]
+    #newmessage = True
     response_msg = botHelper.respmsg()
     response_msg.add_field(name="Users",value="Number of 101 Club members: ```" +str(guild.member_count) + "```",inline=False)
     response_msg.add_field(name="Channels",value="Number of channels in the 101 Club: ```" +str(len(guild.channels)) + "```",inline=False)
